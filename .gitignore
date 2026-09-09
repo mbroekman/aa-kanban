@@ -1,0 +1,25 @@
+/build/
+/dist/
+/*.egg-info/
+.idea/
+.tox/
+htmlcov/
+node_modules/
+
+*.log
+*.tmp
+*.bak
+*.old
+__pycache__
+.coverage
+/coverage.xml
+alliance_auth.sqlite3
+db.sqlite3
+*.sqlite3
+tmp_env/
+.venv/
+
+# Tijdelijke (scratch) scripts in de root
+/*test*.py
+/append_task.py
+/make_migrations.py
