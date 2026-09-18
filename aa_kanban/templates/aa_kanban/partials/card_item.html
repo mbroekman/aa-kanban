@@ -1,0 +1,39 @@
+{% load i18n %}
+{# Partial: één kaart-item, gebruikt door board_detail.html en create_card HTMX response #}
+<div class="card kanban-card shadow-sm border-0 mb-2 p-3 bg-white cursor-grab"
+     data-card-id="{{ card.id }}"
+     data-move-url="{% url 'aa_kanban:move_card' card.id %}"
+     data-bs-toggle="modal"
+     data-bs-target="#cardModal"
+     hx-get="{% url 'aa_kanban:card_modal' card.id %}"
+     hx-target="#cardModalBody">
+
+    {% if card.labels.all %}
+        <div class="d-flex flex-wrap gap-1 mb-2">
+            {% for label in card.labels.all %}
+                <span class="badge bg-{{ label.color }} text-white" style="font-size: 0.7rem;">
+                    {{ label.name }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="card-title text-dark fw-semibold mb-2" style="font-size: 0.95rem;">
+        {{ card.title }}
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-2 pt-1 text-muted" style="font-size: 0.8rem;">
+        <div>
+            {% if card.due_date %}
+                <span><i class="far fa-calendar-alt me-1 text-warning"></i>{{ card.due_date|date:"M d" }}</span>
+            {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-1">
+            {% for assignee in card.assignees.all %}
+                <span class="badge bg-light text-dark border" title="{{ assignee.username }}">
+                    <i class="fas fa-user me-1 text-secondary"></i>{{ assignee.username|slice:":6" }}
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+</div>

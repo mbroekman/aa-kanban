@@ -1,18 +1,18 @@
-# AA Trello
+# AA Kanban
 
-Alliance Auth plugin skeleton for Trello integration.
+Alliance Auth plugin for native Kanban boards.
 
 ## Installation
 
 ```bash
-pip install aa-trello
+pip install aa-kanban
 ```
 
 Add to `local.py`:
 
 ```python
 INSTALLED_APPS += [
-    "aa_trello",
+    "aa_kanban",
 ]
 ```
 

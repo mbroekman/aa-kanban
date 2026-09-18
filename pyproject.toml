@@ -5,12 +5,12 @@ requires = [
 ]
 
 [project]
-name = "aa-trello"
-description = "Trello Plugin for Alliance Auth"
+name = "aa-kanban"
+description = "Kanban Plugin for Alliance Auth"
 readme = "README.md"
 keywords = [
     "allianceauth",
-    "aa_trello",
+    "aa_kanban",
 ]
 license = { file = "LICENSE" }
 authors = [
@@ -41,19 +41,33 @@ dependencies = [
 ]
 
 [tool.hatch]
-version.path = "aa_trello/__init__.py"
+version.path = "aa_kanban/__init__.py"
 build.include = [
-    "/aa_trello",
+    "/aa_kanban",
 ]
 
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+extend-exclude = [
+    "testauth",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
 ignore = []
 
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*" = ["E501"]
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "testauth.settings"
 python_files = ["test_*.py", "*_test.py"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["mypy_django_plugin.main"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "testauth.settings.local"

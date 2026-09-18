@@ -1,0 +1,98 @@
+{% extends "aa_kanban/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Kanban Boards" %}{% endblock %}
+
+{% block aa_kanban_content %}
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-columns me-2 text-primary"></i>{% trans "Kanban Boards" %}</h2>
+            <p class="text-muted mb-0">{% trans "Select a board to view tasks, or manage your assigned projects." %}</p>
+        </div>
+        {% if can_manage %}
+            <button type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#boardModal"
+                    hx-get="{% url 'aa_kanban:create_board' %}"
+                    hx-target="#boardModalBody"
+                    hx-trigger="click">
+                <i class="fas fa-plus me-1"></i>{% trans "New Board" %}
+            </button>
+        {% endif %}
+    </div>
+
+    {% if boards %}
+        <div class="row g-4">
+            {% for board in boards %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 transition-hover">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h4 class="card-title h5 mb-0">
+                                    <a href="{% url 'aa_kanban:board_detail' board.slug %}" class="text-decoration-none text-dark stretched-link">
+                                        {{ board.name }}
+                                    </a>
+                                </h4>
+                                {% if request.user.is_superuser or board.created_by == request.user or board in request.user.kanban_write_boards.all %}
+                                    <span class="badge bg-success">{% trans "Editor" %}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{% trans "Read-Only" %}</span>
+                                {% endif %}
+                            </div>
+
+                            <p class="card-text text-muted small flex-grow-1">
+                                {% if board.description %}
+                                    {{ board.description|truncatewords:20 }}
+                                {% else %}
+                                    <em>{% trans "No description provided." %}</em>
+                                {% endif %}
+                            </p>
+
+                            <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center text-muted small">
+                                <span><i class="fas fa-list-ul me-1"></i>{{ board.list_count }} {% trans "columns" %}</span>
+                                <span><i class="far fa-clock me-1"></i>{{ board.updated_at|date:"Y-m-d" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "No accessible boards found." %}</h4>
+                {% if can_manage %}
+                    <p class="text-secondary small">{% trans "Create your first board to get started." %}</p>
+                    <button type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#boardModal"
+                            hx-get="{% url 'aa_kanban:create_board' %}"
+                            hx-target="#boardModalBody"
+                            hx-trigger="click">
+                        <i class="fas fa-plus me-1"></i>{% trans "Create First Board" %}
+                    </button>
+                {% else %}
+                    <p class="text-secondary small">{% trans "You currently do not have access to any Kanban boards. Contact an administrator to be added to the appropriate group." %}</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{# Modal container voor board-aanmaak #}
+<div class="modal fade" id="boardModal" tabindex="-1" aria-labelledby="boardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="boardModalBody">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">{% trans "Loading..." %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

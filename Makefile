@@ -1,6 +1,6 @@
-appname = aa_trello
-package = aa_trello
-appname_verbose = AA Trello Plugin
+appname = aa_kanban
+package = aa_kanban
+appname_verbose = AA Kanban Plugin
 
 # Default goal
 .DEFAULT_GOAL := help

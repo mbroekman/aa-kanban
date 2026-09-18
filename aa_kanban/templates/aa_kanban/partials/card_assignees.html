@@ -1,0 +1,49 @@
+{% load i18n %}
+
+<div class="d-flex flex-wrap align-items-center gap-2">
+    {% for assignee in card.assignees.all %}
+        <span class="badge bg-light text-dark border d-flex align-items-center gap-1 py-1 px-2">
+            <i class="fas fa-user text-secondary"></i>
+            <span>{{ assignee.username }}</span>
+            {% if can_write %}
+                <button type="button"
+                        class="btn-close ms-1"
+                        style="font-size: 0.55rem;"
+                        title="{% trans 'Remove assignee' %}"
+                        hx-post="{% url 'aa_kanban:toggle_assignee' card.id %}"
+                        hx-vals='{"user_id": "{{ assignee.id }}"}'
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-target="#card-assignees-container">
+                </button>
+            {% endif %}
+        </span>
+    {% empty %}
+        <span class="text-muted small"><em>{% trans "Unassigned" %}</em></span>
+    {% endfor %}
+
+    {% if can_write and available_users %}
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle py-0 px-2"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="font-size: 0.75rem;">
+                <i class="fas fa-plus me-1"></i>{% trans "Assign" %}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                {% for user in available_users %}
+                    <li>
+                        <button class="dropdown-item small"
+                                type="button"
+                                hx-post="{% url 'aa_kanban:toggle_assignee' card.id %}"
+                                hx-vals='{"user_id": "{{ user.id }}"}'
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                hx-target="#card-assignees-container">
+                            <i class="fas fa-user me-2 text-muted"></i>{{ user.username }}
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>

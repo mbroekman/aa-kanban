@@ -1,0 +1,253 @@
+{% extends "aa_kanban/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block page_title %}{{ board.name }} - {% trans "Kanban" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}">
+<style>
+    .kanban-board-container {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 1.5rem;
+        min-height: calc(100vh - 220px);
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .kanban-column {
+        width: 320px;
+        min-width: 320px;
+        max-width: 320px;
+        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        border-radius: 0.5rem;
+    }
+    .column-name:hover {
+        text-decoration: underline;
+        text-decoration-style: dashed;
+    }
+    .add-column-placeholder {
+        width: 280px;
+        min-width: 280px;
+    }
+</style>
+{% endblock %}
+
+{% block aa_kanban_content %}
+<div class="container-fluid py-3">
+    <!-- Board Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'aa_kanban:index' %}" class="btn btn-outline-secondary btn-sm" title="{% trans 'Back to boards' %}">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="h4 mb-0 fw-bold">{{ board.name }}</h2>
+                {% if board.description %}
+                    <small class="text-muted">{{ board.description }}</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            {% if can_write %}
+                <span class="badge bg-success"><i class="fas fa-pen me-1"></i>{% trans "Editor" %}</span>
+            {% else %}
+                <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{% trans "Read-Only" %}</span>
+            {% endif %}
+
+            {% if can_write or can_manage %}
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#boardModal"
+                        hx-get="{% url 'aa_kanban:edit_board' board.slug %}"
+                        hx-target="#boardModalBody"
+                        hx-trigger="click"
+                        title="{% trans 'Board settings' %}">
+                    <i class="fas fa-cog"></i>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% csrf_token %}
+    <!-- Kanban Board Columns -->
+    <div class="kanban-board-container" id="kanban-board" data-can-write="{{ can_write|yesno:'true,false' }}">
+        {% for list in lists %}
+            <div class="kanban-column card shadow-sm border-0" data-list-id="{{ list.id }}">
+                <div class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center"
+                     id="column-header-{{ list.id }}">
+                    {% if can_write %}
+                        <h5 class="h6 mb-0 fw-bold text-dark column-name"
+                            data-rename-url="{% url 'aa_kanban:rename_list' list.id %}"
+                            title="{% trans 'Click to rename' %}"
+                            style="cursor: pointer;">
+                            {{ list.name }}
+                        </h5>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="badge bg-secondary rounded-pill card-count-badge">{{ list.cards.all|length }}</span>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger border-0 delete-list-btn"
+                                    data-list-id="{{ list.id }}"
+                                    data-list-name="{{ list.name }}"
+                                    data-delete-url="{% url 'aa_kanban:delete_list' list.id %}"
+                                    title="{% trans 'Delete column' %}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    {% else %}
+                        <h5 class="h6 mb-0 fw-bold text-dark">{{ list.name }}</h5>
+                        <span class="badge bg-secondary rounded-pill card-count-badge">{{ list.cards.all|length }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body p-2 kanban-cards" id="list-cards-{{ list.id }}" data-list-id="{{ list.id }}">
+                    {% for card in list.cards.all %}
+                        {% include "aa_kanban/partials/card_item.html" with card=card can_write=can_write %}
+                    {% empty %}
+                        <div class="text-center py-4 text-muted small empty-placeholder">
+                            <em>{% trans "No cards" %}</em>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% if can_write %}
+                <div class="card-footer bg-transparent border-0 p-2">
+                    <form hx-post="{% url 'aa_kanban:create_card' list.id %}"
+                          hx-target="#list-cards-{{ list.id }}"
+                          hx-swap="beforeend"
+                          hx-on::after-request="this.reset()"
+                          class="d-flex gap-2">
+                        {% csrf_token %}
+                        <input type="text"
+                               name="title"
+                               class="form-control form-control-sm"
+                               placeholder="{% trans 'New card title...' %}"
+                               required>
+                        <button type="submit" class="btn btn-sm btn-primary" title="{% trans 'Add card' %}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            {% if not can_write %}
+            <div class="card border-0 shadow-sm p-4 text-center w-100">
+                <p class="text-muted mb-0">{% trans "No lists defined for this board." %}</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        {# Inline "Kolom toevoegen" — alleen voor write-users, verschijnt na bestaande kolommen #}
+        {% if can_write %}
+            <div class="add-column-placeholder flex-shrink-0">
+                <form hx-post="{% url 'aa_kanban:create_list' board.slug %}"
+                      hx-target="#kanban-board"
+                      hx-swap="beforeend settle:200ms"
+                      hx-on::after-request="this.reset()"
+                      class="card shadow-sm border-dashed border-2 border-secondary bg-transparent p-3 d-flex flex-column gap-2">
+                    {% csrf_token %}
+                    <input type="text"
+                           name="name"
+                           class="form-control form-control-sm"
+                           placeholder="{% trans 'New column name...' %}"
+                           required>
+                    <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="fas fa-plus me-1"></i>{% trans "Add Column" %}
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Bootstrap 5 Card Modal Container -->
+<div class="modal fade" id="cardModal" tabindex="-1" aria-labelledby="cardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="cardModalBody">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">{% trans "Loading..." %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Modal container voor board-instellingen/edit #}
+<div class="modal fade" id="boardModal" tabindex="-1" aria-labelledby="boardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="boardModalBody">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">{% trans "Loading..." %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="{% static 'aa_kanban/libs/htmx.min.js' %}"></script>
+<script src="{% static 'aa_kanban/libs/Sortable.min.js' %}"></script>
+<script src="{% static 'aa_kanban/js/kanban.js' %}"></script>
+<script>
+(function () {
+    'use strict';
+
+    // Kolomnaam inline bewerken via klik
+    document.addEventListener('click', function (e) {
+        const nameEl = e.target.closest('.column-name');
+        if (!nameEl) return;
+        const renameUrl = nameEl.dataset.renameUrl;
+        const current = nameEl.textContent.trim();
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control form-control-sm';
+        input.value = current;
+        nameEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        function submit() {
+            const newName = input.value.trim();
+            if (!newName || newName === current) {
+                location.reload();
+                return;
+            }
+            const form = new FormData();
+            form.append('name', newName);
+            form.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            fetch(renameUrl, { method: 'POST', body: form })
+                .then(r => r.text())
+                .then(html => {
+                    const header = input.closest('.card-header');
+                    if (header) header.outerHTML = html;
+                });
+        }
+        input.addEventListener('blur', submit);
+        input.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+            if (ev.key === 'Escape') { location.reload(); }
+        });
+    });
+
+    // Kolom verwijderen met bevestiging
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.delete-list-btn');
+        if (!btn) return;
+        e.stopPropagation();
+        const name = btn.dataset.listName;
+        if (!confirm(`Kolom "${name}" en alle kaarten permanent verwijderen?`)) return;
+        const form = new FormData();
+        form.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        fetch(btn.dataset.deleteUrl, { method: 'POST', body: form })
+            .then(r => { if (r.ok) btn.closest('.kanban-column').remove(); });
+    });
+})();
+</script>
+{% endblock %}

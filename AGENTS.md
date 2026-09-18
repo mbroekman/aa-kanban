@@ -48,3 +48,14 @@ Before finalizing output, verify:
 2. All tests and type checks (mypy) pass.
 3. Ruff formatting is applied.
 4. No hardcoded credentials, debug prints, or commented-out code exist.
+5. If a new `@shared_task` was added: the README `CELERYBEAT_SCHEDULE` block is updated in the **same commit**.
+
+## 7. Project-Specific Conventions
+
+### Celery Tasks
+- Every new `@shared_task` **must** be added to the `CELERYBEAT_SCHEDULE` block in `README.md` in the **same commit** as the task itself.
+- Task names follow the pattern `<app_name>.tasks.<function_name>` — keep this consistent with the `name=` argument on the decorator.
+- Never ship a task that has no schedule documented in the README. This causes silent failures during fresh installs.
+- **Helper tasks** (tasks with required positional arguments) must **NOT** be added to `CELERYBEAT_SCHEDULE`. Only tasks with no required arguments can run as periodic tasks.
+
+
