@@ -7,7 +7,7 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
 </div>
 
-<form method="post" action="{% url 'aa_kanban:edit_board' board.slug %}">
+<form hx-post="{% url 'aa_kanban:edit_board' board.slug %}" hx-target="#boardModalBody">
     {% csrf_token %}
     <div class="modal-body">
         {% if error %}

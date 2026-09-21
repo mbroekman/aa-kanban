@@ -4,8 +4,9 @@ import json
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
-from django.contrib.auth.models import Group
+from aa_kanban.models import KanbanGroup as Group
 from django.test import Client
+from unittest.mock import patch
 from django.urls import reverse
 
 from aa_kanban.models import Board, Card, List
@@ -116,7 +117,7 @@ class TestMoveCardAPI:
     ):
         data = setup_api_data
         viewer = user_factory("board_viewer")
-        viewer.groups.add(data["view_grp"])  # Read-only group
+        viewer.kanban_groups.add(data["view_grp"])  # Read-only group
 
         client = Client()
         client.force_login(viewer)
@@ -132,7 +133,7 @@ class TestMoveCardAPI:
     def test_move_card_method_not_allowed(self, user_factory, setup_api_data):
         data = setup_api_data
         writer = user_factory("board_writer_get")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -146,7 +147,7 @@ class TestMoveCardAPI:
     def test_move_card_within_same_list(self, user_factory, setup_api_data):
         data = setup_api_data
         writer = user_factory("board_writer_same")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -175,7 +176,7 @@ class TestMoveCardAPI:
     def test_move_card_to_another_list(self, user_factory, setup_api_data):
         data = setup_api_data
         writer = user_factory("board_writer_other")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -206,7 +207,7 @@ class TestMoveCardAPI:
     def test_move_card_json_payload(self, user_factory, setup_api_data):
         data = setup_api_data
         writer = user_factory("board_writer_json")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -224,7 +225,7 @@ class TestMoveCardAPI:
     def test_move_card_cross_board_blocked(self, user_factory, setup_api_data):
         data = setup_api_data
         writer = user_factory("board_writer_cross")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -242,7 +243,7 @@ class TestMoveCardAPI:
     def test_move_card_invalid_inputs(self, user_factory, setup_api_data):
         data = setup_api_data
         writer = user_factory("board_writer_invalid")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -259,3 +260,105 @@ class TestMoveCardAPI:
             url, {"target_list_id": data["list_a"].id, "new_position": "invalid"}
         )
         assert response.status_code == 400
+
+    def test_move_card_webhook(self, user_factory, setup_api_data):
+        data = setup_api_data
+        writer = user_factory("board_writer_webhook")
+        writer.kanban_groups.add(data["write_grp"])
+        
+        # Set up webhook
+        board = data["board1"]
+        board.discord_webhook_cards = "https://discord.com/api/webhooks/test-cards"
+        board.save()
+
+        client = Client()
+        client.force_login(writer)
+
+        url = reverse(
+            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
+        )
+        
+        with patch("aa_kanban.utils.send_discord_webhook") as mock_send:
+            response = client.post(
+                url, {"target_list_id": data["list_b"].id, "new_position": 0}
+            )
+            assert response.status_code == 200
+            mock_send.assert_called_once_with(
+                "https://discord.com/api/webhooks/test-cards",
+                "Card moved: **Card 0** was moved from `List A` to `List B`."
+            )
+
+
+@pytest.mark.django_db
+class TestLabelEndpoints:
+    def test_create_label(self, client, setup_api_data, user_factory):
+        data = setup_api_data
+        url = reverse("aa_kanban:create_label", args=[data["board1"].slug])
+        
+        # User without write access
+        viewer = user_factory("label_viewer")
+        viewer.kanban_groups.add(data["view_grp"])
+        client.force_login(viewer)
+        response = client.post(url, {"name": "Test", "color": "danger"})
+        assert response.status_code == 403
+        
+        # User with write access
+        writer = user_factory("label_writer")
+        writer.kanban_groups.add(data["write_grp"])
+        client.force_login(writer)
+        
+        response = client.post(url, {"name": "Test Label", "color": "success"})
+        assert response.status_code == 200
+        assert data["board1"].labels.filter(name="Test Label", color="success").exists()
+        
+    def test_toggle_label(self, client, setup_api_data, user_factory):
+        from aa_kanban.models import Label
+        data = setup_api_data
+        label = Label.objects.create(board=data["board1"], name="Bug", color="danger")
+        url = reverse("aa_kanban:toggle_label", args=[data["card0"].id])
+        
+        writer = user_factory("toggle_writer")
+        writer.kanban_groups.add(data["write_grp"])
+        client.force_login(writer)
+        
+        # Add label
+        response = client.post(url, {"label_id": label.id})
+        assert response.status_code == 200
+        assert label in data["card0"].labels.all()
+        
+        # Remove label
+        response = client.post(url, {"label_id": label.id})
+        assert response.status_code == 200
+        assert label not in data["card0"].labels.all()
+@pytest.mark.django_db
+class TestToggleAssignee:
+    def test_toggle_assignee_add_and_remove(self, client, setup_api_data, user_factory):
+        data = setup_api_data
+        url = reverse("aa_kanban:toggle_assignee", args=[data["card0"].id])
+        
+        writer = user_factory("toggle_assignee_writer")
+        writer.kanban_groups.add(data["write_grp"])
+        client.force_login(writer)
+        
+        target_user = user_factory("target_assignee")
+        
+        with patch("aadiscordbot.tasks.send_direct_message_by_user_id.delay") as mock_send_dm:
+            # Assign user
+            response = client.post(url, {"user_id": target_user.id})
+            assert response.status_code == 200
+            assert target_user in data["card0"].assignees.all()
+            mock_send_dm.assert_called_once_with(
+                target_user.id, 
+                "You have been assigned to the card: **Card 0** on board **Board One**."
+            )
+            
+            mock_send_dm.reset_mock()
+            
+            # Remove user
+            response = client.post(url, {"user_id": target_user.id})
+            assert response.status_code == 200
+            assert target_user not in data["card0"].assignees.all()
+            mock_send_dm.assert_called_once_with(
+                target_user.id, 
+                "You have been removed from the card: **Card 0** on board **Board One**."
+            )

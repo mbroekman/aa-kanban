@@ -1,7 +1,8 @@
 """Tests for aa_kanban permissions and decorators."""
 
 import pytest
-from django.contrib.auth.models import AnonymousUser, Group, User
+from django.contrib.auth.models import AnonymousUser, User
+from aa_kanban.models import KanbanGroup as Group
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.test import RequestFactory
@@ -71,7 +72,7 @@ class TestPermissionDecorators:
     def test_board_view_with_view_group(self, test_board, user_factory):
         board, v_group, _ = test_board
         user = user_factory("viewer_user")
-        user.groups.add(v_group)
+        user.kanban_groups.add(v_group)
 
         factory = RequestFactory()
         request = factory.get(f"/board/{board.slug}/")
@@ -86,7 +87,7 @@ class TestPermissionDecorators:
     ):
         board, v_group, _ = test_board
         user = user_factory("readonly_user")
-        user.groups.add(v_group)
+        user.kanban_groups.add(v_group)
 
         factory = RequestFactory()
         request = factory.post(f"/board/{board.slug}/mutate/")
@@ -100,7 +101,7 @@ class TestPermissionDecorators:
     ):
         board, _, w_group = test_board
         user = user_factory("writer_user")
-        user.groups.add(w_group)
+        user.kanban_groups.add(w_group)
 
         factory = RequestFactory()
         request = factory.post(f"/board/{board.slug}/mutate/")

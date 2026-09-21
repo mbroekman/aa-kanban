@@ -1,7 +1,8 @@
 """Unit tests for aa_kanban models."""
 
 import pytest
-from django.contrib.auth.models import AnonymousUser, Group, User
+from django.contrib.auth.models import AnonymousUser, User
+from aa_kanban.models import KanbanGroup as Group
 
 from aa_kanban.models import Board, Card, Comment, Label, List
 
@@ -58,11 +59,11 @@ class TestBoardModel:
         assert board.can_user_view(random_user) is False
 
         viewer = user_factory("viewer")
-        viewer.groups.add(view_grp)
+        viewer.kanban_groups.add(view_grp)
         assert board.can_user_view(viewer) is True
 
         editor = user_factory("editor")
-        editor.groups.add(write_grp)
+        editor.kanban_groups.add(write_grp)
         assert board.can_user_view(editor) is True
 
         superuser = user_factory("superadmin", is_superuser=True)
@@ -84,11 +85,11 @@ class TestBoardModel:
         assert board.can_user_write(random_user) is False
 
         viewer = user_factory("viewer_alpha")
-        viewer.groups.add(view_grp)
+        viewer.kanban_groups.add(view_grp)
         assert board.can_user_write(viewer) is False
 
         editor = user_factory("editor_alpha")
-        editor.groups.add(write_grp)
+        editor.kanban_groups.add(write_grp)
         assert board.can_user_write(editor) is True
 
         superuser = user_factory("superadmin_alpha", is_superuser=True)
@@ -102,7 +103,7 @@ class TestBoardModel:
         creator = user_factory("master_creator")
         user = user_factory("normal_user")
         grp = group_factory("Group A")
-        user.groups.add(grp)
+        user.kanban_groups.add(grp)
 
         b1 = board_factory(name="Public to Group A", created_by=creator)
         b1.view_groups.add(grp)

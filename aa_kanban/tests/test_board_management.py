@@ -2,7 +2,7 @@
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
-from django.contrib.auth.models import Group
+from aa_kanban.models import KanbanGroup as Group
 from django.test import Client
 from django.urls import reverse
 
@@ -39,7 +39,7 @@ def board_data(user_factory):
     write_grp = Group.objects.create(name="BM Write Group")
     view_grp = Group.objects.create(name="BM View Group")
     write_user = user_factory("bm_write_user")
-    write_user.groups.add(write_grp)
+    write_user.kanban_groups.add(write_grp)
 
     board = Board.objects.create(
         name="Test Board", slug="test-board", created_by=manager

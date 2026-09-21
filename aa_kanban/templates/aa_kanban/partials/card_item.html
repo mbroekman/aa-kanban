@@ -1,6 +1,7 @@
 {% load i18n %}
 {# Partial: één kaart-item, gebruikt door board_detail.html en create_card HTMX response #}
-<div class="card kanban-card shadow-sm border-0 mb-2 p-3 bg-white cursor-grab"
+<div id="card-{{ card.id }}" class="card kanban-card shadow border border-secondary-subtle mb-2 p-3 bg-white cursor-grab"
+     {% if hx_oob %}hx-swap-oob="true"{% endif %}
      data-card-id="{{ card.id }}"
      data-move-url="{% url 'aa_kanban:move_card' card.id %}"
      data-bs-toggle="modal"

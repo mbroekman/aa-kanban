@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from . import views, views_api
+from . import views, views_api, views_settings
 
 app_name = "aa_kanban"
 
@@ -58,5 +58,33 @@ urlpatterns = [
         views_api.update_card,
         name="update_card",
     ),
+    path(
+        "cards/<int:card_id>/labels/toggle/",
+        views_api.toggle_label,
+        name="toggle_label",
+    ),
+    # Labels management (per board) via HTMX
+    path(
+        "boards/<slug:board_slug>/labels/modal/",
+        views_api.board_labels_modal,
+        name="board_labels_modal",
+    ),
+    path(
+        "boards/<slug:board_slug>/labels/create/",
+        views_api.create_label,
+        name="create_label",
+    ),
+    path(
+        "labels/<int:label_id>/delete/",
+        views_api.delete_label,
+        name="delete_label",
+    ),
+    # Settings and Groups
+    path("settings/", views_settings.kanban_settings, name="settings"),
+    path("settings/groups/create/", views_settings.create_kanban_group, name="create_group"),
+    path("settings/groups/<int:group_id>/delete/", views_settings.delete_kanban_group, name="delete_group"),
+    path("settings/groups/<int:group_id>/users/", views_settings.group_users_modal, name="group_users_modal"),
+    path("settings/groups/<int:group_id>/users/add/", views_settings.add_user_to_group, name="add_user_to_group"),
+    path("settings/groups/<int:group_id>/users/<int:user_id>/remove/", views_settings.remove_user_from_group, name="remove_user_from_group"),
 ]
 

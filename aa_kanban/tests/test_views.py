@@ -2,11 +2,12 @@
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
-from django.contrib.auth.models import Group
+from aa_kanban.models import KanbanGroup as Group
 from django.test import Client
 from django.urls import reverse
+from unittest.mock import patch
 
-from aa_kanban.models import Board, Card, Label, List
+from aa_kanban.models import Board, Card, KanbanSetting, Label, List
 
 
 @pytest.fixture
@@ -92,7 +93,7 @@ class TestBoardListView:
     def test_board_list_filtering(self, user_factory, setup_boards):
         data = setup_boards
         user = user_factory("viewer")
-        user.groups.add(data["view_grp"])
+        user.kanban_groups.add(data["view_grp"])
 
         client = Client()
         client.force_login(user)
@@ -123,7 +124,7 @@ class TestBoardDetailView:
     def test_board_detail_read_only_access(self, user_factory, setup_boards):
         data = setup_boards
         user = user_factory("viewer")
-        user.groups.add(data["view_grp"])
+        user.kanban_groups.add(data["view_grp"])
 
         client = Client()
         client.force_login(user)
@@ -140,7 +141,7 @@ class TestBoardDetailView:
     def test_board_detail_write_access(self, user_factory, setup_boards):
         data = setup_boards
         user = user_factory("writer")
-        user.groups.add(data["write_grp"])
+        user.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(user)
@@ -158,7 +159,7 @@ class TestBoardDetailView:
     ):
         data = setup_boards
         user = user_factory("viewer")
-        user.groups.add(data["view_grp"])
+        user.kanban_groups.add(data["view_grp"])
 
         client = Client()
         client.force_login(user)
@@ -189,3 +190,27 @@ class TestBoardDetailView:
         with django_assert_num_queries(25):
             response2 = client.get(url)
             assert response2.status_code == 200
+
+    def test_create_board_webhook(self, client, setup_boards):
+        """Test that creating a board triggers the webhook."""
+        data = setup_boards
+        creator = data["creator"]
+        from allianceauth.tests.auth_utils import AuthUtils
+        AuthUtils.add_permission_to_user_by_name("aa_kanban.manage_boards", creator)
+        client.force_login(creator)
+        
+        # Set up global webhook
+        setting = KanbanSetting.get_settings()
+        setting.board_creation_webhook = "https://discord.com/api/webhooks/test"
+        setting.save()
+        
+        url = reverse("aa_kanban:create_board")
+        post_data = {
+            "name": "Webhook Board",
+            "description": "Test",
+        }
+        
+        with patch("aa_kanban.utils.send_discord_webhook") as mock_send:
+            response = client.post(url, post_data)
+            assert response.status_code == 302
+            mock_send.assert_called_once_with("https://discord.com/api/webhooks/test", "**New Kanban Board Created!**\nName: `Webhook Board`\nCreated by: `creator`")

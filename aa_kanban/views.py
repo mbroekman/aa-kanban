@@ -1,12 +1,11 @@
 """Views for aa_kanban."""
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import Group
 from django.db.models import Count, Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Board, Card
+from .models import Board, Card, KanbanGroup
 from .permissions import board_view_required
 
 
@@ -21,7 +20,7 @@ def index(request: HttpRequest) -> HttpResponse:
         .annotate(list_count=Count("lists", distinct=True))
     )
     can_manage = request.user.has_perm("aa_kanban.manage_boards")
-    all_groups = Group.objects.order_by("name") if can_manage else Group.objects.none()
+    all_groups = KanbanGroup.objects.order_by("name") if can_manage else KanbanGroup.objects.none()
     context = {
         "title": "Kanban Boards",
         "boards": boards,
@@ -49,9 +48,9 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
     )
 
     all_groups = (
-        Group.objects.order_by("name")
+        KanbanGroup.objects.order_by("name")
         if (can_write or can_manage)
-        else Group.objects.none()
+        else KanbanGroup.objects.none()
     )
 
     context = {
@@ -70,7 +69,7 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
 @permission_required("aa_kanban.manage_boards", raise_exception=True)
 def create_board(request: HttpRequest) -> HttpResponse:
     """Create a new Kanban board (manage_boards permission required)."""
-    all_groups = Group.objects.order_by("name")
+    all_groups = KanbanGroup.objects.order_by("name")
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
@@ -92,11 +91,25 @@ def create_board(request: HttpRequest) -> HttpResponse:
             created_by=request.user,  # type: ignore[misc]
         )
         if view_group_ids:
-            board.view_groups.set(Group.objects.filter(pk__in=view_group_ids))
+            board.view_groups.set(KanbanGroup.objects.filter(pk__in=view_group_ids))
         if write_group_ids:
-            board.write_groups.set(Group.objects.filter(pk__in=write_group_ids))
+            board.write_groups.set(KanbanGroup.objects.filter(pk__in=write_group_ids))
 
-        return redirect("aa_kanban:board_detail", board_slug=board.slug)
+        # Discord Webhook Notification
+        from aa_kanban.models import KanbanSetting
+        from aa_kanban.utils import send_discord_webhook
+        
+        kanban_settings = KanbanSetting.get_settings()
+        if kanban_settings.board_creation_webhook:
+            message = f"**New Kanban Board Created!**\nName: `{board.name}`\nCreated by: `{request.user.username}`"
+            send_discord_webhook(kanban_settings.board_creation_webhook, message)
+
+        url = redirect("aa_kanban:board_detail", board_slug=board.slug).url
+        if request.headers.get("HX-Request"):
+            response = HttpResponse(status=204)
+            response["HX-Redirect"] = url
+            return response
+        return redirect(url)
 
     # GET: render form partial (used by HTMX)
     context = {"all_groups": all_groups}
@@ -118,7 +131,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
 
         raise PermissionDenied("You do not have permission to edit this board.")
 
-    all_groups = Group.objects.order_by("name")
+    all_groups = KanbanGroup.objects.order_by("name")
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
@@ -138,10 +151,15 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         board.name = name
         board.description = description
         board.save(update_fields=["name", "description", "updated_at"])
-        board.view_groups.set(Group.objects.filter(pk__in=view_group_ids))
-        board.write_groups.set(Group.objects.filter(pk__in=write_group_ids))
+        board.view_groups.set(KanbanGroup.objects.filter(pk__in=view_group_ids))
+        board.write_groups.set(KanbanGroup.objects.filter(pk__in=write_group_ids))
 
-        return redirect("aa_kanban:board_detail", board_slug=board.slug)
+        url = redirect("aa_kanban:board_detail", board_slug=board.slug).url
+        if request.headers.get("HX-Request"):
+            response = HttpResponse(status=204)
+            response["HX-Redirect"] = url
+            return response
+        return redirect(url)
 
     # GET: render form partial (used by HTMX)
     context = {"board": board, "all_groups": all_groups}
@@ -165,6 +183,16 @@ def delete_board(request: HttpRequest, board_slug: str) -> HttpResponse:
 
     if request.method == "POST":
         board.delete()
-        return redirect("aa_kanban:index")
+        url = redirect("aa_kanban:index").url
+        if request.headers.get("HX-Request"):
+            response = HttpResponse(status=204)
+            response["HX-Redirect"] = url
+            return response
+        return redirect(url)
 
-    return redirect("aa_kanban:board_detail", board_slug=board.slug)
+    url = redirect("aa_kanban:board_detail", board_slug=board.slug).url
+    if request.headers.get("HX-Request"):
+        response = HttpResponse(status=204)
+        response["HX-Redirect"] = url
+        return response
+    return redirect(url)

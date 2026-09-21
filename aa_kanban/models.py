@@ -26,12 +26,59 @@ class BoardQuerySet(models.QuerySet):
             return self.none()
         if user.is_superuser:
             return self.all()
-        user_groups = user.groups.all()
+        user_kanban_groups = user.kanban_groups.all()
         return self.filter(
-            models.Q(view_groups__in=user_groups)
-            | models.Q(write_groups__in=user_groups)
+            models.Q(view_groups__in=user_kanban_groups)
+            | models.Q(write_groups__in=user_kanban_groups)
             | models.Q(created_by=user)
         ).distinct()
+
+class KanbanGroup(models.Model):
+    """Custom group model for aa_kanban access management."""
+
+    name = models.CharField(max_length=255, unique=True)
+    members = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name="kanban_groups",
+    )
+
+    class Meta:
+        verbose_name = "Kanban Group"
+        verbose_name_plural = "Kanban Groups"
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class KanbanSetting(models.Model):
+    """Global settings for aa_kanban."""
+
+    board_creation_webhook = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Discord Webhook URL for global board creation notifications.",
+    )
+
+    class Meta:
+        verbose_name = "Kanban Setting"
+        verbose_name_plural = "Kanban Settings"
+
+    def __str__(self) -> str:
+        return "Global Kanban Settings"
+
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists (singleton pattern)
+        if not self.pk and KanbanSetting.objects.exists():
+            return
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_settings(cls):
+        """Get the singleton settings instance, creating it if it doesn't exist."""
+        settings, _ = cls.objects.get_or_create(pk=1)
+        return settings
 
 
 class Board(models.Model):
@@ -40,18 +87,24 @@ class Board(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True)
+    
+    discord_webhook_cards = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Discord Webhook URL for card movement notifications on this board.",
+    )
 
     view_groups = models.ManyToManyField(
-        Group,
+        KanbanGroup,
         blank=True,
         related_name="kanban_view_boards",
-        help_text="Groups that have read-only access to this board.",
+        help_text="Kanban groups that have read-only access to this board.",
     )
     write_groups = models.ManyToManyField(
-        Group,
+        KanbanGroup,
         blank=True,
         related_name="kanban_write_boards",
-        help_text="Groups that have write/mutation access to this board.",
+        help_text="Kanban groups that have write/mutation access to this board.",
     )
 
     created_by = models.ForeignKey(
@@ -93,7 +146,7 @@ class Board(models.Model):
             return True
         if self.created_by_id == user.id:
             return True
-        user_group_ids = set(user.groups.values_list("id", flat=True))
+        user_group_ids = set(user.kanban_groups.values_list("id", flat=True))
         write_group_ids = set(self.write_groups.values_list("id", flat=True))
         view_group_ids = set(self.view_groups.values_list("id", flat=True))
         return bool(user_group_ids & (write_group_ids | view_group_ids))
@@ -106,7 +159,7 @@ class Board(models.Model):
             return True
         if self.created_by_id == user.id:
             return True
-        user_group_ids = set(user.groups.values_list("id", flat=True))
+        user_group_ids = set(user.kanban_groups.values_list("id", flat=True))
         write_group_ids = set(self.write_groups.values_list("id", flat=True))
         return bool(user_group_ids & write_group_ids)
 

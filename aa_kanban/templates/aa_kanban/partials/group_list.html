@@ -1,0 +1,46 @@
+{% load i18n %}
+
+{% if groups %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Members" %}</th>
+                <th class="text-end">{% trans "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+            <tr>
+                <td class="fw-bold">{{ group.name }}</td>
+                <td>
+                    <span class="badge bg-secondary rounded-pill">{{ group.members.count }}</span>
+                </td>
+                <td class="text-end">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-primary me-2"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#groupUsersModal"
+                            hx-get="{% url 'aa_kanban:group_users_modal' group.pk %}"
+                            hx-target="#groupUsersModalBody"
+                            title="{% trans 'Manage Users' %}">
+                        <i class="fas fa-users"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger"
+                            hx-post="{% url 'aa_kanban:delete_group' group.pk %}"
+                            hx-target="#group-list-container"
+                            hx-confirm="{% trans 'Are you sure you want to delete this group?' %}"
+                            title="{% trans 'Delete Group' %}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted text-center py-4">{% trans "No groups have been created yet." %}</p>
+{% endif %}

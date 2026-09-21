@@ -2,7 +2,7 @@
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
-from django.contrib.auth.models import Group
+from aa_kanban.models import KanbanGroup as Group
 from django.test import Client
 from django.urls import reverse
 
@@ -88,7 +88,7 @@ class TestCardModal:
     def test_card_modal_view_only_user(self, user_factory, setup_modal_data):
         data = setup_modal_data
         viewer = user_factory("modal_viewer")
-        viewer.groups.add(data["view_grp"])
+        viewer.kanban_groups.add(data["view_grp"])
 
         client = Client()
         client.force_login(viewer)
@@ -106,7 +106,7 @@ class TestCardModal:
     def test_card_modal_write_user(self, user_factory, setup_modal_data):
         data = setup_modal_data
         writer = user_factory("modal_writer")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -140,7 +140,7 @@ class TestCardComments:
     def test_add_comment_success(self, user_factory, setup_modal_data):
         data = setup_modal_data
         writer = user_factory("commenter_writer")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -166,7 +166,7 @@ class TestCardComments:
     ):
         data = setup_modal_data
         viewer = user_factory("commenter_viewer")
-        viewer.groups.add(data["view_grp"])
+        viewer.kanban_groups.add(data["view_grp"])
 
         client = Client()
         client.force_login(viewer)
@@ -181,7 +181,7 @@ class TestCardComments:
     def test_add_comment_empty_text(self, user_factory, setup_modal_data):
         data = setup_modal_data
         writer = user_factory("commenter_empty")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -198,7 +198,7 @@ class TestCardAssigneesAndUpdates:
     def test_toggle_assignee_success(self, user_factory, setup_modal_data):
         data = setup_modal_data
         writer = user_factory("assign_writer")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         assignee = user_factory("pilot_assignee")
 
@@ -225,7 +225,7 @@ class TestCardAssigneesAndUpdates:
     ):
         data = setup_modal_data
         viewer = user_factory("assign_viewer")
-        viewer.groups.add(data["view_grp"])
+        viewer.kanban_groups.add(data["view_grp"])
         target = user_factory("assign_target")
 
         client = Client()
@@ -240,7 +240,7 @@ class TestCardAssigneesAndUpdates:
     def test_update_card_success(self, user_factory, setup_modal_data):
         data = setup_modal_data
         writer = user_factory("editor_writer")
-        writer.groups.add(data["write_grp"])
+        writer.kanban_groups.add(data["write_grp"])
 
         client = Client()
         client.force_login(writer)
@@ -265,7 +265,7 @@ class TestCardAssigneesAndUpdates:
     ):
         data = setup_modal_data
         viewer = user_factory("editor_viewer")
-        viewer.groups.add(data["view_grp"])
+        viewer.kanban_groups.add(data["view_grp"])
 
         client = Client()
         client.force_login(viewer)

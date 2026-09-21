@@ -15,7 +15,7 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404, render
 
-from .models import Board, Card, Comment, List
+from .models import Board, Card, Comment, List, Label
 
 
 @login_required
@@ -88,6 +88,11 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
                 if c.order != idx:
                     c.order = idx
                     c.save(update_fields=["order"])
+                    
+    if source_list.id != target_list.id and board.discord_webhook_cards:
+        from aa_kanban.utils import send_discord_webhook
+        msg = f"Card moved: **{card.title}** was moved from `{source_list.name}` to `{target_list.name}`."
+        send_discord_webhook(board.discord_webhook_cards, msg)
 
     return JsonResponse(
         {
@@ -116,17 +121,23 @@ def card_modal(request: HttpRequest, card_id: int) -> HttpResponse:
     can_write = board.can_user_write(request.user)
 
     available_users = []
+    available_labels = []
     if can_write:
         available_users = list(
             User.objects.filter(is_active=True)
             .exclude(pk__in=card.assignees.values_list("pk", flat=True))
             .order_by("username")[:20]
         )
+        available_labels = list(
+            board.labels.exclude(pk__in=card.labels.values_list("pk", flat=True))
+            .order_by("name")
+        )
 
     context = {
         "card": card,
         "can_write": can_write,
         "available_users": available_users,
+        "available_labels": available_labels,
     }
     return render(
         request, "aa_kanban/partials/card_modal_content.html", context
@@ -192,8 +203,20 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
 
     if card.assignees.filter(pk=target_user.pk).exists():
         card.assignees.remove(target_user)
+        try:
+            from aadiscordbot.tasks import send_direct_message_by_user_id
+            msg = f"You have been removed from the card: **{card.title}** on board **{board.name}**."
+            send_direct_message_by_user_id.delay(target_user.pk, msg)
+        except ImportError:
+            pass
     else:
         card.assignees.add(target_user)
+        try:
+            from aadiscordbot.tasks import send_direct_message_by_user_id
+            msg = f"You have been assigned to the card: **{card.title}** on board **{board.name}**."
+            send_direct_message_by_user_id.delay(target_user.pk, msg)
+        except ImportError:
+            pass
 
     available_users = list(
         User.objects.filter(is_active=True)
@@ -201,15 +224,22 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
         .order_by("username")[:20]
     )
 
-    return render(
-        request,
+    from django.template.loader import render_to_string
+    html_partial = render_to_string(
         "aa_kanban/partials/card_assignees.html",
         {
             "card": card,
             "can_write": True,
             "available_users": available_users,
         },
+        request=request,
     )
+    oob_partial = render_to_string(
+        "aa_kanban/partials/card_item.html",
+        {"card": card, "hx_oob": True, "can_write": True},
+        request=request,
+    )
+    return HttpResponse(html_partial + oob_partial)
 
 
 @login_required
@@ -343,3 +373,130 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
         "aa_kanban/partials/card_item.html",
         {"card": card, "can_write": True},
     )
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def board_labels_modal(request: HttpRequest, board_slug: str) -> HttpResponse:
+    """Render the modal dialog body for managing board labels."""
+    board = get_object_or_404(Board, slug=board_slug)
+    
+    can_manage = request.user.has_perm("aa_kanban.manage_boards")
+    can_write = board.can_user_write(request.user)
+    
+    if not (can_manage or can_write):
+        raise PermissionDenied("You do not have permission to manage labels for this board.")
+        
+    context = {
+        "board": board,
+        "labels": board.labels.order_by("name"),
+    }
+    return render(request, "aa_kanban/partials/board_labels_modal.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def create_label(request: HttpRequest, board_slug: str) -> HttpResponse:
+    """Create a new label for a board."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    board = get_object_or_404(Board, slug=board_slug)
+    
+    can_manage = request.user.has_perm("aa_kanban.manage_boards")
+    can_write = board.can_user_write(request.user)
+    
+    if not (can_manage or can_write):
+        raise PermissionDenied("You do not have permission to manage labels for this board.")
+
+    name = request.POST.get("name", "").strip()
+    color = request.POST.get("color", "primary").strip()
+    
+    if not name:
+        return HttpResponseBadRequest("Label name cannot be empty.")
+        
+    Label.objects.get_or_create(board=board, name=name, defaults={"color": color})
+    
+    context = {
+        "board": board,
+        "labels": board.labels.order_by("name"),
+    }
+    return render(request, "aa_kanban/partials/board_labels_modal.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def delete_label(request: HttpRequest, label_id: int) -> HttpResponse:
+    """Delete a label from a board."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    label = get_object_or_404(Label.objects.select_related("board"), pk=label_id)
+    board = label.board
+    
+    can_manage = request.user.has_perm("aa_kanban.manage_boards")
+    can_write = board.can_user_write(request.user)
+    
+    if not (can_manage or can_write):
+        raise PermissionDenied("You do not have permission to delete labels for this board.")
+
+    label.delete()
+    
+    context = {
+        "board": board,
+        "labels": board.labels.order_by("name"),
+    }
+    return render(request, "aa_kanban/partials/board_labels_modal.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
+    """Add or remove a label from a card and return updated labels partial."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    card = get_object_or_404(
+        Card.objects.select_related("list__board").prefetch_related("labels"),
+        pk=card_id,
+    )
+    board = card.list.board
+    if not board.can_user_write(request.user):
+        raise PermissionDenied("Write permission required to assign labels.")
+
+    label_id_raw = request.POST.get("label_id")
+    if not label_id_raw:
+        return HttpResponseBadRequest("Missing label_id.")
+
+    try:
+        label_id = int(label_id_raw)
+    except (ValueError, TypeError):
+        return HttpResponseBadRequest("label_id must be an integer.")
+
+    target_label = get_object_or_404(Label, pk=label_id, board=board)
+
+    if card.labels.filter(pk=target_label.pk).exists():
+        card.labels.remove(target_label)
+    else:
+        card.labels.add(target_label)
+
+    available_labels = list(
+        board.labels.exclude(pk__in=card.labels.values_list("pk", flat=True))
+        .order_by("name")
+    )
+
+    from django.template.loader import render_to_string
+    html_partial = render_to_string(
+        "aa_kanban/partials/card_labels.html",
+        {
+            "card": card,
+            "can_write": True,
+            "available_labels": available_labels,
+        },
+        request=request,
+    )
+    oob_partial = render_to_string(
+        "aa_kanban/partials/card_item.html",
+        {"card": card, "hx_oob": True, "can_write": True},
+        request=request,
+    )
+    return HttpResponse(html_partial + oob_partial)

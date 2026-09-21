@@ -7,12 +7,12 @@ blijven bewerkbaar voor moderatie-doeleinden.
 
 from django.contrib import admin
 
-from .models import Board, Card, Comment, Label, List
+from .models import Board, Card, Comment, Label, List, KanbanSetting
 
 
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
-    """Read-only board overview. Manage boards via the frontend."""
+    """Read-only board overview, except for technical webhook settings."""
 
     list_display = ("name", "slug", "created_by", "created_at", "updated_at")
     search_fields = ("name", "description")
@@ -30,11 +30,25 @@ class BoardAdmin(admin.ModelAdmin):
     def has_add_permission(self, request) -> bool:  # type: ignore[override]
         return False
 
+    # Allow changing so admins can edit webhooks
     def has_change_permission(self, request, obj=None) -> bool:  # type: ignore[override]
-        return False
+        return True
 
     def has_delete_permission(self, request, obj=None) -> bool:  # type: ignore[override]
         return False
+
+@admin.register(KanbanSetting)
+class KanbanSettingAdmin(admin.ModelAdmin):
+    """Global configuration for aa_kanban."""
+
+    list_display = ("__str__", "board_creation_webhook")
+    
+    def has_add_permission(self, request) -> bool:  # type: ignore[override]
+        # Only allow 1 instance
+        from .models import KanbanSetting
+        if KanbanSetting.objects.exists():
+            return False
+        return True
 
 
 @admin.register(List)

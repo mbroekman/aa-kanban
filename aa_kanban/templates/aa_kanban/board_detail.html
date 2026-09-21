@@ -20,7 +20,7 @@
         width: 320px;
         min-width: 320px;
         max-width: 320px;
-        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        background-color: var(--bs-secondary-bg, #e2e4e6);
         border-radius: 0.5rem;
     }
     .column-name:hover {
@@ -61,6 +61,16 @@
                 <button type="button"
                         class="btn btn-sm btn-outline-secondary"
                         data-bs-toggle="modal"
+                        data-bs-target="#labelsModal"
+                        hx-get="{% url 'aa_kanban:board_labels_modal' board.slug %}"
+                        hx-target="#labelsModalBody"
+                        hx-trigger="click"
+                        title="{% trans 'Manage labels' %}">
+                    <i class="fas fa-tags"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        data-bs-toggle="modal"
                         data-bs-target="#boardModal"
                         hx-get="{% url 'aa_kanban:edit_board' board.slug %}"
                         hx-target="#boardModalBody"
@@ -76,8 +86,8 @@
     <!-- Kanban Board Columns -->
     <div class="kanban-board-container" id="kanban-board" data-can-write="{{ can_write|yesno:'true,false' }}">
         {% for list in lists %}
-            <div class="kanban-column card shadow-sm border-0" data-list-id="{{ list.id }}">
-                <div class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center"
+            <div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center rounded-top-3"
                      id="column-header-{{ list.id }}">
                     {% if can_write %}
                         <h5 class="h6 mb-0 fw-bold text-dark column-name"
@@ -189,10 +199,23 @@
         </div>
     </div>
 </div>
+
+{# Modal container voor labels #}
+<div class="modal fade" id="labelsModal" tabindex="-1" aria-labelledby="labelsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="labelsModalBody">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">{% trans "Loading..." %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_javascript %}
-<script src="{% static 'aa_kanban/libs/htmx.min.js' %}"></script>
+{{ block.super }}
 <script src="{% static 'aa_kanban/libs/Sortable.min.js' %}"></script>
 <script src="{% static 'aa_kanban/js/kanban.js' %}"></script>
 <script>

@@ -15,18 +15,12 @@
 
 <div class="modal-body pt-3">
     <!-- Labels -->
-    {% if card.labels.all %}
-        <div class="mb-3">
-            <label class="form-label small fw-bold text-muted text-uppercase mb-1">{% trans "Labels" %}</label>
-            <div class="d-flex flex-wrap gap-1">
-                {% for label in card.labels.all %}
-                    <span class="badge bg-{{ label.color }} text-white py-1 px-2" style="font-size: 0.8rem;">
-                        {{ label.name }}
-                    </span>
-                {% endfor %}
-            </div>
+    <div class="mb-3">
+        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{% trans "Labels" %}</label>
+        <div id="card-labels-container">
+            {% include "aa_kanban/partials/card_labels.html" %}
         </div>
-    {% endif %}
+    </div>
 
     <!-- Assignees -->
     <div class="mb-3">
