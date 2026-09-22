@@ -1,0 +1,52 @@
+{% load i18n %}
+
+<div class="modal-header bg-light">
+    <h5 class="modal-title" id="groupUsersModalLabel">
+        <i class="fas fa-users me-2 text-primary"></i>{% trans "Manage Users:" %} {{ group.name }}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+</div>
+
+<div class="modal-body p-0">
+    <div class="p-3 border-bottom bg-white">
+        <form hx-post="{% url 'aa_kanban:add_user_to_group' group.pk %}" hx-target="#groupUsersModalBody" class="d-flex gap-2">
+            {% csrf_token %}
+            <select name="user_id" class="form-select form-select-sm" required>
+                <option value="" disabled selected>{% trans "Select a user to add..." %}</option>
+                {% for u in all_users %}
+                    <option value="{{ u.pk }}">{{ u.username }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary text-nowrap">
+                <i class="fas fa-plus me-1"></i>{% trans "Add User" %}
+            </button>
+        </form>
+    </div>
+
+    <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+        {% if members %}
+            {% for member in members %}
+                <div class="list-group-item d-flex justify-content-between align-items-center py-2">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-circle fs-4 text-secondary me-2"></i>
+                        <span>{{ member.username }}</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger border-0" 
+                            hx-post="{% url 'aa_kanban:remove_user_from_group' group.pk member.pk %}"
+                            hx-target="#groupUsersModalBody"
+                            title="{% trans 'Remove from group' %}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center text-muted p-4">
+                {% trans "No users in this group yet." %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal-footer bg-light">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+</div>

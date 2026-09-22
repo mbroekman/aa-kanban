@@ -1,0 +1,14 @@
+{% extends "allianceauth/base-bs5.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% trans "Kanban" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% block aa_kanban_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+    <script src="{% static 'aa_kanban/libs/htmx.min.js' %}"></script>
+{% endblock %}

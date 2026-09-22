@@ -1,0 +1,48 @@
+{% load i18n %}
+{# Partial: volledige nieuwe kolom — HTMX response van create_list #}
+<div class="kanban-column card shadow-sm border-0" data-list-id="{{ list.id }}">
+    <div class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center"
+         id="column-header-{{ list.id }}">
+        <h5 class="h6 mb-0 fw-bold text-dark column-name"
+            data-rename-url="{% url 'aa_kanban:rename_list' list.id %}"
+            title="{% trans 'Click to rename' %}"
+            style="cursor: pointer;">
+            {{ list.name }}
+        </h5>
+        <div class="d-flex align-items-center gap-1">
+            <span class="badge bg-secondary rounded-pill card-count-badge">0</span>
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger border-0 delete-list-btn"
+                    data-list-id="{{ list.id }}"
+                    data-list-name="{{ list.name }}"
+                    data-delete-url="{% url 'aa_kanban:delete_list' list.id %}"
+                    title="{% trans 'Delete column' %}">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body p-2 kanban-cards" id="list-cards-{{ list.id }}" data-list-id="{{ list.id }}">
+        <div class="text-center py-4 text-muted small empty-placeholder">
+            <em>{% trans "No cards" %}</em>
+        </div>
+    </div>
+
+    <div class="card-footer bg-transparent border-0 p-2">
+        <form hx-post="{% url 'aa_kanban:create_card' list.id %}"
+              hx-target="#list-cards-{{ list.id }}"
+              hx-swap="beforeend"
+              hx-on::after-request="this.reset()"
+              class="d-flex gap-2">
+            {% csrf_token %}
+            <input type="text"
+                   name="title"
+                   class="form-control form-control-sm"
+                   placeholder="{% trans 'New card title...' %}"
+                   required>
+            <button type="submit" class="btn btn-sm btn-primary" title="{% trans 'Add card' %}">
+                <i class="fas fa-plus"></i>
+            </button>
+        </form>
+    </div>
+</div>

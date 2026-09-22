@@ -1,0 +1,73 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+    "hatchling",
+]
+
+[project]
+name = "aa-kanban"
+description = "Kanban Plugin for Alliance Auth"
+readme = "README.md"
+keywords = [
+    "allianceauth",
+    "aa_kanban",
+]
+license = { file = "LICENSE" }
+authors = [
+    { name = "Maddog Broekman", email = "maddogbroekman@gmail.com" },
+]
+requires-python = ">=3.10,<3.14"
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dynamic = [
+    "version",
+]
+dependencies = [
+    "allianceauth>=5",
+]
+
+[tool.hatch]
+version.path = "aa_kanban/__init__.py"
+build.include = [
+    "/aa_kanban",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+extend-exclude = [
+    "testauth",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*" = ["E501"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "testauth.settings"
+python_files = ["test_*.py", "*_test.py"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["mypy_django_plugin.main"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "testauth.settings.local"
