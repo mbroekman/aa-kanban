@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-09-22
+
+### Added
+- **List Limits & Descriptions**: Added support for configuring Work-In-Progress (WIP) limits and descriptions for Kanban lists.
+- **Dynamic Group Member Listing**: The list of members for Kanban groups now updates dynamically in the background when closing the user management modal.
+
+### Changed
+- Improved target list validation when moving cards to enforce WIP limits.
+- Refactored list edit and group user endpoints to use HTMX `hx-swap-oob` for seamless UI updates.
+
 ## [0.5.0] - 2026-09-21
 
 ### Added
