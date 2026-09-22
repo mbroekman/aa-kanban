@@ -34,6 +34,7 @@
                     <button class="btn btn-sm btn-outline-danger border-0" 
                             hx-post="{% url 'aa_kanban:remove_user_from_group' group.pk member.pk %}"
                             hx-target="#groupUsersModalBody"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                             title="{% trans 'Remove from group' %}">
                         <i class="fas fa-times"></i>
                     </button>
