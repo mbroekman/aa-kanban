@@ -1,16 +1,39 @@
 {% load i18n %}
 {# Partial: kolomheader — gebruikt door rename_list HTMX response #}
 <div class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center"
-     id="column-header-{{ list.id }}">
-    {% if can_write %}
-        <h5 class="h6 mb-0 fw-bold text-dark column-name"
-            data-rename-url="{% url 'aa_kanban:rename_list' list.id %}"
-            title="{% trans 'Click to rename' %}"
-            style="cursor: pointer;">
+     id="column-header-{{ list.id }}"
+     data-wip-limit="{{ list.wip_limit|default:0 }}">
+    <div class="d-flex align-items-center gap-2">
+        <h5 class="h6 mb-0 fw-bold text-dark column-name">
             {{ list.name }}
         </h5>
-        <div class="d-flex align-items-center gap-1">
-            <span class="badge bg-secondary rounded-pill card-count-badge">0</span>
+        {% if list.description %}
+            <i class="fas fa-info-circle text-muted"
+               title="{{ list.description }}"
+               data-bs-toggle="tooltip"></i>
+        {% endif %}
+    </div>
+    <div class="d-flex align-items-center gap-1">
+        {% if list.wip_limit > 0 %}
+            <span class="badge {% if list.cards.count >= list.wip_limit %}bg-danger{% else %}bg-info{% endif %} rounded-pill card-count-badge"
+                  title="WIP Limit: {{ list.wip_limit }}">
+                {{ list.cards.count }}/{{ list.wip_limit }}
+            </span>
+        {% else %}
+            <span class="badge bg-secondary rounded-pill card-count-badge">{{ list.cards.count }}</span>
+        {% endif %}
+
+        {% if can_write %}
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary border-0"
+                    data-bs-toggle="modal"
+                    data-bs-target="#listModal"
+                    hx-get="{% url 'aa_kanban:edit_list' list.id %}"
+                    hx-target="#listModalBody"
+                    hx-trigger="click"
+                    title="{% trans 'Edit column settings' %}">
+                <i class="fas fa-cog"></i>
+            </button>
             <button type="button"
                     class="btn btn-sm btn-outline-danger border-0 delete-list-btn"
                     data-list-id="{{ list.id }}"
@@ -19,9 +42,6 @@
                     title="{% trans 'Delete column' %}">
                 <i class="fas fa-trash-alt"></i>
             </button>
-        </div>
-    {% else %}
-        <h5 class="h6 mb-0 fw-bold text-dark">{{ list.name }}</h5>
-        <span class="badge bg-secondary rounded-pill card-count-badge">0</span>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>

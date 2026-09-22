@@ -173,6 +173,12 @@ class List(models.Model):
         related_name="lists",
     )
     name = models.CharField(max_length=100)
+    description = models.TextField(
+        blank=True, default="", help_text="Optional context for this column"
+    )
+    wip_limit = models.PositiveIntegerField(
+        default=0, help_text="Maximum cards (0 for unlimited)"
+    )
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

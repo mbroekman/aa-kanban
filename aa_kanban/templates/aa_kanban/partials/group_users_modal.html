@@ -50,3 +50,9 @@
 <div class="modal-footer bg-light">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
 </div>
+
+{% if request.method == "POST" %}
+<div id="group-list-container" hx-swap-oob="true">
+    {% include "aa_kanban/partials/group_list.html" %}
+</div>
+{% endif %}

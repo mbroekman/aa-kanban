@@ -15,9 +15,26 @@
             <tr>
                 <td class="fw-bold">{{ group.name }}</td>
                 <td>
-                    <span class="badge bg-secondary rounded-pill">{{ group.members.count }}</span>
+                    {% for member in group.members.all|slice:":5" %}
+                        <span class="badge bg-info text-dark rounded-pill me-1 mb-1">{{ member.username }}</span>
+                    {% endfor %}
+                    {% if group.members.count > 5 %}
+                        <span class="badge bg-secondary rounded-pill mb-1">+{{ group.members.count|add:"-5" }} {% trans "more" %}</span>
+                    {% endif %}
+                    {% if not group.members.count %}
+                        <span class="text-muted small">{% trans "No members" %}</span>
+                    {% endif %}
                 </td>
-                <td class="text-end">
+                <td class="text-end text-nowrap">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-secondary me-2"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#groupUsersModal"
+                            hx-get="{% url 'aa_kanban:edit_group' group.pk %}"
+                            hx-target="#groupUsersModalBody"
+                            title="{% trans 'Edit Group Name' %}">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <button type="button" 
                             class="btn btn-sm btn-outline-primary me-2"
                             data-bs-toggle="modal" 

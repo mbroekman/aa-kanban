@@ -1,0 +1,45 @@
+{% load i18n %}
+<div class="modal-header bg-light">
+    <h5 class="modal-title" id="listModalLabel">{% trans "Edit Column" %}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+</div>
+<form hx-post="{% url 'aa_kanban:edit_list' list.id %}"
+      hx-target="#column-header-{{ list.id }}"
+      hx-swap="outerHTML">
+    {% csrf_token %}
+    <div class="modal-body">
+        <div class="mb-3">
+            <label for="listName" class="form-label fw-bold">{% trans "Name" %}</label>
+            <input type="text"
+                   class="form-control"
+                   id="listName"
+                   name="name"
+                   value="{{ list.name }}"
+                   required>
+        </div>
+        <div class="mb-3">
+            <label for="listWipLimit" class="form-label fw-bold">{% trans "WIP Limit" %}</label>
+            <input type="number"
+                   class="form-control"
+                   id="listWipLimit"
+                   name="wip_limit"
+                   min="0"
+                   value="{{ list.wip_limit|default:0 }}">
+            <div class="form-text">{% trans "Maximum number of cards allowed in this column. Enter 0 for unlimited." %}</div>
+        </div>
+        <div class="mb-3">
+            <label for="listDescription" class="form-label fw-bold">{% trans "Description" %}</label>
+            <textarea class="form-control"
+                      id="listDescription"
+                      name="description"
+                      rows="3">{{ list.description }}</textarea>
+            <div class="form-text">{% trans "Optional context or description for this column." %}</div>
+        </div>
+    </div>
+    <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>{% trans "Save changes" %}
+        </button>
+    </div>
+</form>

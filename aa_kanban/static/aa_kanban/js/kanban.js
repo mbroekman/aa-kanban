@@ -27,6 +27,25 @@ document.addEventListener("DOMContentLoaded", function () {
             chosenClass: "kanban-card-chosen",
             dragClass: "kanban-card-dragging",
             handle: ".kanban-card",
+            onMove: function (evt) {
+                const targetColumnEl = evt.to.closest('.kanban-column');
+                if (!targetColumnEl) return true;
+                
+                if (evt.from === evt.to) {
+                    return true;
+                }
+                
+                const headerEl = targetColumnEl.querySelector('.card-header');
+                const wipLimit = headerEl ? parseInt(headerEl.dataset.wipLimit || '0', 10) : parseInt(targetColumnEl.dataset.wipLimit || '0', 10);
+                
+                if (wipLimit > 0) {
+                    const currentCards = evt.to.querySelectorAll('.kanban-card:not(.kanban-card-ghost)').length;
+                    if (currentCards >= wipLimit) {
+                        return false; // Prevent move visually
+                    }
+                }
+                return true;
+            },
             onEnd: function (evt) {
                 const cardEl = evt.item;
                 const cardId = cardEl.dataset.cardId;
@@ -141,4 +160,33 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }, 5000);
     }
+
+    // Modal close event listener for HTMX
+    document.body.addEventListener('closeModal', function() {
+        // List modal
+        const listModalEl = document.getElementById('listModal');
+        if (listModalEl) {
+            const listModal = bootstrap.Modal.getInstance(listModalEl);
+            if (listModal) listModal.hide();
+        }
+        
+        // Re-initialize tooltips for new content
+        initTooltips();
+    });
+
+    function initTooltips() {
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        if (typeof bootstrap !== 'undefined') {
+            [...tooltipTriggerList].map(el => {
+                const instance = bootstrap.Tooltip.getInstance(el);
+                if (instance) {
+                    instance.dispose();
+                }
+                new bootstrap.Tooltip(el);
+            });
+        }
+    }
+
+    // Initialize tooltips on load
+    initTooltips();
 });

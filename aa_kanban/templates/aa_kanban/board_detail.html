@@ -86,32 +86,8 @@
     <!-- Kanban Board Columns -->
     <div class="kanban-board-container" id="kanban-board" data-can-write="{{ can_write|yesno:'true,false' }}">
         {% for list in lists %}
-            <div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}">
-                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center rounded-top-3"
-                     id="column-header-{{ list.id }}">
-                    {% if can_write %}
-                        <h5 class="h6 mb-0 fw-bold text-dark column-name"
-                            data-rename-url="{% url 'aa_kanban:rename_list' list.id %}"
-                            title="{% trans 'Click to rename' %}"
-                            style="cursor: pointer;">
-                            {{ list.name }}
-                        </h5>
-                        <div class="d-flex align-items-center gap-1">
-                            <span class="badge bg-secondary rounded-pill card-count-badge">{{ list.cards.all|length }}</span>
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger border-0 delete-list-btn"
-                                    data-list-id="{{ list.id }}"
-                                    data-list-name="{{ list.name }}"
-                                    data-delete-url="{% url 'aa_kanban:delete_list' list.id %}"
-                                    title="{% trans 'Delete column' %}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    {% else %}
-                        <h5 class="h6 mb-0 fw-bold text-dark">{{ list.name }}</h5>
-                        <span class="badge bg-secondary rounded-pill card-count-badge">{{ list.cards.all|length }}</span>
-                    {% endif %}
-                </div>
+            <div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}" data-wip-limit="{{ list.wip_limit|default:0 }}">
+                {% include 'aa_kanban/partials/column_header.html' with list=list can_write=can_write %}
 
                 <div class="card-body p-2 kanban-cards" id="list-cards-{{ list.id }}" data-list-id="{{ list.id }}">
                     {% for card in list.cards.all %}
@@ -212,6 +188,19 @@
         </div>
     </div>
 </div>
+
+{# Modal container voor lijst (column) #}
+<div class="modal fade" id="listModal" tabindex="-1" aria-labelledby="listModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="listModalBody">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">{% trans "Loading..." %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_javascript %}
@@ -222,42 +211,6 @@
 (function () {
     'use strict';
 
-    // Kolomnaam inline bewerken via klik
-    document.addEventListener('click', function (e) {
-        const nameEl = e.target.closest('.column-name');
-        if (!nameEl) return;
-        const renameUrl = nameEl.dataset.renameUrl;
-        const current = nameEl.textContent.trim();
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'form-control form-control-sm';
-        input.value = current;
-        nameEl.replaceWith(input);
-        input.focus();
-        input.select();
-
-        function submit() {
-            const newName = input.value.trim();
-            if (!newName || newName === current) {
-                location.reload();
-                return;
-            }
-            const form = new FormData();
-            form.append('name', newName);
-            form.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-            fetch(renameUrl, { method: 'POST', body: form })
-                .then(r => r.text())
-                .then(html => {
-                    const header = input.closest('.card-header');
-                    if (header) header.outerHTML = html;
-                });
-        }
-        input.addEventListener('blur', submit);
-        input.addEventListener('keydown', function (ev) {
-            if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
-            if (ev.key === 'Escape') { location.reload(); }
-        });
-    });
 
     // Kolom verwijderen met bevestiging
     document.addEventListener('click', function (e) {

@@ -25,9 +25,9 @@ urlpatterns = [
         name="create_list",
     ),
     path(
-        "lists/<int:list_id>/rename/",
-        views_api.rename_list,
-        name="rename_list",
+        "lists/<int:list_id>/edit/",
+        views_api.edit_list,
+        name="edit_list",
     ),
     path(
         "lists/<int:list_id>/delete/",
@@ -82,6 +82,7 @@ urlpatterns = [
     # Settings and Groups
     path("settings/", views_settings.kanban_settings, name="settings"),
     path("settings/groups/create/", views_settings.create_kanban_group, name="create_group"),
+    path("settings/groups/<int:group_id>/edit/", views_settings.edit_kanban_group, name="edit_group"),
     path("settings/groups/<int:group_id>/delete/", views_settings.delete_kanban_group, name="delete_group"),
     path("settings/groups/<int:group_id>/users/", views_settings.group_users_modal, name="group_users_modal"),
     path("settings/groups/<int:group_id>/users/add/", views_settings.add_user_to_group, name="add_user_to_group"),

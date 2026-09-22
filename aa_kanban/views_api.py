@@ -63,8 +63,13 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
             "Target list does not belong to the same board."
         )
 
+    source_list = card.list
+
+    if source_list.id != target_list.id and target_list.wip_limit > 0:
+        if target_list.cards.count() >= target_list.wip_limit:
+            return HttpResponseBadRequest("Target list has reached its WIP limit.")
+
     with transaction.atomic():
-        source_list = card.list
         target_cards = list(
             target_list.cards.exclude(pk=card.pk).order_by("order", "id")
         )
@@ -298,29 +303,48 @@ def create_list(request: HttpRequest, board_slug: str) -> HttpResponse:
 
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
-def rename_list(request: HttpRequest, list_id: int) -> HttpResponse:
-    """Rename a list (column) and return the updated column header partial."""
-    if request.method != "POST":
-        return HttpResponseNotAllowed(["POST"])
-
+def edit_list(request: HttpRequest, list_id: int) -> HttpResponse:
+    """Edit a list (column) settings and return the updated column header partial."""
     kanban_list = get_object_or_404(
         List.objects.select_related("board"), pk=list_id
     )
     if not kanban_list.board.can_user_write(request.user):
-        raise PermissionDenied("Write permission required to rename a column.")
+        raise PermissionDenied("Write permission required to edit a column.")
 
-    name = request.POST.get("name", "").strip()
-    if not name:
-        return HttpResponseBadRequest("Column name cannot be empty.")
+    if request.method == "GET":
+        return render(
+            request,
+            "aa_kanban/partials/edit_list_modal.html",
+            {"list": kanban_list},
+        )
 
-    kanban_list.name = name
-    kanban_list.save(update_fields=["name", "updated_at"])
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        description = request.POST.get("description", "").strip()
+        try:
+            wip_limit = int(request.POST.get("wip_limit", 0))
+            if wip_limit < 0:
+                wip_limit = 0
+        except ValueError:
+            wip_limit = 0
 
-    return render(
-        request,
-        "aa_kanban/partials/column_header.html",
-        {"list": kanban_list, "can_write": True},
-    )
+        if not name:
+            return HttpResponseBadRequest("Column name cannot be empty.")
+
+        kanban_list.name = name
+        kanban_list.description = description
+        kanban_list.wip_limit = wip_limit
+        kanban_list.save(update_fields=["name", "description", "wip_limit", "updated_at"])
+
+        response = render(
+            request,
+            "aa_kanban/partials/column_header.html",
+            {"list": kanban_list, "can_write": True},
+        )
+        response["HX-Trigger"] = "closeModal"
+        return response
+
+    return HttpResponseNotAllowed(["GET", "POST"])
 
 
 @login_required

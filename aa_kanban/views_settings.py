@@ -33,6 +33,26 @@ def create_kanban_group(request: HttpRequest) -> HttpResponse:
 
 @login_required
 @permission_required("aa_kanban.manage_boards", raise_exception=True)
+def edit_kanban_group(request: HttpRequest, group_id: int) -> HttpResponse:
+    """HTMX endpoint to edit a KanbanGroup name."""
+    group = get_object_or_404(KanbanGroup, pk=group_id)
+    
+    if request.method == "GET":
+        return render(request, "aa_kanban/partials/edit_group_modal.html", {"group": group})
+        
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        if name:
+            group.name = name
+            group.save(update_fields=["name"])
+            
+        groups = KanbanGroup.objects.prefetch_related("members").order_by("name")
+        response = render(request, "aa_kanban/partials/group_list.html", {"groups": groups})
+        response["HX-Trigger"] = "closeModal"
+        return response
+
+@login_required
+@permission_required("aa_kanban.manage_boards", raise_exception=True)
 def delete_kanban_group(request: HttpRequest, group_id: int) -> HttpResponse:
     """HTMX endpoint to delete a KanbanGroup."""
     if request.method == "POST":
@@ -69,10 +89,12 @@ def add_user_to_group(request: HttpRequest, group_id: int) -> HttpResponse:
             group.members.add(user)
     
     all_users = User.objects.exclude(pk__in=group.members.values_list('pk', flat=True)).order_by('username')
+    groups = KanbanGroup.objects.prefetch_related("members").order_by("name")
     context = {
         "group": group,
         "members": group.members.order_by('username'),
         "all_users": all_users,
+        "groups": groups,
     }
     return render(request, "aa_kanban/partials/group_users_modal.html", context)
 
@@ -87,9 +109,11 @@ def remove_user_from_group(request: HttpRequest, group_id: int, user_id: int) ->
         group.members.remove(user)
     
     all_users = User.objects.exclude(pk__in=group.members.values_list('pk', flat=True)).order_by('username')
+    groups = KanbanGroup.objects.prefetch_related("members").order_by("name")
     context = {
         "group": group,
         "members": group.members.order_by('username'),
         "all_users": all_users,
+        "groups": groups,
     }
     return render(request, "aa_kanban/partials/group_users_modal.html", context)
