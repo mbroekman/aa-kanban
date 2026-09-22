@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.2] - 2026-09-22
+
+### Added
+- Implemented native-looking custom Bootstrap confirmation modals for all destructive actions via HTMX (`htmx:confirm`).
+- Added description tooltips to column names and card titles for better UX.
+
 ## [0.6.1] - 2026-09-22
 
 ### Fixed
