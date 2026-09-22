@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] - 2026-09-22
+
+### Fixed
+- Included missing database migrations in the build to prevent `OperationalError` when accessing lists.
+- Fixed an issue where removing users or groups using HTMX failed with a 403 Forbidden error due to missing CSRF tokens on buttons outside of forms.
+
 ## [0.6.0] - 2026-09-22
 
 ### Added
