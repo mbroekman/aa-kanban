@@ -19,7 +19,8 @@
         </div>
     {% endif %}
 
-    <div class="card-title text-dark fw-semibold mb-2" style="font-size: 0.95rem;">
+    <div class="card-title text-dark fw-semibold mb-2" style="font-size: 0.95rem;"
+         {% if card.description %}title="{{ card.description }}" data-bs-toggle="tooltip"{% endif %}>
         {{ card.title }}
     </div>
 

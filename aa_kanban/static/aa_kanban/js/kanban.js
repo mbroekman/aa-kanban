@@ -189,4 +189,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize tooltips on load
     initTooltips();
+    
+    // Initialize tooltips after HTMX swaps
+    document.body.addEventListener('htmx:afterSwap', function() {
+        initTooltips();
+    });
 });

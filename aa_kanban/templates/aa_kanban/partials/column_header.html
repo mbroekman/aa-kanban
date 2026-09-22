@@ -4,14 +4,10 @@
      id="column-header-{{ list.id }}"
      data-wip-limit="{{ list.wip_limit|default:0 }}">
     <div class="d-flex align-items-center gap-2">
-        <h5 class="h6 mb-0 fw-bold text-dark column-name">
+        <h5 class="h6 mb-0 fw-bold text-dark column-name"
+            {% if list.description %}title="{{ list.description }}" data-bs-toggle="tooltip"{% endif %}>
             {{ list.name }}
         </h5>
-        {% if list.description %}
-            <i class="fas fa-info-circle text-muted"
-               title="{{ list.description }}"
-               data-bs-toggle="tooltip"></i>
-        {% endif %}
     </div>
     <div class="d-flex align-items-center gap-1">
         {% if list.wip_limit > 0 %}
