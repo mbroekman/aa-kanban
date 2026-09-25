@@ -55,4 +55,5 @@ Here are a few examples of cards (with their labels and assignments) that you ca
 
 - **Use Labels:** Create labels such as `Copywriting`, `Images`, `Data Analysis`, `Urgent`, and `Review Required` for quick filtering.
 - **Connect Discord:** Utilize `aadiscordbot` to send notifications whenever a card is moved to "Ready for Publication".
+- **Member Tickets:** Stel dit bord in als het `ticket_board` in de Kanban Settings, zodat gewone leden direct AI marketing verzoeken kunnen indienen als tickets in de "Backlog" lijst.
 - **Keep it tidy:** Archive or delete cards that have been in "Completed (Done)" for more than 2 weeks to keep the interface clean.

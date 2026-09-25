@@ -16,7 +16,7 @@
                 <td class="fw-bold">{{ group.name }}</td>
                 <td>
                     {% for member in group.members.all|slice:":5" %}
-                        <span class="badge bg-info text-dark rounded-pill me-1 mb-1">{{ member.username }}</span>
+                        <span class="badge bg-info rounded-pill me-1 mb-1">{{ member.username }}</span>
                     {% endfor %}
                     {% if group.members.count > 5 %}
                         <span class="badge bg-secondary rounded-pill mb-1">+{{ group.members.count|add:"-5" }} {% trans "more" %}</span>

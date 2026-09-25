@@ -9,6 +9,9 @@ app_name = "aa_kanban"
 urlpatterns = [
     # Board overview & detail
     path("", views.index, name="index"),
+    path("summary/", views.summary, name="summary"),
+    path("tickets/create/", views.create_ticket, name="create_ticket"),
+    path("tickets/success/", views.ticket_success, name="ticket_success"),
     path("board/<slug:board_slug>/", views.board_detail, name="board_detail"),
     # Board management (frontend)
     path("boards/create/", views.create_board, name="create_board"),
@@ -59,6 +62,16 @@ urlpatterns = [
         name="update_card",
     ),
     path(
+        "cards/<int:card_id>/color/",
+        views_api.update_card_color,
+        name="update_card_color",
+    ),
+    path(
+        "cards/<int:card_id>/delete/",
+        views_api.delete_card,
+        name="delete_card",
+    ),
+    path(
         "cards/<int:card_id>/labels/toggle/",
         views_api.toggle_label,
         name="toggle_label",
@@ -75,7 +88,7 @@ urlpatterns = [
         name="create_label",
     ),
     path(
-        "labels/<int:label_id>/delete/",
+        "boards/<slug:board_slug>/labels/<int:label_id>/delete/",
         views_api.delete_label,
         name="delete_label",
     ),
@@ -87,5 +100,8 @@ urlpatterns = [
     path("settings/groups/<int:group_id>/users/", views_settings.group_users_modal, name="group_users_modal"),
     path("settings/groups/<int:group_id>/users/add/", views_settings.add_user_to_group, name="add_user_to_group"),
     path("settings/groups/<int:group_id>/users/<int:user_id>/remove/", views_settings.remove_user_from_group, name="remove_user_from_group"),
+    path("settings/labels/create/", views_settings.create_settings_label, name="create_settings_label"),
+    path("settings/labels/<int:label_id>/delete/", views_settings.delete_settings_label, name="delete_settings_label"),
+    path("settings/global/update/", views_settings.update_global_settings, name="update_global_settings"),
 ]
 

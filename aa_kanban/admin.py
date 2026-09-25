@@ -74,10 +74,10 @@ class ListAdmin(admin.ModelAdmin):
 class LabelAdmin(admin.ModelAdmin):
     """Read-only label overview. Manage labels via the board frontend."""
 
-    list_display = ("name", "color", "board")
-    list_filter = ("board", "color")
-    search_fields = ("name", "board__name")
-    readonly_fields = ("name", "color", "board")
+    list_display = ("name", "color")
+    list_filter = ("color",)
+    search_fields = ("name",)
+    readonly_fields = ("name", "color")
 
     def has_add_permission(self, request) -> bool:  # type: ignore[override]
         return False

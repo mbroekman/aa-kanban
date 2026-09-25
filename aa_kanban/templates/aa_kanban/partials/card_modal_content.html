@@ -2,7 +2,7 @@
 
 <div class="modal-header border-bottom-0 pb-0">
     <div>
-        <h5 class="modal-title fw-bold text-dark mb-1" id="cardModalLabel">{{ card.title }}</h5>
+        <h5 class="modal-title fw-bold mb-1" id="cardModalLabel">{{ card.title }}</h5>
         <div class="small text-muted">
             {% trans "in list" %} <span class="badge bg-secondary">{{ card.list.name }}</span>
             {% if card.due_date %}
@@ -19,6 +19,35 @@
         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{% trans "Labels" %}</label>
         <div id="card-labels-container">
             {% include "aa_kanban/partials/card_labels.html" %}
+        </div>
+    </div>
+
+    <!-- Card Color -->
+    <div class="mb-3">
+        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{% trans "Card Color" %}</label>
+        <div>
+            {% if can_write %}
+                <div class="d-flex flex-wrap gap-2">
+                    {% for color_val, color_name in card.COLOR_CHOICES %}
+                        <form hx-post="{% url 'aa_kanban:update_card_color' card.id %}"
+                              hx-target="#cardModalBody"
+                              class="d-inline">
+                            <input type="hidden" name="color" value="{{ color_val }}">
+                            <button type="submit" class="btn btn-sm {% if color_val %}bg-{{ color_val }}{% else %}bg-secondary{% endif %} rounded-circle p-0 position-relative" style="width: 24px; height: 24px; {% if not color_val %}background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1)), linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1)); background-size: 8px 8px; background-position: 0 0, 4px 4px;{% endif %}" title="{{ color_name }}">
+                                {% if card.color == color_val %}
+                                    <i class="fas fa-check text-{% if color_val == 'light' or color_val == 'warning' or not color_val %}dark{% else %}white{% endif %} position-absolute top-50 start-50 translate-middle" style="font-size: 10px;"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {% if card.color %}
+                    <div class="badge bg-{{ card.color }} border">{{ card.get_color_display }}</div>
+                {% else %}
+                    <div class="small text-muted"><em>{% trans "Default" %}</em></div>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 
@@ -79,15 +108,14 @@
         {% if can_write %}
             <form hx-post="{% url 'aa_kanban:add_comment' card.id %}"
                   hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                  hx-target="#card-comments-container"
-                  hx-on::after-request="if(event.detail.successful) this.reset();">
+                  hx-target="#card-comments-container">
                 <div class="input-group">
                     <textarea class="form-control"
                               name="comment"
                               rows="2"
                               placeholder="{% trans 'Write a comment...' %}"
                               required></textarea>
-                    <button type="submit" class="btn btn-outline-primary">
+                    <button type="submit" class="btn btn-primary">
                         <i class="fas fa-paper-plane me-1"></i>{% trans "Comment" %}
                     </button>
                 </div>
@@ -97,11 +125,22 @@
 </div>
 
 <div class="modal-footer border-top-0 pt-0 d-flex justify-content-between">
-    <small class="text-muted" style="font-size: 0.75rem;">
-        {% if card.created_by %}
-            {% trans "Created by" %} {{ card.created_by.username }} &bull; {{ card.created_at|date:"Y-m-d" }}
+    <div class="d-flex align-items-center gap-3">
+        <small class="text-muted" style="font-size: 0.75rem;">
+            {% if card.created_by %}
+                {% trans "Created by" %} {{ card.created_by.username }} &bull; {{ card.created_at|date:"Y-m-d" }}
+            {% endif %}
+        </small>
+        {% if can_write %}
+            <button type="button" class="btn btn-outline-danger btn-sm border-0"
+                    hx-post="{% url 'aa_kanban:delete_card' card.id %}"
+                    hx-confirm="{% trans 'Are you sure you want to delete this card?' %}"
+                    hx-target="#card-{{ card.id }}"
+                    hx-swap="outerHTML">
+                <i class="fas fa-trash-alt"></i>
+            </button>
         {% endif %}
-    </small>
+    </div>
     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
         {% trans "Close" %}
     </button>

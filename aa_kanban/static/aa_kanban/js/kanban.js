@@ -105,8 +105,32 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".kanban-column").forEach(function (col) {
             const countBadge = col.querySelector(".card-count-badge");
             const cards = col.querySelectorAll(".kanban-card");
+            const emptyPlaceholder = col.querySelector(".empty-placeholder");
             if (countBadge) {
-                countBadge.textContent = cards.length;
+                const header = col.querySelector(".card-header");
+                const wipLimit = header ? parseInt(header.dataset.wipLimit || '0', 10) : parseInt(col.dataset.wipLimit || '0', 10);
+                
+                if (wipLimit > 0) {
+                    countBadge.textContent = cards.length + "/" + wipLimit;
+                    if (cards.length >= wipLimit) {
+                        countBadge.classList.remove("bg-info", "bg-secondary");
+                        countBadge.classList.add("bg-danger");
+                    } else {
+                        countBadge.classList.remove("bg-danger", "bg-secondary");
+                        countBadge.classList.add("bg-info");
+                    }
+                } else {
+                    countBadge.textContent = cards.length;
+                    countBadge.classList.remove("bg-danger", "bg-info");
+                    countBadge.classList.add("bg-secondary");
+                }
+            }
+            if (emptyPlaceholder) {
+                if (cards.length > 0) {
+                    emptyPlaceholder.style.display = 'none';
+                } else {
+                    emptyPlaceholder.style.display = 'block';
+                }
             }
         });
     }
@@ -170,6 +194,13 @@ document.addEventListener("DOMContentLoaded", function () {
             if (listModal) listModal.hide();
         }
         
+        // Card modal
+        const cardModalEl = document.getElementById('cardModal');
+        if (cardModalEl) {
+            const cardModal = bootstrap.Modal.getInstance(cardModalEl);
+            if (cardModal) cardModal.hide();
+        }
+        
         // Re-initialize tooltips for new content
         initTooltips();
     });
@@ -191,7 +222,18 @@ document.addEventListener("DOMContentLoaded", function () {
     initTooltips();
     
     // Initialize tooltips after HTMX swaps
-    document.body.addEventListener('htmx:afterSwap', function() {
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
         initTooltips();
+        updateListCounts();
+    });
+
+    // Reset forms after successful HTMX post
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if (evt.detail.successful) {
+            const elt = evt.detail.elt;
+            if (elt && elt.tagName === 'FORM' && elt.hasAttribute('hx-post')) {
+                elt.reset();
+            }
+        }
     });
 });

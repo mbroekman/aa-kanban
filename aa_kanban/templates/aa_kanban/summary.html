@@ -1,0 +1,103 @@
+{% extends "aa_kanban/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load kanban_tags %}
+
+{% block page_title %}{% trans "Kanban Summary" %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}">
+<style>
+    .summary-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 10px;
+        table-layout: fixed;
+    }
+    .summary-table th, .summary-table td {
+        vertical-align: top;
+    }
+    .summary-column {
+        width: 20%;
+        background-color: var(--bs-secondary-bg, #e2e4e6);
+        border-radius: 0.5rem;
+        padding: 10px;
+        min-height: 150px;
+    }
+    .board-header {
+        grid-column: 1 / -1;
+        padding: 1rem 0;
+        border-bottom: 2px solid var(--bs-primary);
+        margin-bottom: 1rem;
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .summary-cell {
+        background-color: var(--bs-secondary-bg, #e2e4e6);
+        border-radius: 0.5rem;
+        padding: 10px;
+        min-height: 150px;
+    }
+</style>
+{% endblock %}
+
+{% block aa_kanban_content %}
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-list-alt me-2 text-primary"></i>{% trans "Summary View" %}</h2>
+            <p class="text-muted mb-0">{% trans "Overview of all boards and their tasks." %}</p>
+        </div>
+        <div>
+            <a href="{% url 'aa_kanban:index' %}" class="btn btn-secondary btn-sm" title="{% trans 'Back to boards' %}">
+                <i class="fas fa-arrow-left me-1"></i>{% trans "Back" %}
+            </a>
+        </div>
+    </div>
+
+    {% if boards %}
+        <!-- Headers -->
+        <div class="summary-grid d-none d-md-grid text-center fw-bold text-muted mb-2">
+            {% for col in default_columns %}
+                <div>{{ col }}</div>
+            {% endfor %}
+        </div>
+
+        {% for board in boards %}
+            <div class="board-header">
+                <a href="{% url 'aa_kanban:board_detail' board.slug %}" class="text-decoration-none">
+                    {{ board.name }}
+                </a>
+            </div>
+            <div class="summary-grid">
+                {% for col in default_columns %}
+                    <div class="summary-cell">
+                        {% with column_cards=board.lists.all|get_cards_for_column:col %}
+                            {% for card in column_cards %}
+                                {% include "aa_kanban/partials/card_item.html" with card=card can_write=False hide_menu=True summary_mode=True %}
+                            {% empty %}
+                                <div class="text-center py-2 text-muted small">
+                                    <em>{% trans "No cards" %}</em>
+                                </div>
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card border-0 shadow-sm text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "No accessible boards found." %}</h4>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

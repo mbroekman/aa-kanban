@@ -134,7 +134,7 @@ def card_modal(request: HttpRequest, card_id: int) -> HttpResponse:
             .order_by("username")[:20]
         )
         available_labels = list(
-            board.labels.exclude(pk__in=card.labels.values_list("pk", flat=True))
+            Label.objects.exclude(pk__in=card.labels.values_list("pk", flat=True))
             .order_by("name")
         )
 
@@ -277,6 +277,61 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
 
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
+def update_card_color(request: HttpRequest, card_id: int) -> HttpResponse:
+    """Update card background color."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    card = get_object_or_404(
+        Card.objects.select_related("list__board"), pk=card_id
+    )
+    if not card.list.board.can_user_write(request.user):
+        raise PermissionDenied("Write permission required to update card.")
+
+    if "color" in request.POST:
+        card.color = request.POST.get("color", "").strip()
+        card.save(update_fields=["color"])
+
+    from django.template.loader import render_to_string
+    
+    # Reload card to ensure we have all related data for the modal
+    card = Card.objects.select_related("list__board").prefetch_related("labels", "assignees", "comments__author").get(pk=card_id)
+    
+    html_partial = render_to_string(
+        "aa_kanban/partials/card_modal_content.html",
+        {"card": card, "can_write": True},
+        request=request,
+    )
+    oob_partial = render_to_string(
+        "aa_kanban/partials/card_item.html",
+        {"card": card, "hx_oob": True, "can_write": True},
+        request=request,
+    )
+    return HttpResponse(html_partial + oob_partial)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def delete_card(request: HttpRequest, card_id: int) -> HttpResponse:
+    """Delete a card. Returns empty 200 to remove from DOM."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    card = get_object_or_404(
+        Card.objects.select_related("list__board"), pk=card_id
+    )
+    if not card.list.board.can_user_write(request.user):
+        raise PermissionDenied("Write permission required to delete card.")
+
+    card.delete()
+    
+    response = HttpResponse("")
+    response["HX-Trigger"] = "closeModal"
+    return response
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
 def create_list(request: HttpRequest, board_slug: str) -> HttpResponse:
     """Create a new list (column) in the board and return the column partial."""
     if request.method != "POST":
@@ -395,7 +450,7 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
     return render(
         request,
         "aa_kanban/partials/card_item.html",
-        {"card": card, "can_write": True},
+        {"card": card, "can_write": True, "hx_oob": True, "hx_oob_append": True},
     )
 
 @login_required
@@ -412,7 +467,7 @@ def board_labels_modal(request: HttpRequest, board_slug: str) -> HttpResponse:
         
     context = {
         "board": board,
-        "labels": board.labels.order_by("name"),
+        "labels": Label.objects.order_by("name"),
     }
     return render(request, "aa_kanban/partials/board_labels_modal.html", context)
 
@@ -438,24 +493,24 @@ def create_label(request: HttpRequest, board_slug: str) -> HttpResponse:
     if not name:
         return HttpResponseBadRequest("Label name cannot be empty.")
         
-    Label.objects.get_or_create(board=board, name=name, defaults={"color": color})
+    Label.objects.get_or_create(name=name, defaults={"color": color})
     
     context = {
         "board": board,
-        "labels": board.labels.order_by("name"),
+        "labels": Label.objects.order_by("name"),
     }
     return render(request, "aa_kanban/partials/board_labels_modal.html", context)
 
 
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
-def delete_label(request: HttpRequest, label_id: int) -> HttpResponse:
-    """Delete a label from a board."""
+def delete_label(request: HttpRequest, board_slug: str, label_id: int) -> HttpResponse:
+    """Delete a label."""
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
 
-    label = get_object_or_404(Label.objects.select_related("board"), pk=label_id)
-    board = label.board
+    label = get_object_or_404(Label, pk=label_id)
+    board = get_object_or_404(Board, slug=board_slug)
     
     can_manage = request.user.has_perm("aa_kanban.manage_boards")
     can_write = board.can_user_write(request.user)
@@ -467,7 +522,7 @@ def delete_label(request: HttpRequest, label_id: int) -> HttpResponse:
     
     context = {
         "board": board,
-        "labels": board.labels.order_by("name"),
+        "labels": Label.objects.order_by("name"),
     }
     return render(request, "aa_kanban/partials/board_labels_modal.html", context)
 
@@ -496,7 +551,7 @@ def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
     except (ValueError, TypeError):
         return HttpResponseBadRequest("label_id must be an integer.")
 
-    target_label = get_object_or_404(Label, pk=label_id, board=board)
+    target_label = get_object_or_404(Label, pk=label_id)
 
     if card.labels.filter(pk=target_label.pk).exists():
         card.labels.remove(target_label)
@@ -504,7 +559,7 @@ def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
         card.labels.add(target_label)
 
     available_labels = list(
-        board.labels.exclude(pk__in=card.labels.values_list("pk", flat=True))
+        Label.objects.exclude(pk__in=card.labels.values_list("pk", flat=True))
         .order_by("name")
     )
 

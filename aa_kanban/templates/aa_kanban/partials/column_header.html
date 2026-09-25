@@ -1,10 +1,10 @@
 {% load i18n %}
 {# Partial: kolomheader — gebruikt door rename_list HTMX response #}
-<div class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center"
+<div class="card-header border-bottom-0 py-3 d-flex justify-content-between align-items-center"
      id="column-header-{{ list.id }}"
      data-wip-limit="{{ list.wip_limit|default:0 }}">
     <div class="d-flex align-items-center gap-2">
-        <h5 class="h6 mb-0 fw-bold text-dark column-name"
+        <h5 class="h6 mb-0 fw-bold column-name"
             {% if list.description %}title="{{ list.description }}" data-bs-toggle="tooltip"{% endif %}>
             {{ list.name }}
         </h5>
@@ -32,9 +32,10 @@
             </button>
             <button type="button"
                     class="btn btn-sm btn-outline-danger border-0 delete-list-btn"
-                    data-list-id="{{ list.id }}"
-                    data-list-name="{{ list.name }}"
-                    data-delete-url="{% url 'aa_kanban:delete_list' list.id %}"
+                    hx-post="{% url 'aa_kanban:delete_list' list.id %}"
+                    hx-confirm="{% blocktrans with name=list.name %}Kolom '{{ name }}' en alle kaarten permanent verwijderen?{% endblocktrans %}"
+                    hx-target="closest .kanban-column"
+                    hx-swap="outerHTML"
                     title="{% trans 'Delete column' %}">
                 <i class="fas fa-trash-alt"></i>
             </button>

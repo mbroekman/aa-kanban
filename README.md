@@ -4,11 +4,13 @@ Alliance Auth plugin for native Kanban boards.
 
 ## Features
 
-- **Native Kanban boards** with an intuitive drag-and-drop interface.
-- **Permission management** per board (read-only and write groups).
-- **Global Discord Webhooks** (Admin panel): Receive notifications when new boards are created.
-- **Board-specific Discord Webhooks** (Admin panel): Receive notifications when cards are moved across lists on a specific board.
-- **Direct Messages (DMs)**: Discord DM notifications are sent directly to users when they are assigned to or removed from cards (requires the `aadiscordbot` app to be installed and active).
+- **Native Kanban boards** with an intuitive drag-and-drop interface and default columns (Backlog, To Do, In Progress, Review/Testing, Done).
+- **Summary View** displaying all accessible boards across standardized status columns.
+- **Global Labels & Card Colors**: Flexibly categorize cards using global labels and individual background colors, with automatic text-contrast adjustment.
+- **Member Ticket System**: Allows regular members to submit tickets (cards) directly to a designated ticket board. The target ticket board can be easily configured via the frontend Kanban Settings page.
+- **Permission management**: Manage read-only and write groups globally and per board directly from the frontend UI.
+- **Discord Webhooks**: Receive global notifications when new boards are created, or board-specific notifications when cards are moved or new tickets are submitted.
+- **Direct Messages (DMs)**: Discord DM notifications are sent directly to users when they are assigned to or removed from cards (requires the `aadiscordbot` app).
 
 ## Installation
 
@@ -48,3 +50,12 @@ To receive updates in your Discord channels, you can configure webhooks in the D
 2. **Board-Specific Card Movement Webhooks**:
    - Go to **Admin** > **Boards** and edit a specific board.
    - Fill in the **Discord webhook cards** field. Any card movements between lists on this board will be posted to this webhook.
+
+## Settings
+
+You can customize the application by adding the following settings to your `local.py`:
+
+```python
+# Change the name of the app in the Alliance Auth sidebar menu (default: "Kanban")
+AA_KANBAN_APP_NAME = "Ticket System" 
+```

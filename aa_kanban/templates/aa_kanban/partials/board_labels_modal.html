@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <div class="modal-header border-bottom-0 pb-0">
-    <h5 class="modal-title fw-bold text-dark mb-1" id="labelsModalLabel">{% trans "Manage Labels" %}</h5>
+    <h5 class="modal-title fw-bold mb-1" id="labelsModalLabel">{% trans "Manage Labels" %}</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
@@ -18,7 +18,7 @@
                             <span class="badge bg-{{ label.color }} text-white py-1 px-2">{{ label.name }}</span>
                         </div>
                         <button type="button" class="btn btn-sm text-danger border-0 p-0"
-                                hx-post="{% url 'aa_kanban:delete_label' label.id %}"
+                                hx-post="{% url 'aa_kanban:delete_label' board.slug label.id %}"
                                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                                 hx-target="#labelsModalBody"
                                 hx-confirm="{% trans 'Delete this label permanently? It will be removed from all cards.' %}"
@@ -54,7 +54,7 @@
                 <option value="danger" class="text-danger">Danger (Red)</option>
                 <option value="warning" class="text-warning">Warning (Yellow)</option>
                 <option value="info" class="text-info">Info (Light Blue)</option>
-                <option value="dark" class="text-dark">Dark (Black)</option>
+                <option value="dark" class="text-body">Dark (Black)</option>
             </select>
         </div>
         

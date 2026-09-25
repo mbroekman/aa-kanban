@@ -10,10 +10,17 @@ from .models import KanbanGroup
 @permission_required("aa_kanban.manage_boards", raise_exception=True)
 def kanban_settings(request: HttpRequest) -> HttpResponse:
     """Render the main settings page with the list of Kanban groups."""
+    from .models import Label, KanbanSetting, Board
     groups = KanbanGroup.objects.prefetch_related("members").order_by("name")
+    labels = Label.objects.order_by("name")
+    settings = KanbanSetting.get_settings()
+    boards = Board.objects.order_by("name")
     context = {
         "title": "Kanban Instellingen",
         "groups": groups,
+        "labels": labels,
+        "settings": settings,
+        "boards": boards,
     }
     return render(request, "aa_kanban/settings.html", context)
 
@@ -117,3 +124,48 @@ def remove_user_from_group(request: HttpRequest, group_id: int, user_id: int) ->
         "groups": groups,
     }
     return render(request, "aa_kanban/partials/group_users_modal.html", context)
+
+@login_required
+@permission_required("aa_kanban.manage_boards", raise_exception=True)
+def create_settings_label(request: HttpRequest) -> HttpResponse:
+    """HTMX endpoint to create a global label from settings."""
+    if request.method == "POST":
+        from .models import Label
+        name = request.POST.get("name", "").strip()
+        color = request.POST.get("color", "primary").strip()
+        if name:
+            Label.objects.get_or_create(name=name, defaults={"color": color})
+    
+    from .models import Label
+    labels = Label.objects.order_by("name")
+    return render(request, "aa_kanban/partials/settings_label_list.html", {"labels": labels})
+
+@login_required
+@permission_required("aa_kanban.manage_boards", raise_exception=True)
+def delete_settings_label(request: HttpRequest, label_id: int) -> HttpResponse:
+    """HTMX endpoint to delete a global label from settings."""
+    if request.method == "POST":
+        from .models import Label
+        label = get_object_or_404(Label, pk=label_id)
+        label.delete()
+    
+    from .models import Label
+    labels = Label.objects.order_by("name")
+    return render(request, "aa_kanban/partials/settings_label_list.html", {"labels": labels})
+
+@login_required
+@permission_required("aa_kanban.manage_boards", raise_exception=True)
+def update_global_settings(request: HttpRequest) -> HttpResponse:
+    """Update global settings like the designated Ticket Board."""
+    if request.method == "POST":
+        from .models import KanbanSetting, Board
+        settings = KanbanSetting.get_settings()
+        ticket_board_ids = request.POST.getlist("ticket_board_ids")
+        if ticket_board_ids:
+            boards = Board.objects.filter(pk__in=ticket_board_ids)
+            settings.ticket_boards.set(boards)
+        else:
+            settings.ticket_boards.clear()
+        settings.save()
+        
+    return redirect("aa_kanban:settings")

@@ -60,6 +60,12 @@ class KanbanSetting(models.Model):
         null=True,
         help_text="Discord Webhook URL for global board creation notifications.",
     )
+    ticket_boards = models.ManyToManyField(
+        "Board",
+        blank=True,
+        help_text="Boards where member tickets can be created.",
+        related_name="+",
+    )
 
     class Meta:
         verbose_name = "Kanban Setting"
@@ -128,6 +134,7 @@ class Board(models.Model):
         return self.name
 
     def save(self, *args, **kwargs) -> None:
+        is_new = self.pk is None
         if not self.slug:
             base_slug = slugify(self.name) or "board"
             slug = base_slug
@@ -137,6 +144,11 @@ class Board(models.Model):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+        if is_new:
+            # Create default columns
+            default_columns = ["Backlog", "To Do", "In Progress", "Review/Testing", "Done"]
+            for i, name in enumerate(default_columns):
+                self.lists.create(name=name, order=i)
 
     def can_user_view(self, user: User | AnonymousUser) -> bool:
         """Check if user has read-only or higher access to this board."""
@@ -193,14 +205,9 @@ class List(models.Model):
 
 
 class Label(models.Model):
-    """Color label for categorizing cards on a board."""
+    """Global Color label for categorizing cards on boards."""
 
-    board = models.ForeignKey(
-        Board,
-        on_delete=models.CASCADE,
-        related_name="labels",
-    )
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     color = models.CharField(
         max_length=20,
         default="primary",
@@ -214,7 +221,6 @@ class Label(models.Model):
         verbose_name = "Label"
         verbose_name_plural = "Labels"
         ordering = ["name"]
-        unique_together = ("board", "name")
 
     def __str__(self) -> str:
         return f"{self.name} ({self.color})"
@@ -222,6 +228,18 @@ class Label(models.Model):
 
 class Card(models.Model):
     """Task card within a Kanban List."""
+
+    COLOR_CHOICES = [
+        ("", "Default"),
+        ("primary", "Blue"),
+        ("secondary", "Grey"),
+        ("success", "Green"),
+        ("danger", "Red"),
+        ("warning", "Yellow"),
+        ("info", "Cyan"),
+        ("light", "Light"),
+        ("dark", "Dark"),
+    ]
 
     list = models.ForeignKey(
         List,
@@ -231,6 +249,13 @@ class Card(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     order = models.PositiveIntegerField(default=0)
+    color = models.CharField(
+        max_length=20,
+        choices=COLOR_CHOICES,
+        default="",
+        blank=True,
+        help_text="Background color of the card",
+    )
 
     assignees = models.ManyToManyField(
         User,

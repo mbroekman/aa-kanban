@@ -1,0 +1,60 @@
+{% extends "aa_kanban/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Submit Ticket" %}{% endblock %}
+
+{% block aa_kanban_content %}
+<div class="container py-4" style="max-width: 600px;">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-primary text-white py-3">
+            <h3 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>{% trans "Submit a Ticket" %}</h3>
+        </div>
+        <div class="card-body p-4">
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            
+            {% if boards %}
+                <form method="POST" action="{% url 'aa_kanban:create_ticket' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="board" class="form-label fw-bold">{% trans "Department / Board" %} <span class="text-danger">*</span></label>
+                        <select class="form-select" id="board" name="board" required>
+                            <option value="">{% trans "-- Select Destination --" %}</option>
+                            {% for b in boards %}
+                                <option value="{{ b.id }}">{{ b.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-bold">{% trans "Subject" %} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" name="title" required placeholder="{% trans 'Brief description of the issue...' %}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="label" class="form-label fw-bold">{% trans "Ticket Type (Label)" %}</label>
+                        <select class="form-select" id="label" name="label">
+                            <option value="">{% trans "-- Select Type --" %}</option>
+                            {% for label in labels %}
+                                <option value="{{ label.id }}">{{ label.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-bold">{% trans "Description" %}</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="{% trans 'Provide more details...' %}"></textarea>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'aa_kanban:index' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-1"></i>{% trans "Submit Ticket" %}</button>
+                    </div>
+                </form>
+            {% else %}
+                <p class="text-muted">{% trans "Ticket submission is currently disabled because no ticket board has been configured." %}</p>
+                <div class="text-center mt-4">
+                    <a href="{% url 'aa_kanban:index' %}" class="btn btn-primary">{% trans "Return to Dashboard" %}</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

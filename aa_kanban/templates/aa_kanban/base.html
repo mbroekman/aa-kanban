@@ -58,5 +58,23 @@
                 modal.show();
             }
         });
+
+        // Automatically add CSRF token to all HTMX requests
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                event.detail.headers['X-CSRFToken'] = csrfToken.value;
+            } else {
+                // Fallback to reading the cookie
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('csrftoken=')) {
+                        event.detail.headers['X-CSRFToken'] = decodeURIComponent(cookie.substring(10));
+                        break;
+                    }
+                }
+            }
+        });
     </script>
 {% endblock %}

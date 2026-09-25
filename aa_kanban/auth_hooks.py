@@ -6,12 +6,14 @@ from allianceauth.services.hooks import MenuItemHook, UrlHook
 from . import urls
 
 
+from django.conf import settings
+
 class AaKanbanMenuItem(MenuItemHook):
     """Menu item hook for aa_kanban."""
 
     def __init__(self):
         super().__init__(
-            "Kanban",
+            getattr(settings, "AA_KANBAN_APP_NAME", "Kanban"),
             "fas fa-columns fa-fw",
             "aa_kanban:index",
             navactive=["aa_kanban:"],

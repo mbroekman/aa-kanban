@@ -51,10 +51,18 @@ De datamodellen in `models.py` van `aa_kanban`:
   - `created_at` & `updated_at`: DateTimeFields
   - Meta: `ordering = ["order", "id"]`
 - **Label & Comment (V1 ondersteuning)**:
-  - `Label`: name, color, board FK
+  - `Label`: name, color (globaal, geen board FK)
   - `Comment`: card FK, author FK, text, created_at
+- **KanbanSetting**:
+  - `board_creation_webhook`: URLField (Discord)
+  - `ticket_board`: ForeignKey(Board) voor het verzamelen van tickets
 
-## 4. Frontend & Drag-and-Drop (HTMX + SortableJS)
+## 4. Extra Functionaliteiten
+- **Default Columns**: Nieuwe borden krijgen standaard de kolommen: Backlog, To Do, In Progress, Review/Testing, Done.
+- **Summary View**: Een overzichtspagina met alle zichtbare borden gegroepeerd op de standaard kolommen.
+- **Member Ticket System**: Gewone leden kunnen via een formulier tickets inschieten. Deze worden als cards in de "Backlog" van een instelbaar `ticket_board` geplaatst.
+
+## 5. Frontend & Drag-and-Drop (HTMX + SortableJS)
 - **Templates**: Bootstrap 5 syntax conform AA v5 (`data-bs-*`).
 - **Drag & Drop**:
   - SortableJS wordt alleen geactiveerd als `can_user_write` waar is.

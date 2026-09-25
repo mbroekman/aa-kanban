@@ -8,7 +8,6 @@
 .kanban-column {
     border: 1px solid var(--bs-border-color, #dee2e6);
     border-radius: 0.5rem;
-    background-color: var(--bs-tertiary-bg, #f8f9fa);
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
@@ -47,4 +46,62 @@
 .kanban-card-dragging {
     opacity: 0.9;
     cursor: grabbing !important;
+}
+
+/* Dark mode specific overrides for buttons and text */
+[data-bs-theme="dark"] .btn-outline-secondary {
+    color: #e9ecef;
+    border-color: #6c757d;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary:hover {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .hover-bg-light:hover {
+    background-color: #343a40 !important;
+}
+
+/* Apply a subtle white overlay to cards so they stand out from the columns. */
+.kanban-column {
+    /* Uses the theme's default .card background */
+}
+
+.kanban-card,
+.summary-cell,
+.bg-body {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.card-header {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04)) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.empty-placeholder {
+    color: #ced4da !important;
+}
+/* Bulletproof contrast for column header badge and edit icon */
+.kanban-column .card-header .bg-secondary {
+    background-color: rgba(128, 128, 128, 0.25) !important;
+    color: inherit !important;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.kanban-column .card-header .btn-outline-secondary {
+    color: inherit !important;
+    opacity: 0.5;
+    border: none !important;
+}
+
+.kanban-column .card-header .btn-outline-secondary:hover {
+    opacity: 1;
+    background-color: rgba(128, 128, 128, 0.2) !important;
 }
