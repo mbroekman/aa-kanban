@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-09-26
+
+### Fixed
+- **Card Creation UI**: Fixed an issue where creating a new card would append plain text instead of rendering the full card element due to conflicting HTMX directives.
+
 ## [0.7.0] - 2026-09-25
 
 ### Added
