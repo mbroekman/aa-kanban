@@ -1,5 +1,9 @@
 # AA Kanban
 
+[![PyPI version](https://img.shields.io/pypi/v/aa-kanban)](https://pypi.org/project/aa-kanban/)
+[![Python versions](https://img.shields.io/pypi/pyversions/aa-kanban)](https://pypi.org/project/aa-kanban/)
+[![Tests](https://github.com/mbroekman/aa-kanban/actions/workflows/automated-checks.yml/badge.svg)](https://github.com/mbroekman/aa-kanban/actions/workflows/automated-checks.yml)
+
 Alliance Auth plugin for native Kanban boards.
 
 ## Features
