@@ -450,7 +450,7 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
     return render(
         request,
         "aa_kanban/partials/card_item.html",
-        {"card": card, "can_write": True, "hx_oob": True, "hx_oob_append": True},
+        {"card": card, "can_write": True},
     )
 
 @login_required
