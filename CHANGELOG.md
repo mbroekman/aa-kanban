@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-09-26
+
+### Added
+- **API Services**: Added `aa_kanban.services` module providing a Python API (`create_kanban_board`, `create_kanban_card`, `move_kanban_card`) for safe interaction from external plugins (like aa-industry) ensuring business logic and webhooks are executed properly.
+
 ## [0.7.2] - 2026-09-26
 
 ### Changed
