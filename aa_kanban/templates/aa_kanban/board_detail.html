@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block page_title %}{{ board.name }} - {% trans "Kanban" %}{% endblock %}
+{% block page_title %}{{ board.name }} - {{ app_name }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}">

@@ -15,8 +15,11 @@ def kanban_settings(request: HttpRequest) -> HttpResponse:
     labels = Label.objects.order_by("name")
     settings = KanbanSetting.get_settings()
     boards = Board.objects.order_by("name")
+    from django.conf import settings as django_settings
+    app_name = getattr(django_settings, "AA_KANBAN_APP_NAME", "Kanban")
     context = {
-        "title": "Kanban Instellingen",
+        "title": f"{app_name} Instellingen",
+        "app_name": app_name,
         "groups": groups,
         "labels": labels,
         "settings": settings,

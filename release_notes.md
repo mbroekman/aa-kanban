@@ -1,2 +1,2 @@
-### Fixed
-- **Card Creation UI**: Fixed an issue where creating a new card would append plain text instead of rendering the full card element due to conflicting HTMX directives.
+### Changed
+- **Dynamic Titles**: Updated frontend templates (Dashboard, Board Detail, Summary, Settings) to dynamically use the `AA_KANBAN_APP_NAME` setting for page titles and headers instead of hardcoded 'Kanban' text, ensuring UI consistency with the sidebar menu.

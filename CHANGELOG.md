@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-09-26
+
+### Changed
+- **Dynamic Titles**: Updated frontend templates (Dashboard, Board Detail, Summary, Settings) to dynamically use the `AA_KANBAN_APP_NAME` setting for page titles and headers instead of hardcoded 'Kanban' text, ensuring UI consistency with the sidebar menu.
+
 ## [0.7.1] - 2026-09-26
 
 ### Fixed

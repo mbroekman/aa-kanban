@@ -21,8 +21,11 @@ def index(request: HttpRequest) -> HttpResponse:
     )
     can_manage = request.user.has_perm("aa_kanban.manage_boards")
     all_groups = KanbanGroup.objects.order_by("name") if can_manage else KanbanGroup.objects.none()
+    from django.conf import settings
+    app_name = getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
     context = {
-        "title": "Kanban Boards",
+        "title": app_name,
+        "app_name": app_name,
         "boards": boards,
         "can_manage": can_manage,
         "all_groups": all_groups,
@@ -53,8 +56,12 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
         else KanbanGroup.objects.none()
     )
 
+    from django.conf import settings
+    app_name = getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
+
     context = {
         "title": board.name,
+        "app_name": app_name,
         "board": board,
         "lists": lists,
         "can_write": can_write,
@@ -218,8 +225,12 @@ def summary(request: HttpRequest) -> HttpResponse:
         )
     )
     
+    from django.conf import settings
+    app_name = getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
+    
     context = {
-        "title": "Kanban Summary",
+        "title": f"{app_name} Summary",
+        "app_name": app_name,
         "boards": boards,
         "default_columns": ["Backlog", "To Do", "In Progress", "Review/Testing", "Done"]
     }

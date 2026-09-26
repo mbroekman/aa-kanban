@@ -3,7 +3,7 @@
 {% load static %}
 {% load kanban_tags %}
 
-{% block page_title %}{% trans "Kanban Summary" %}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}">
@@ -51,7 +51,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1"><i class="fas fa-list-alt me-2 text-primary"></i>{% trans "Summary View" %}</h2>
+            <h2 class="mb-1"><i class="fas fa-list-alt me-2 text-primary"></i>{{ app_name }} {% trans "Summary" %}</h2>
             <p class="text-muted mb-0">{% trans "Overview of all boards and their tasks." %}</p>
         </div>
         <div>
