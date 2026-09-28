@@ -1,0 +1,19 @@
+{% load i18n %}
+<div id="card-title-container" class="flex-grow-1">
+    {% if can_write %}
+        <form hx-post="{% url 'aa_kanban:update_card' card.id %}"
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              hx-target="#card-title-container"
+              hx-swap="outerHTML">
+            <input type="text" name="title" class="form-control fw-bold mb-1 border-0 bg-transparent px-1 py-0 shadow-none" value="{{ card.title }}" style="font-size: 1.25rem; margin-left: -0.25rem;" required onblur="if(this.value !== '{{ card.title|escapejs }}') this.form.dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}));">
+        </form>
+    {% else %}
+        <h5 class="modal-title fw-bold mb-1" id="cardModalLabel">{{ card.title }}</h5>
+    {% endif %}
+    <div class="small text-muted ps-1">
+        {% trans "in list" %} <span class="badge bg-secondary">{{ card.list.name }}</span>
+        {% if card.due_date %}
+            <span class="ms-2"><i class="far fa-calendar-alt text-warning me-1"></i>{{ card.due_date|date:"M d, Y" }}</span>
+        {% endif %}
+    </div>
+</div>

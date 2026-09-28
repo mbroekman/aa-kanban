@@ -264,16 +264,31 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
     if "description" in request.POST:
         card.description = request.POST.get("description", "").strip()
         card.save(update_fields=["description", "updated_at"])
+        return HttpResponse(
+            '<span class="text-success"><i class="fas fa-check me-1"></i>Saved!</span>'
+        )
 
     if "title" in request.POST:
         new_title = request.POST.get("title", "").strip()
         if new_title:
             card.title = new_title
             card.save(update_fields=["title", "updated_at"])
+            
+        from django.template.loader import render_to_string
+        
+        html_partial = render_to_string(
+            "aa_kanban/partials/card_title.html",
+            {"card": card, "can_write": True},
+            request=request,
+        )
+        oob_partial = render_to_string(
+            "aa_kanban/partials/card_item.html",
+            {"card": card, "hx_oob": True, "can_write": True},
+            request=request,
+        )
+        return HttpResponse(html_partial + oob_partial)
 
-    return HttpResponse(
-        '<span class="text-success"><i class="fas fa-check me-1"></i>Saved!</span>'
-    )
+    return HttpResponseBadRequest("No valid fields to update.")
 
 
 @login_required
