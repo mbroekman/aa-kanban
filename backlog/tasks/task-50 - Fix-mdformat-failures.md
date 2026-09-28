@@ -13,17 +13,24 @@ ordinal: 58000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+
 Run mdformat to fix formatting issues in markdown files to pass CI.
+
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
+
 <!-- AC:BEGIN -->
+
 - [ ] #1 mdformat run, committed, pushed
 - [ ] #2 1
+
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
+
 Fixed via pre-commit run mdformat --all-files
+
 <!-- SECTION:NOTES:END -->
