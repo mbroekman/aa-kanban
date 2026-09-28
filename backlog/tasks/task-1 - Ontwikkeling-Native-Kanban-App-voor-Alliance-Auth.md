@@ -1,9 +1,10 @@
 ---
 id: TASK-1
 title: Ontwikkeling Native Kanban App voor Alliance Auth
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-09 20:10'
+updated_date: '2026-09-28 12:58'
 labels: []
 dependencies: []
 priority: high
