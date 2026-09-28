@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-28
+
 ### Added
+- **Discord Ticket System Integration**: Implemented member ticket submission UI with team assignments. Built a Discord integration to spawn ticket threads and sync messages. Added Discord Context Menu to upload standard messages as ticket comments.
+- **Kanban Teams**: Added `KanbanTeam` model to decouple card assignments from view/write restrictions, and integrated team management into the frontend settings.
 - **Auth Group Integration**: You can now assign Django Auth Groups directly to Kanban Groups via the Kanban Settings UI. This makes it easier to authorize larger groups of members at once instead of assigning them individually.
 
 ## [0.7.3] - 2026-09-26
