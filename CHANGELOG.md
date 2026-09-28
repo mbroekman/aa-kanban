@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-28
+
+### Fixed
+
+- **CI/CD Pipeline**: Resolved pre-commit hook failures across multiple tools (Pylint, Flake8, ESLint, Stylelint, Isort/Black conflicts) to ensure GitHub Actions succeed.
+- **Pylint Issues**: Fixed missing `HttpResponse` return statements in HTMX views (`edit_kanban_group`, `edit_kanban_team`).
 ## [0.8.0] - 2026-09-28
 
 ### Added
