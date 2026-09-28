@@ -36,6 +36,7 @@ class BoardQuerySet(models.QuerySet):
             | models.Q(created_by=user)
         ).distinct()
 
+
 class KanbanGroup(models.Model):
     """Custom group model for aa_kanban access management."""
 
@@ -132,7 +133,7 @@ class Board(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True)
-    
+
     discord_webhook_cards = models.URLField(
         blank=True,
         null=True,
@@ -185,7 +186,13 @@ class Board(models.Model):
         super().save(*args, **kwargs)
         if is_new:
             # Create default columns
-            default_columns = ["Backlog", "To Do", "In Progress", "Review/Testing", "Done"]
+            default_columns = [
+                "Backlog",
+                "To Do",
+                "In Progress",
+                "Review/Testing",
+                "Done",
+            ]
             for i, name in enumerate(default_columns):
                 self.lists.create(name=name, order=i)
 

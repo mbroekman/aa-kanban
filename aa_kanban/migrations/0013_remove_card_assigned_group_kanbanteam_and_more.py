@@ -8,32 +8,62 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0012_alter_general_options'),
+        ("aa_kanban", "0012_alter_general_options"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='card',
-            name='assigned_group',
+            model_name="card",
+            name="assigned_group",
         ),
         migrations.CreateModel(
-            name='KanbanTeam',
+            name="KanbanTeam",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('discord_role_id', models.BigIntegerField(blank=True, help_text='Optional Discord Role ID to ping when a ticket is assigned to this team.', null=True)),
-                ('members', models.ManyToManyField(blank=True, help_text='Members of this team.', related_name='kanban_ticket_teams', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                (
+                    "discord_role_id",
+                    models.BigIntegerField(
+                        blank=True,
+                        help_text="Optional Discord Role ID to ping when a ticket is assigned to this team.",
+                        null=True,
+                    ),
+                ),
+                (
+                    "members",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Members of this team.",
+                        related_name="kanban_ticket_teams",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Kanban Team',
-                'verbose_name_plural': 'Kanban Teams',
-                'ordering': ['name'],
+                "verbose_name": "Kanban Team",
+                "verbose_name_plural": "Kanban Teams",
+                "ordering": ["name"],
             },
         ),
         migrations.AddField(
-            model_name='card',
-            name='assigned_team',
-            field=models.ForeignKey(blank=True, help_text='Target team for this ticket', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='assigned_tickets', to='aa_kanban.kanbanteam'),
+            model_name="card",
+            name="assigned_team",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Target team for this ticket",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="assigned_tickets",
+                to="aa_kanban.kanbanteam",
+            ),
         ),
     ]

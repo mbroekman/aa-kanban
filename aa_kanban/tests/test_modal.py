@@ -2,11 +2,12 @@
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
-from aa_kanban.models import KanbanGroup as Group
 from django.test import Client
 from django.urls import reverse
 
-from aa_kanban.models import Board, Card, Comment, List
+from aa_kanban.models import Board, Card, Comment
+from aa_kanban.models import KanbanGroup as Group
+from aa_kanban.models import List
 
 
 @pytest.fixture
@@ -18,12 +19,8 @@ def user_factory(db):
         nonlocal _char_id
         _char_id += 1
         user = AuthUtils.create_user(username)
-        AuthUtils.add_main_character(
-            user, f"Char {username}", character_id=_char_id
-        )
-        AuthUtils.add_permission_to_user_by_name(
-            "aa_kanban.basic_access", user
-        )
+        AuthUtils.add_main_character(user, f"Char {username}", character_id=_char_id)
+        AuthUtils.add_permission_to_user_by_name("aa_kanban.basic_access", user)
         return user
 
     return create_user
@@ -66,9 +63,7 @@ class TestCardModal:
     def test_card_modal_unauthenticated(self, setup_modal_data):
         data = setup_modal_data
         client = Client()
-        url = reverse(
-            "aa_kanban:card_modal", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:card_modal", kwargs={"card_id": data["card"].id})
         response = client.get(url)
         assert response.status_code == 302
 
@@ -79,9 +74,7 @@ class TestCardModal:
         client = Client()
         client.force_login(unauth_user)
 
-        url = reverse(
-            "aa_kanban:card_modal", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:card_modal", kwargs={"card_id": data["card"].id})
         response = client.get(url)
         assert response.status_code == 403
 
@@ -93,9 +86,7 @@ class TestCardModal:
         client = Client()
         client.force_login(viewer)
 
-        url = reverse(
-            "aa_kanban:card_modal", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:card_modal", kwargs={"card_id": data["card"].id})
         response = client.get(url)
         assert response.status_code == 200
         assert response.context["can_write"] is False
@@ -111,9 +102,7 @@ class TestCardModal:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:card_modal", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:card_modal", kwargs={"card_id": data["card"].id})
         response = client.get(url)
         assert response.status_code == 200
         assert response.context["can_write"] is True
@@ -128,9 +117,7 @@ class TestCardModal:
         client = Client()
         client.force_login(outsider)
 
-        url = reverse(
-            "aa_kanban:card_modal", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:card_modal", kwargs={"card_id": data["card"].id})
         response = client.get(url)
         assert response.status_code == 403
 
@@ -145,9 +132,7 @@ class TestCardComments:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:add_comment", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:add_comment", kwargs={"card_id": data["card"].id})
         response = client.post(url, {"comment": "Looking solid, ready for PR."})
         assert response.status_code == 200
         assert b"Looking solid, ready for PR." in response.content
@@ -161,9 +146,7 @@ class TestCardComments:
             == 1
         )
 
-    def test_add_comment_read_only_denied(
-        self, user_factory, setup_modal_data
-    ):
+    def test_add_comment_read_only_denied(self, user_factory, setup_modal_data):
         data = setup_modal_data
         viewer = user_factory("commenter_viewer")
         viewer.kanban_groups.add(data["view_grp"])
@@ -171,9 +154,7 @@ class TestCardComments:
         client = Client()
         client.force_login(viewer)
 
-        url = reverse(
-            "aa_kanban:add_comment", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:add_comment", kwargs={"card_id": data["card"].id})
         response = client.post(url, {"comment": "Attempt by view only user"})
         assert response.status_code == 403
         assert Comment.objects.count() == 0
@@ -186,9 +167,7 @@ class TestCardComments:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:add_comment", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:add_comment", kwargs={"card_id": data["card"].id})
         response = client.post(url, {"comment": "   "})
         assert response.status_code == 400
 
@@ -205,9 +184,7 @@ class TestCardAssigneesAndUpdates:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:toggle_assignee", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:toggle_assignee", kwargs={"card_id": data["card"].id})
 
         # Add assignee
         response1 = client.post(url, {"user_id": assignee.id})
@@ -220,9 +197,7 @@ class TestCardAssigneesAndUpdates:
         assert response2.status_code == 200
         assert not data["card"].assignees.filter(pk=assignee.pk).exists()
 
-    def test_toggle_assignee_read_only_denied(
-        self, user_factory, setup_modal_data
-    ):
+    def test_toggle_assignee_read_only_denied(self, user_factory, setup_modal_data):
         data = setup_modal_data
         viewer = user_factory("assign_viewer")
         viewer.kanban_groups.add(data["view_grp"])
@@ -231,9 +206,7 @@ class TestCardAssigneesAndUpdates:
         client = Client()
         client.force_login(viewer)
 
-        url = reverse(
-            "aa_kanban:toggle_assignee", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:toggle_assignee", kwargs={"card_id": data["card"].id})
         response = client.post(url, {"user_id": target.id})
         assert response.status_code == 403
 
@@ -245,9 +218,7 @@ class TestCardAssigneesAndUpdates:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:update_card", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:update_card", kwargs={"card_id": data["card"].id})
         response = client.post(
             url,
             {
@@ -260,9 +231,7 @@ class TestCardAssigneesAndUpdates:
         assert data["card"].title == "New Title"
         assert data["card"].description == "Updated detailed description."
 
-    def test_update_card_read_only_denied(
-        self, user_factory, setup_modal_data
-    ):
+    def test_update_card_read_only_denied(self, user_factory, setup_modal_data):
         data = setup_modal_data
         viewer = user_factory("editor_viewer")
         viewer.kanban_groups.add(data["view_grp"])
@@ -270,9 +239,7 @@ class TestCardAssigneesAndUpdates:
         client = Client()
         client.force_login(viewer)
 
-        url = reverse(
-            "aa_kanban:update_card", kwargs={"card_id": data["card"].id}
-        )
+        url = reverse("aa_kanban:update_card", kwargs={"card_id": data["card"].id})
         response = client.post(url, {"title": "Hacked Title"})
         assert response.status_code == 403
         data["card"].refresh_from_db()

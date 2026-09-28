@@ -15,5 +15,7 @@ ordinal: 1000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+
 Volledige native Kanban (Trello-like) functionaliteit binnen Alliance Auth conform Opdracht.md en .cursorrules.
+
 <!-- SECTION:DESCRIPTION:END -->

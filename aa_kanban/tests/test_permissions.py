@@ -2,12 +2,12 @@
 
 import pytest
 from django.contrib.auth.models import AnonymousUser, User
-from aa_kanban.models import KanbanGroup as Group
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.test import RequestFactory
 
 from aa_kanban.models import Board
+from aa_kanban.models import KanbanGroup as Group
 from aa_kanban.permissions import board_view_required, board_write_required
 
 
@@ -17,6 +17,7 @@ def user_factory(db):
         return User.objects.create_user(
             username=username, email=f"{username}@example.com", **kwargs
         )
+
     return create_user
 
 
@@ -24,6 +25,7 @@ def user_factory(db):
 def group_factory(db):
     def create_group(name):
         return Group.objects.create(name=name)
+
     return create_group
 
 
@@ -82,9 +84,7 @@ class TestPermissionDecorators:
         assert response.status_code == 200
         assert b"View OK" in response.content
 
-    def test_board_write_denied_for_view_only_user(
-        self, test_board, user_factory
-    ):
+    def test_board_write_denied_for_view_only_user(self, test_board, user_factory):
         board, v_group, _ = test_board
         user = user_factory("readonly_user")
         user.kanban_groups.add(v_group)
@@ -96,9 +96,7 @@ class TestPermissionDecorators:
         with pytest.raises(PermissionDenied):
             dummy_write_view(request, board_slug=board.slug)
 
-    def test_board_write_allowed_for_write_group(
-        self, test_board, user_factory
-    ):
+    def test_board_write_allowed_for_write_group(self, test_board, user_factory):
         board, _, w_group = test_board
         user = user_factory("writer_user")
         user.kanban_groups.add(w_group)

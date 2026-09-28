@@ -9,9 +9,7 @@ from aa_kanban import auth_hooks
 
 @pytest.fixture
 def user_with_basic_access(db):
-    user = User.objects.create_user(
-        username="basic_user", email="basic@example.com"
-    )
+    user = User.objects.create_user(username="basic_user", email="basic@example.com")
     perm = Permission.objects.get(
         codename="basic_access", content_type__app_label="aa_kanban"
     )

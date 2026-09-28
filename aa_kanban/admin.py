@@ -7,7 +7,16 @@ blijven bewerkbaar voor moderatie-doeleinden.
 
 from django.contrib import admin
 
-from .models import Board, Card, Comment, Label, List, KanbanSetting, KanbanGroup, KanbanTeam
+from .models import (
+    Board,
+    Card,
+    Comment,
+    KanbanGroup,
+    KanbanSetting,
+    KanbanTeam,
+    Label,
+    List,
+)
 
 
 @admin.register(Board)
@@ -37,15 +46,17 @@ class BoardAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None) -> bool:  # type: ignore[override]
         return False
 
+
 @admin.register(KanbanSetting)
 class KanbanSettingAdmin(admin.ModelAdmin):
     """Global configuration for aa_kanban."""
 
     list_display = ("__str__", "board_creation_webhook")
-    
+
     def has_add_permission(self, request) -> bool:  # type: ignore[override]
         # Only allow 1 instance
         from .models import KanbanSetting
+
         if KanbanSetting.objects.exists():
             return False
         return True
@@ -132,6 +143,7 @@ class CommentAdmin(admin.ModelAdmin):
 @admin.register(KanbanGroup)
 class KanbanGroupAdmin(admin.ModelAdmin):
     """Manage kanban groups for board access control."""
+
     list_display = ("name",)
     search_fields = ("name",)
     filter_horizontal = ("members", "groups")
@@ -140,6 +152,7 @@ class KanbanGroupAdmin(admin.ModelAdmin):
 @admin.register(KanbanTeam)
 class KanbanTeamAdmin(admin.ModelAdmin):
     """Manage teams for ticket assignments."""
+
     list_display = ("name", "discord_role_id")
     search_fields = ("name",)
     filter_horizontal = ("members",)

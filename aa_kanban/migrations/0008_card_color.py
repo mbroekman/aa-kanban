@@ -6,13 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0007_remove_kanbansetting_ticket_board_and_more'),
+        ("aa_kanban", "0007_remove_kanbansetting_ticket_board_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='card',
-            name='color',
-            field=models.CharField(blank=True, choices=[('', 'Default'), ('primary', 'Blue'), ('secondary', 'Grey'), ('success', 'Green'), ('danger', 'Red'), ('warning', 'Yellow'), ('info', 'Cyan'), ('light', 'Light'), ('dark', 'Dark')], default='', help_text='Background color of the card', max_length=20),
+            model_name="card",
+            name="color",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Default"),
+                    ("primary", "Blue"),
+                    ("secondary", "Grey"),
+                    ("success", "Green"),
+                    ("danger", "Red"),
+                    ("warning", "Yellow"),
+                    ("info", "Cyan"),
+                    ("light", "Light"),
+                    ("dark", "Dark"),
+                ],
+                default="",
+                help_text="Background color of the card",
+                max_length=20,
+            ),
         ),
     ]

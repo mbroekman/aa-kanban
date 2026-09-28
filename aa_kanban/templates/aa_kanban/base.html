@@ -7,7 +7,7 @@
 <div class="container-fluid">
     {% block aa_kanban_content %}{% endblock %}
 </div>
-    
+
     <!-- Custom HTMX Confirm Modal -->
     <div class="modal fade" id="htmxConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
@@ -34,27 +34,27 @@
         document.body.addEventListener('htmx:confirm', function(e) {
             if (e.detail.question) {
                 // Prevent native browser confirm
-                e.preventDefault(); 
-                
+                e.preventDefault();
+
                 const modalEl = document.getElementById('htmxConfirmModal');
                 const modalMessage = document.getElementById('htmxConfirmModalMessage');
                 const confirmBtn = document.getElementById('htmxConfirmModalBtn');
-                
+
                 modalMessage.innerText = e.detail.question;
-                
+
                 // Get or create Bootstrap 5 modal
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                
+
                 // Replace the confirm button to clear any old event listeners
                 const newConfirmBtn = confirmBtn.cloneNode(true);
                 confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-                
+
                 newConfirmBtn.addEventListener('click', function() {
                     // Resume HTMX request
-                    e.detail.issueRequest(true); 
+                    e.detail.issueRequest(true);
                     modal.hide();
                 });
-                
+
                 modal.show();
             }
         });

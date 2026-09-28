@@ -2,11 +2,10 @@
 
 from allianceauth import hooks
 from allianceauth.services.hooks import MenuItemHook, UrlHook
+from django.conf import settings
 
 from . import urls
 
-
-from django.conf import settings
 
 class AaKanbanMenuItem(MenuItemHook):
     """Menu item hook for aa_kanban."""
@@ -55,6 +54,7 @@ def register_menu_create_ticket():
 @hooks.register("url_hook")
 def register_urls():
     return UrlHook(urls, "aa_kanban", r"^kanban/")
+
 
 @hooks.register("discord_cogs_hook")
 def register_cogs():

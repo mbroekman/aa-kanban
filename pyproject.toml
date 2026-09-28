@@ -9,8 +9,8 @@ name = "aa-kanban"
 description = "Kanban Plugin for Alliance Auth"
 readme = "README.md"
 keywords = [
-    "allianceauth",
     "aa_kanban",
+    "allianceauth",
 ]
 license = { file = "LICENSE" }
 authors = [
@@ -47,27 +47,23 @@ build.include = [
 ]
 
 [tool.ruff]
-line-length = 88
 target-version = "py310"
+line-length = 88
 extend-exclude = [
     "testauth",
 ]
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "I"]
-ignore = []
-
-[tool.ruff.lint.per-file-ignores]
-"**/migrations/*" = ["E501"]
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "testauth.settings"
-python_files = ["test_*.py", "*_test.py"]
+lint.select = [ "E", "F", "I", "W" ]
+lint.ignore = []
+lint.per-file-ignores."**/migrations/*" = [ "E501" ]
 
 [tool.mypy]
-python_version = "3.12"
-plugins = ["mypy_django_plugin.main"]
 ignore_missing_imports = true
+python_version = "3.12"
+plugins = [ "mypy_django_plugin.main" ]
 
 [tool.django-stubs]
 django_settings_module = "testauth.settings.local"
+
+[tool.pytest]
+ini_options.python_files = [ "*_test.py", "test_*.py" ]
+ini_options.DJANGO_SETTINGS_MODULE = "testauth.settings"

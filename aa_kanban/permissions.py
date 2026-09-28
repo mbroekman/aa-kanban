@@ -1,7 +1,7 @@
 """Permission helpers and decorators for aa_kanban."""
 
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.exceptions import PermissionDenied
@@ -67,9 +67,7 @@ def board_write_required(view_func: Callable) -> Callable:
             board = get_object_or_404(Board, pk=kwargs["board_id"])
 
         if board and not board.can_user_write(request.user):
-            raise PermissionDenied(
-                "You do not have permission to modify this board."
-            )
+            raise PermissionDenied("You do not have permission to modify this board.")
 
         kwargs["board"] = board
         return view_func(request, *args, **kwargs)

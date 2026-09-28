@@ -6,21 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0004_list_description_list_wip_limit'),
+        ("aa_kanban", "0004_list_description_list_wip_limit"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='label',
+            name="label",
             unique_together=set(),
         ),
         migrations.AlterField(
-            model_name='label',
-            name='name',
+            model_name="label",
+            name="name",
             field=models.CharField(max_length=50, unique=True),
         ),
         migrations.RemoveField(
-            model_name='label',
-            name='board',
+            model_name="label",
+            name="board",
         ),
     ]

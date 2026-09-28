@@ -13,16 +13,23 @@ ordinal: 14000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+
 Trigger a Discord webhook when a card is moved between lists. Must use a separate webhook URL.
+
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
+
 <!-- AC:BEGIN -->
+
 - [ ] #1 Webhook URL configurable, message sent on card move, tests pass
+
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
+
 Added discord_webhook_cards to Board model and triggered it in move_card when card switches lists
+
 <!-- SECTION:NOTES:END -->

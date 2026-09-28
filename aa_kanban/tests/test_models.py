@@ -2,9 +2,10 @@
 
 import pytest
 from django.contrib.auth.models import AnonymousUser, User
-from aa_kanban.models import KanbanGroup as Group
 
-from aa_kanban.models import Board, Card, Comment, Label, List
+from aa_kanban.models import Board, Card, Comment
+from aa_kanban.models import KanbanGroup as Group
+from aa_kanban.models import Label, List
 
 
 @pytest.fixture
@@ -13,6 +14,7 @@ def user_factory(db):
         return User.objects.create_user(
             username=username, email=f"{username}@example.com", **kwargs
         )
+
     return create_user
 
 
@@ -20,6 +22,7 @@ def user_factory(db):
 def group_factory(db):
     def create_group(name):
         return Group.objects.create(name=name)
+
     return create_group
 
 
@@ -29,6 +32,7 @@ def board_factory(db, user_factory):
         if created_by is None:
             created_by = user_factory(f"creator_{Board.objects.count()}")
         return Board.objects.create(name=name, created_by=created_by, **kwargs)
+
     return create_board
 
 

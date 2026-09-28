@@ -7,32 +7,57 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0001_initial'),
+        ("aa_kanban", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='KanbanGroup',
+            name="KanbanGroup",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('members', models.ManyToManyField(blank=True, related_name='kanban_groups', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                (
+                    "members",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="kanban_groups",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Kanban Group',
-                'verbose_name_plural': 'Kanban Groups',
-                'ordering': ['name'],
+                "verbose_name": "Kanban Group",
+                "verbose_name_plural": "Kanban Groups",
+                "ordering": ["name"],
             },
         ),
         migrations.AlterField(
-            model_name='board',
-            name='view_groups',
-            field=models.ManyToManyField(blank=True, help_text='Kanban groups that have read-only access to this board.', related_name='kanban_view_boards', to='aa_kanban.kanbangroup'),
+            model_name="board",
+            name="view_groups",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Kanban groups that have read-only access to this board.",
+                related_name="kanban_view_boards",
+                to="aa_kanban.kanbangroup",
+            ),
         ),
         migrations.AlterField(
-            model_name='board',
-            name='write_groups',
-            field=models.ManyToManyField(blank=True, help_text='Kanban groups that have write/mutation access to this board.', related_name='kanban_write_boards', to='aa_kanban.kanbangroup'),
+            model_name="board",
+            name="write_groups",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Kanban groups that have write/mutation access to this board.",
+                related_name="kanban_write_boards",
+                to="aa_kanban.kanbangroup",
+            ),
         ),
     ]

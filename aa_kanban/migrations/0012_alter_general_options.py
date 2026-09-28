@@ -6,12 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0011_kanbansetting_ticket_channel_id'),
+        ("aa_kanban", "0011_kanbansetting_ticket_channel_id"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='general',
-            options={'default_permissions': (), 'managed': False, 'permissions': (('basic_access', 'Can access this app'), ('manage_boards', 'Can manage kanban boards'), ('create_ticket', 'Can submit tickets'))},
+            name="general",
+            options={
+                "default_permissions": (),
+                "managed": False,
+                "permissions": (
+                    ("basic_access", "Can access this app"),
+                    ("manage_boards", "Can manage kanban boards"),
+                    ("create_ticket", "Can submit tickets"),
+                ),
+            },
         ),
     ]

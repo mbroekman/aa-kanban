@@ -1,13 +1,15 @@
 """Tests for aa_kanban views."""
 
-import pytest
-from allianceauth.tests.auth_utils import AuthUtils
-from aa_kanban.models import KanbanGroup as Group
-from django.test import Client
-from django.urls import reverse
 from unittest.mock import patch
 
-from aa_kanban.models import Board, Card, KanbanSetting, Label, List
+import pytest
+from allianceauth.tests.auth_utils import AuthUtils
+from django.test import Client
+from django.urls import reverse
+
+from aa_kanban.models import Board, Card
+from aa_kanban.models import KanbanGroup as Group
+from aa_kanban.models import KanbanSetting, Label, List
 
 
 @pytest.fixture
@@ -25,9 +27,7 @@ def user_factory(db):
                 user, f"Char {username}", character_id=_char_id
             )
         if with_basic_access:
-            AuthUtils.add_permission_to_user_by_name(
-                "aa_kanban.basic_access", user
-            )
+            AuthUtils.add_permission_to_user_by_name("aa_kanban.basic_access", user)
         return user
 
     return create_user
@@ -177,13 +177,9 @@ class TestBoardDetailView:
             assert response.status_code == 200
 
         # Add additional lists and cards
-        new_list = List.objects.create(
-            board=data["board1"], name="Review", order=3
-        )
+        new_list = List.objects.create(board=data["board1"], name="Review", order=3)
         for i in range(5):
-            c = Card.objects.create(
-                list=new_list, title=f"Extra Card {i}", order=i
-            )
+            c = Card.objects.create(list=new_list, title=f"Extra Card {i}", order=i)
             c.assignees.add(user)
 
         # Query count remains exactly the same (no N+1 when adding cards/lists)
@@ -196,21 +192,25 @@ class TestBoardDetailView:
         data = setup_boards
         creator = data["creator"]
         from allianceauth.tests.auth_utils import AuthUtils
+
         AuthUtils.add_permission_to_user_by_name("aa_kanban.manage_boards", creator)
         client.force_login(creator)
-        
+
         # Set up global webhook
         setting = KanbanSetting.get_settings()
         setting.board_creation_webhook = "https://discord.com/api/webhooks/test"
         setting.save()
-        
+
         url = reverse("aa_kanban:create_board")
         post_data = {
             "name": "Webhook Board",
             "description": "Test",
         }
-        
+
         with patch("aa_kanban.utils.send_discord_webhook") as mock_send:
             response = client.post(url, post_data)
             assert response.status_code == 302
-            mock_send.assert_called_once_with("https://discord.com/api/webhooks/test", "**New Kanban Board Created!**\nName: `Webhook Board`\nCreated by: `creator`")
+            mock_send.assert_called_once_with(
+                "https://discord.com/api/webhooks/test",
+                "**New Kanban Board Created!**\nName: `Webhook Board`\nCreated by: `creator`",
+            )

@@ -15,8 +15,8 @@
                 <button type="submit" class="btn btn-sm btn-success">
                     <i class="fas fa-check me-1"></i>{% trans "Save" %}
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" 
-                        hx-get="{% url 'aa_kanban:create_kanban_team' %}" 
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        hx-get="{% url 'aa_kanban:create_kanban_team' %}"
                         hx-target="#team-list-container">
                     {% trans "Cancel" %}
                 </button>

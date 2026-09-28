@@ -6,14 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0008_card_color'),
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("aa_kanban", "0008_card_color"),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='kanbangroup',
-            name='groups',
-            field=models.ManyToManyField(blank=True, help_text='Auth groups that belong to this Kanban group.', related_name='kanban_groups', to='auth.group'),
+            model_name="kanbangroup",
+            name="groups",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Auth groups that belong to this Kanban group.",
+                related_name="kanban_groups",
+                to="auth.group",
+            ),
         ),
     ]

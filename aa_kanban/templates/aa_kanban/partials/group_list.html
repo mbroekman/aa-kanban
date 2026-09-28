@@ -38,25 +38,25 @@
                     {% endif %}
                 </td>
                 <td class="text-end text-nowrap">
-                    <button type="button" 
+                    <button type="button"
                             class="btn btn-sm btn-outline-secondary me-2"
-                            data-bs-toggle="modal" 
+                            data-bs-toggle="modal"
                             data-bs-target="#groupUsersModal"
                             hx-get="{% url 'aa_kanban:edit_group' group.pk %}"
                             hx-target="#groupUsersModalBody"
                             title="{% trans 'Edit Group Name' %}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button type="button" 
+                    <button type="button"
                             class="btn btn-sm btn-outline-primary me-2"
-                            data-bs-toggle="modal" 
+                            data-bs-toggle="modal"
                             data-bs-target="#groupUsersModal"
                             hx-get="{% url 'aa_kanban:group_users_modal' group.pk %}"
                             hx-target="#groupUsersModalBody"
                             title="{% trans 'Manage Access' %}">
                         <i class="fas fa-users-cog"></i>
                     </button>
-                    <button type="button" 
+                    <button type="button"
                             class="btn btn-sm btn-outline-danger"
                             hx-post="{% url 'aa_kanban:delete_group' group.pk %}"
                             hx-target="#group-list-container"

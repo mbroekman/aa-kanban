@@ -30,14 +30,14 @@ document.addEventListener("DOMContentLoaded", function () {
             onMove: function (evt) {
                 const targetColumnEl = evt.to.closest('.kanban-column');
                 if (!targetColumnEl) return true;
-                
+
                 if (evt.from === evt.to) {
                     return true;
                 }
-                
+
                 const headerEl = targetColumnEl.querySelector('.card-header');
                 const wipLimit = headerEl ? parseInt(headerEl.dataset.wipLimit || '0', 10) : parseInt(targetColumnEl.dataset.wipLimit || '0', 10);
-                
+
                 if (wipLimit > 0) {
                     const currentCards = evt.to.querySelectorAll('.kanban-card:not(.kanban-card-ghost)').length;
                     if (currentCards >= wipLimit) {
@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (countBadge) {
                 const header = col.querySelector(".card-header");
                 const wipLimit = header ? parseInt(header.dataset.wipLimit || '0', 10) : parseInt(col.dataset.wipLimit || '0', 10);
-                
+
                 if (wipLimit > 0) {
                     countBadge.textContent = cards.length + "/" + wipLimit;
                     if (cards.length >= wipLimit) {
@@ -193,14 +193,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const listModal = bootstrap.Modal.getInstance(listModalEl);
             if (listModal) listModal.hide();
         }
-        
+
         // Card modal
         const cardModalEl = document.getElementById('cardModal');
         if (cardModalEl) {
             const cardModal = bootstrap.Modal.getInstance(cardModalEl);
             if (cardModal) cardModal.hide();
         }
-        
+
         // Re-initialize tooltips for new content
         initTooltips();
     });
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize tooltips on load
     initTooltips();
-    
+
     // Initialize tooltips after HTMX swaps
     document.body.addEventListener('htmx:afterSwap', function(evt) {
         initTooltips();

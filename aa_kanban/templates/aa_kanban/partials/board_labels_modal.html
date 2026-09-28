@@ -41,11 +41,11 @@
           hx-target="#labelsModalBody"
           class="bg-light p-3 rounded border">
         <label class="form-label small fw-bold text-muted text-uppercase mb-2">{% trans "Create New Label" %}</label>
-        
+
         <div class="mb-2">
             <input type="text" class="form-control form-control-sm" name="name" placeholder="{% trans 'Label name...' %}" required maxlength="50">
         </div>
-        
+
         <div class="mb-3">
             <select name="color" class="form-select form-select-sm" required>
                 <option value="primary" class="text-primary">Primary (Blue)</option>
@@ -57,7 +57,7 @@
                 <option value="dark" class="text-body">Dark (Black)</option>
             </select>
         </div>
-        
+
         <div class="d-grid">
             <button type="submit" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i>{% trans "Add Label" %}

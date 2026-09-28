@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0003_kanbansetting_board_discord_webhook_cards'),
+        ("aa_kanban", "0003_kanbansetting_board_discord_webhook_cards"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='list',
-            name='description',
-            field=models.TextField(blank=True, default='', help_text='Optional context for this column'),
+            model_name="list",
+            name="description",
+            field=models.TextField(
+                blank=True, default="", help_text="Optional context for this column"
+            ),
         ),
         migrations.AddField(
-            model_name='list',
-            name='wip_limit',
-            field=models.PositiveIntegerField(default=0, help_text='Maximum cards (0 for unlimited)'),
+            model_name="list",
+            name="wip_limit",
+            field=models.PositiveIntegerField(
+                default=0, help_text="Maximum cards (0 for unlimited)"
+            ),
         ),
     ]

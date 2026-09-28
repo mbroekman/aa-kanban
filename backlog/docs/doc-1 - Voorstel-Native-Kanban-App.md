@@ -5,13 +5,17 @@ type: specification
 created_date: '2026-09-09 20:11'
 updated_date: '2026-09-09 20:18'
 ---
+
 # Voorstel: Native Kanban App voor Alliance Auth (aa-kanban)
 
 ## 1. Doel & Scope
+
 Ontwikkelen van een volwaardige, native Kanban applicatie voor Alliance Auth (AA) genaamd `aa-kanban`. De app integreert naadloos in AA met Bootstrap 5, groepsgebaseerd toegangsbeheer (met expliciete scheiding tussen readonly en mutatierechten), en biedt een interactieve drag-and-drop ervaring met behulp van HTMX en SortableJS zonder page reloads.
 
 ## 2. Toegangsbeheer & Rechtenstructuur
+
 Borden worden ontsloten middels Alliance Auth `Group`s met twee duidelijke niveaus:
+
 - **Readonly Toegang (`view_groups`)**:
   - Gebruikers in deze groepen kunnen het bord inzien, kolommen en kaarten bekijken en card modals openen om details te lezen.
   - Zij kunnen GEEN kaarten verslepen, aanmaken, bewerken of verwijderen.
@@ -24,7 +28,9 @@ Borden worden ontsloten middels Alliance Auth `Group`s met twee duidelijke nivea
   - `manage_boards`: Beheerdersrechten om borden aan te maken, te configureren en groepen toe te wijzen.
 
 ## 3. Datamodellen & Architectuur
+
 De datamodellen in `models.py` van `aa_kanban`:
+
 - **Board**:
   - `name`: CharField(max_length=255)
   - `slug`: SlugField(unique=True)
@@ -58,11 +64,13 @@ De datamodellen in `models.py` van `aa_kanban`:
   - `ticket_board`: ForeignKey(Board) voor het verzamelen van tickets
 
 ## 4. Extra Functionaliteiten
+
 - **Default Columns**: Nieuwe borden krijgen standaard de kolommen: Backlog, To Do, In Progress, Review/Testing, Done.
 - **Summary View**: Een overzichtspagina met alle zichtbare borden gegroepeerd op de standaard kolommen.
 - **Member Ticket System**: Gewone leden kunnen via een formulier tickets inschieten. Deze worden als cards in de "Backlog" van een instelbaar `ticket_board` geplaatst.
 
 ## 5. Frontend & Drag-and-Drop (HTMX + SortableJS)
+
 - **Templates**: Bootstrap 5 syntax conform AA v5 (`data-bs-*`).
 - **Drag & Drop**:
   - SortableJS wordt alleen geactiveerd als `can_user_write` waar is.
@@ -73,12 +81,14 @@ De datamodellen in `models.py` van `aa_kanban`:
   - Bootstrap 5 modal geladen via HTMX (`hx-get`) voor kaartdetails. Edit-opties zijn alleen zichtbaar voor gebruikers met mutatierechten.
 
 ## 5. Test- & Kwaliteitsstrategie
+
 - Opzetten van `testauth` harness voor `pytest-django`.
 - Unittests voor modellen, readonly vs write permissies, cascades, drag & drop API endpoints.
 - Preventie van N+1 queries via `select_related` en `prefetch_related`.
 - Strikte typing en linting met `mypy` en `ruff`.
 
 ## 6. Backlog Taken
+
 - TASK-1: Ontwikkeling Native Kanban App voor Alliance Auth (Epic)
   - TASK-1.7: Project hernoemen naar aa-kanban [Done]
   - TASK-1.1: Test-harness en environment inrichten [To Do]

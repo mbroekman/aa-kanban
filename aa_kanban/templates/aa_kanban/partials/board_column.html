@@ -33,7 +33,7 @@
         <form hx-post="{% url 'aa_kanban:create_card' list.id %}"
               hx-target="#list-cards-{{ list.id }}"
               hx-swap="beforeend"
-              
+
               class="d-flex gap-2">
             {% csrf_token %}
             <input type="text"

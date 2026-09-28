@@ -1,15 +1,16 @@
 """Tests for aa_kanban API endpoints."""
 
 import json
+from unittest.mock import patch
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
-from aa_kanban.models import KanbanGroup as Group
 from django.test import Client
-from unittest.mock import patch
 from django.urls import reverse
 
-from aa_kanban.models import Board, Card, List
+from aa_kanban.models import Board, Card
+from aa_kanban.models import KanbanGroup as Group
+from aa_kanban.models import List
 
 
 @pytest.fixture
@@ -21,12 +22,8 @@ def user_factory(db):
         nonlocal _char_id
         _char_id += 1
         user = AuthUtils.create_user(username)
-        AuthUtils.add_main_character(
-            user, f"Char {username}", character_id=_char_id
-        )
-        AuthUtils.add_permission_to_user_by_name(
-            "aa_kanban.basic_access", user
-        )
+        AuthUtils.add_main_character(user, f"Char {username}", character_id=_char_id)
+        AuthUtils.add_permission_to_user_by_name("aa_kanban.basic_access", user)
         return user
 
     return create_user
@@ -88,9 +85,7 @@ class TestMoveCardAPI:
     def test_move_card_unauthenticated(self, setup_api_data):
         data = setup_api_data
         client = Client()
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         response = client.post(
             url, {"target_list_id": data["list_a"].id, "new_position": 1}
         )
@@ -104,17 +99,13 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(unauth_user)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         response = client.post(
             url, {"target_list_id": data["list_a"].id, "new_position": 1}
         )
         assert response.status_code == 403
 
-    def test_move_card_read_only_user_denied(
-        self, user_factory, setup_api_data
-    ):
+    def test_move_card_read_only_user_denied(self, user_factory, setup_api_data):
         data = setup_api_data
         viewer = user_factory("board_viewer")
         viewer.kanban_groups.add(data["view_grp"])  # Read-only group
@@ -122,9 +113,7 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(viewer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         response = client.post(
             url, {"target_list_id": data["list_a"].id, "new_position": 1}
         )
@@ -138,9 +127,7 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         response = client.get(url)
         assert response.status_code == 405
 
@@ -152,9 +139,7 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         # Move card 0 to position 2 in list_a
         response = client.post(
             url, {"target_list_id": data["list_a"].id, "new_position": 2}
@@ -181,9 +166,7 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         # Move card 0 to list_b at position 0 (before card_b0)
         response = client.post(
             url, {"target_list_id": data["list_b"].id, "new_position": 0}
@@ -212,12 +195,8 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card1"].id}
-        )
-        payload = json.dumps(
-            {"target_list_id": data["list_b"].id, "new_position": 1}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card1"].id})
+        payload = json.dumps({"target_list_id": data["list_b"].id, "new_position": 1})
         response = client.post(url, payload, content_type="application/json")
         assert response.status_code == 200
         assert response.json()["status"] == "success"
@@ -230,9 +209,7 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         # Attempt moving to a list on a completely different board
         response = client.post(
             url, {"target_list_id": data["list_other"].id, "new_position": 0}
@@ -248,9 +225,7 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
         # Missing position
         response = client.post(url, {"target_list_id": data["list_a"].id})
         assert response.status_code == 400
@@ -265,7 +240,7 @@ class TestMoveCardAPI:
         data = setup_api_data
         writer = user_factory("board_writer_webhook")
         writer.kanban_groups.add(data["write_grp"])
-        
+
         # Set up webhook
         board = data["board1"]
         board.discord_webhook_cards = "https://discord.com/api/webhooks/test-cards"
@@ -274,10 +249,8 @@ class TestMoveCardAPI:
         client = Client()
         client.force_login(writer)
 
-        url = reverse(
-            "aa_kanban:move_card", kwargs={"card_id": data["card0"].id}
-        )
-        
+        url = reverse("aa_kanban:move_card", kwargs={"card_id": data["card0"].id})
+
         with patch("aa_kanban.utils.send_discord_webhook") as mock_send:
             response = client.post(
                 url, {"target_list_id": data["list_b"].id, "new_position": 0}
@@ -285,7 +258,7 @@ class TestMoveCardAPI:
             assert response.status_code == 200
             mock_send.assert_called_once_with(
                 "https://discord.com/api/webhooks/test-cards",
-                "Card moved: **Card 0** was moved from `List A` to `List B`."
+                "Card moved: **Card 0** was moved from `List A` to `List B`.",
             )
 
 
@@ -294,71 +267,76 @@ class TestLabelEndpoints:
     def test_create_label(self, client, setup_api_data, user_factory):
         data = setup_api_data
         url = reverse("aa_kanban:create_label", args=[data["board1"].slug])
-        
+
         # User without write access
         viewer = user_factory("label_viewer")
         viewer.kanban_groups.add(data["view_grp"])
         client.force_login(viewer)
         response = client.post(url, {"name": "Test", "color": "danger"})
         assert response.status_code == 403
-        
+
         # User with write access
         writer = user_factory("label_writer")
         writer.kanban_groups.add(data["write_grp"])
         client.force_login(writer)
-        
+
         response = client.post(url, {"name": "Test Label", "color": "success"})
         assert response.status_code == 200
         assert data["board1"].labels.filter(name="Test Label", color="success").exists()
-        
+
     def test_toggle_label(self, client, setup_api_data, user_factory):
         from aa_kanban.models import Label
+
         data = setup_api_data
         label = Label.objects.create(board=data["board1"], name="Bug", color="danger")
         url = reverse("aa_kanban:toggle_label", args=[data["card0"].id])
-        
+
         writer = user_factory("toggle_writer")
         writer.kanban_groups.add(data["write_grp"])
         client.force_login(writer)
-        
+
         # Add label
         response = client.post(url, {"label_id": label.id})
         assert response.status_code == 200
         assert label in data["card0"].labels.all()
-        
+
         # Remove label
         response = client.post(url, {"label_id": label.id})
         assert response.status_code == 200
         assert label not in data["card0"].labels.all()
+
+
 @pytest.mark.django_db
 class TestToggleAssignee:
     def test_toggle_assignee_add_and_remove(self, client, setup_api_data, user_factory):
         data = setup_api_data
         url = reverse("aa_kanban:toggle_assignee", args=[data["card0"].id])
-        
+
         writer = user_factory("toggle_assignee_writer")
         writer.kanban_groups.add(data["write_grp"])
         client.force_login(writer)
-        
+
         target_user = user_factory("target_assignee")
-        
-        with patch("aadiscordbot.tasks.send_direct_message_by_user_id.delay") as mock_send_dm:
+
+        with patch(
+            "aadiscordbot.tasks.send_direct_message_by_user_id.delay"
+        ) as mock_send_dm:
             # Assign user
             response = client.post(url, {"user_id": target_user.id})
             assert response.status_code == 200
             assert target_user in data["card0"].assignees.all()
             mock_send_dm.assert_called_once_with(
-                target_user.id, 
-                "You have been assigned to the card: **Card 0** on board **Board One**."
+                target_user.id,
+                "You have been assigned to the card: **Card 0** on board **Board One**.",
             )
-            
+
             mock_send_dm.reset_mock()
-            
+
             # Remove user
             response = client.post(url, {"user_id": target_user.id})
             assert response.status_code == 200
             assert target_user not in data["card0"].assignees.all()
             mock_send_dm.assert_called_once_with(
-                target_user.id, 
-                "You have been removed from the card: **Card 0** on board **Board One**."
+                target_user.id,
+                "You have been removed from the card: **Card 0** on board **Board One**.",
             )

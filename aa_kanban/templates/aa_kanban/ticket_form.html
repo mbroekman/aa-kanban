@@ -13,7 +13,7 @@
             {% if error %}
                 <div class="alert alert-danger">{{ error }}</div>
             {% endif %}
-            
+
             {% if boards %}
                 <form method="POST" action="{% url 'aa_kanban:create_ticket' %}">
                     {% csrf_token %}
