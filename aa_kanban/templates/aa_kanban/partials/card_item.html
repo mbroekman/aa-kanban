@@ -36,6 +36,11 @@
             {% endif %}
         </div>
         <div class="d-flex align-items-center gap-1">
+            {% if card.assigned_team %}
+                <span class="badge bg-primary text-white border" title="{% trans 'Team:' %} {{ card.assigned_team.name }}">
+                    <i class="fas fa-users"></i> {{ card.assigned_team.name|slice:":6" }}
+                </span>
+            {% endif %}
             {% for assignee in card.assignees.all %}
                 <span class="badge bg-light text-dark border" title="{{ assignee.username }}">
                     <i class="fas fa-user me-1 text-secondary"></i>{{ assignee.username|slice:":6" }}

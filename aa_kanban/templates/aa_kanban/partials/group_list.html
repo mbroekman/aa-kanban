@@ -7,6 +7,7 @@
             <tr>
                 <th>{% trans "Name" %}</th>
                 <th>{% trans "Members" %}</th>
+                <th>{% trans "Auth Groups" %}</th>
                 <th class="text-end">{% trans "Actions" %}</th>
             </tr>
         </thead>
@@ -25,6 +26,17 @@
                         <span class="text-muted small">{% trans "No members" %}</span>
                     {% endif %}
                 </td>
+                <td>
+                    {% for g in group.groups.all|slice:":5" %}
+                        <span class="badge bg-secondary rounded-pill me-1 mb-1">{{ g.name }}</span>
+                    {% endfor %}
+                    {% if group.groups.count > 5 %}
+                        <span class="badge bg-secondary rounded-pill mb-1">+{{ group.groups.count|add:"-5" }} {% trans "more" %}</span>
+                    {% endif %}
+                    {% if not group.groups.count %}
+                        <span class="text-muted small">{% trans "None" %}</span>
+                    {% endif %}
+                </td>
                 <td class="text-end text-nowrap">
                     <button type="button" 
                             class="btn btn-sm btn-outline-secondary me-2"
@@ -41,8 +53,8 @@
                             data-bs-target="#groupUsersModal"
                             hx-get="{% url 'aa_kanban:group_users_modal' group.pk %}"
                             hx-target="#groupUsersModalBody"
-                            title="{% trans 'Manage Users' %}">
-                        <i class="fas fa-users"></i>
+                            title="{% trans 'Manage Access' %}">
+                        <i class="fas fa-users-cog"></i>
                     </button>
                     <button type="button" 
                             class="btn btn-sm btn-outline-danger"

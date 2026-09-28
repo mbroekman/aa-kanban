@@ -38,6 +38,11 @@
                             </select>
                             <div class="form-text">{% trans "Select one or more boards where member-submitted tickets can appear. Use Ctrl/Cmd + click to select multiple." %}</div>
                         </div>
+                        <div class="flex-grow-1">
+                            <label for="ticket_channel_id" class="form-label">{% trans "Discord Ticket Channel ID" %}</label>
+                            <input type="text" class="form-control" id="ticket_channel_id" name="ticket_channel_id" value="{{ settings.ticket_channel_id|default_if_none:'' }}">
+                            <div class="form-text">{% trans "The ID of the Discord channel where new ticket threads will be created." %}</div>
+                        </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-1"></i>{% trans "Save Settings" %}
                         </button>
@@ -80,6 +85,43 @@
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header border-bottom-0 pt-4 pb-0">
+                    <h5 class="card-title mb-0"><i class="fas fa-users me-2 text-primary"></i>{% trans "Create Team" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form hx-post="{% url 'aa_kanban:create_kanban_team' %}" hx-target="#team-list-container" hx-swap="innerHTML" class="d-flex flex-column gap-3">
+                        {% csrf_token %}
+                        <div>
+                            <label for="teamName" class="form-label">{% trans "Team Name" %}</label>
+                            <input type="text" class="form-control" id="teamName" name="name" required placeholder="e.g. IT Support">
+                        </div>
+                        <button type="submit" class="btn btn-primary" onclick="setTimeout(() => { document.getElementById('teamName').value = ''; }, 100)">
+                            <i class="fas fa-plus me-1"></i>{% trans "Create" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="fas fa-list me-2 text-primary"></i>{% trans "Ticket Teams" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div id="team-list-container">
+                        {% include "aa_kanban/partials/team_list.html" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mt-4">
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm border-0">
@@ -132,6 +174,19 @@
 <div class="modal fade" id="groupUsersModal" tabindex="-1" aria-labelledby="groupUsersModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" id="groupUsersModalBody">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">{% trans "Loading..." %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Modal container for Team User Management #}
+<div class="modal fade" id="teamUsersModal" tabindex="-1" aria-labelledby="teamUsersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="teamUsersModalBody">
             <div class="modal-body text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">{% trans "Loading..." %}</span>

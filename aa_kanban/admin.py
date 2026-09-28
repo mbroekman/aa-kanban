@@ -7,7 +7,7 @@ blijven bewerkbaar voor moderatie-doeleinden.
 
 from django.contrib import admin
 
-from .models import Board, Card, Comment, Label, List, KanbanSetting
+from .models import Board, Card, Comment, Label, List, KanbanSetting, KanbanGroup, KanbanTeam
 
 
 @admin.register(Board)
@@ -127,3 +127,19 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ("created_at",)
     search_fields = ("text", "author__username", "card__title")
     readonly_fields = ("created_at",)
+
+
+@admin.register(KanbanGroup)
+class KanbanGroupAdmin(admin.ModelAdmin):
+    """Manage kanban groups for board access control."""
+    list_display = ("name",)
+    search_fields = ("name",)
+    filter_horizontal = ("members", "groups")
+
+
+@admin.register(KanbanTeam)
+class KanbanTeamAdmin(admin.ModelAdmin):
+    """Manage teams for ticket assignments."""
+    list_display = ("name", "discord_role_id")
+    search_fields = ("name",)
+    filter_horizontal = ("members",)

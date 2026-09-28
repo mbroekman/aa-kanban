@@ -14,6 +14,7 @@ class General(models.Model):
         permissions = (
             ("basic_access", "Can access this app"),
             ("manage_boards", "Can manage kanban boards"),
+            ("create_ticket", "Can submit tickets"),
         )
 
 
@@ -26,7 +27,9 @@ class BoardQuerySet(models.QuerySet):
             return self.none()
         if user.is_superuser:
             return self.all()
-        user_kanban_groups = user.kanban_groups.all()
+        user_kanban_groups = KanbanGroup.objects.filter(
+            models.Q(members=user) | models.Q(groups__in=user.groups.all())
+        ).distinct()
         return self.filter(
             models.Q(view_groups__in=user_kanban_groups)
             | models.Q(write_groups__in=user_kanban_groups)
@@ -42,10 +45,41 @@ class KanbanGroup(models.Model):
         blank=True,
         related_name="kanban_groups",
     )
+    groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="kanban_groups",
+        help_text="Auth groups that belong to this Kanban group.",
+    )
 
     class Meta:
         verbose_name = "Kanban Group"
         verbose_name_plural = "Kanban Groups"
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class KanbanTeam(models.Model):
+    """Team model exclusively used for ticket/card assignments."""
+
+    name = models.CharField(max_length=255, unique=True)
+    members = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name="kanban_ticket_teams",
+        help_text="Members of this team.",
+    )
+    discord_role_id = models.BigIntegerField(
+        blank=True,
+        null=True,
+        help_text="Optional Discord Role ID to ping when a ticket is assigned to this team.",
+    )
+
+    class Meta:
+        verbose_name = "Kanban Team"
+        verbose_name_plural = "Kanban Teams"
         ordering = ["name"]
 
     def __str__(self) -> str:
@@ -65,6 +99,11 @@ class KanbanSetting(models.Model):
         blank=True,
         help_text="Boards where member tickets can be created.",
         related_name="+",
+    )
+    ticket_channel_id = models.BigIntegerField(
+        blank=True,
+        null=True,
+        help_text="Discord Channel ID where ticket threads will be created.",
     )
 
     class Meta:
@@ -158,7 +197,10 @@ class Board(models.Model):
             return True
         if self.created_by_id == user.id:
             return True
-        user_group_ids = set(user.kanban_groups.values_list("id", flat=True))
+        user_kanban_groups = KanbanGroup.objects.filter(
+            models.Q(members=user) | models.Q(groups__in=user.groups.all())
+        ).values_list("id", flat=True)
+        user_group_ids = set(user_kanban_groups)
         write_group_ids = set(self.write_groups.values_list("id", flat=True))
         view_group_ids = set(self.view_groups.values_list("id", flat=True))
         return bool(user_group_ids & (write_group_ids | view_group_ids))
@@ -171,7 +213,10 @@ class Board(models.Model):
             return True
         if self.created_by_id == user.id:
             return True
-        user_group_ids = set(user.kanban_groups.values_list("id", flat=True))
+        user_kanban_groups = KanbanGroup.objects.filter(
+            models.Q(members=user) | models.Q(groups__in=user.groups.all())
+        ).values_list("id", flat=True)
+        user_group_ids = set(user_kanban_groups)
         write_group_ids = set(self.write_groups.values_list("id", flat=True))
         return bool(user_group_ids & write_group_ids)
 
@@ -266,6 +311,19 @@ class Card(models.Model):
         Label,
         blank=True,
         related_name="cards",
+    )
+    assigned_team = models.ForeignKey(
+        "KanbanTeam",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_tickets",
+        help_text="Target team for this ticket",
+    )
+    discord_thread_id = models.BigIntegerField(
+        null=True,
+        blank=True,
+        help_text="ID of the associated Discord Thread",
     )
 
     due_date = models.DateTimeField(null=True, blank=True)

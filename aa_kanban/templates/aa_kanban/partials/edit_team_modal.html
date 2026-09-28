@@ -1,0 +1,26 @@
+{% load i18n %}
+<tr id="team-{{ team.id }}-edit-row" class="table-active">
+    <td colspan="4" class="p-3">
+        <form hx-post="{% url 'aa_kanban:edit_kanban_team' team.id %}" hx-target="#team-list-container" hx-swap="innerHTML" class="d-flex align-items-end gap-2 m-0">
+            {% csrf_token %}
+            <div class="flex-grow-1">
+                <label class="form-label small fw-bold text-muted mb-1">{% trans "Team Name" %}</label>
+                <input type="text" class="form-control form-control-sm" name="name" value="{{ team.name }}" required>
+            </div>
+            <div class="flex-grow-1">
+                <label class="form-label small fw-bold text-muted mb-1">{% trans "Discord Role ID" %}</label>
+                <input type="text" class="form-control form-control-sm" name="discord_role_id" value="{{ team.discord_role_id|default_if_none:'' }}" placeholder="Optional">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-sm btn-success">
+                    <i class="fas fa-check me-1"></i>{% trans "Save" %}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" 
+                        hx-get="{% url 'aa_kanban:create_kanban_team' %}" 
+                        hx-target="#team-list-container">
+                    {% trans "Cancel" %}
+                </button>
+            </div>
+        </form>
+    </td>
+</tr>

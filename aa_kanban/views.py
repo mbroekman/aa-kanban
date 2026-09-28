@@ -237,9 +237,10 @@ def summary(request: HttpRequest) -> HttpResponse:
     return render(request, "aa_kanban/summary.html", context)
 
 @login_required
+@permission_required("aa_kanban.create_ticket", raise_exception=True)
 def create_ticket(request: HttpRequest) -> HttpResponse:
     """Allow members to create tickets as cards on a designated ticket board."""
-    from .models import KanbanSetting, Label, Board
+    from .models import KanbanSetting, Label, Board, KanbanTeam
     settings = KanbanSetting.get_settings()
     ticket_boards = settings.ticket_boards.all()
     if not ticket_boards.exists():
@@ -248,27 +249,29 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
         return render(request, "aa_kanban/ticket_form.html", context)
 
     labels = Label.objects.all()
+    teams = KanbanTeam.objects.all().order_by("name")
 
     if request.method == "POST":
         title = request.POST.get("title", "").strip()
         description = request.POST.get("description", "").strip()
         label_id = request.POST.get("label")
         board_id = request.POST.get("board")
+        assigned_team_id = request.POST.get("assigned_team")
 
         if not title:
-            context = {"boards": ticket_boards, "labels": labels, "error": "Titel is verplicht."}
+            context = {"boards": ticket_boards, "labels": labels, "teams": teams, "error": "Titel is verplicht."}
             return render(request, "aa_kanban/ticket_form.html", context)
             
         try:
             board = ticket_boards.get(pk=board_id)
         except Board.DoesNotExist:
-            context = {"boards": ticket_boards, "labels": labels, "error": "Ongeldig ticket board geselecteerd."}
+            context = {"boards": ticket_boards, "labels": labels, "teams": teams, "error": "Ongeldig ticket board geselecteerd."}
             return render(request, "aa_kanban/ticket_form.html", context)
 
         # Add to the "Backlog" column or first column
         list_obj = board.lists.filter(name="Backlog").first() or board.lists.first()
         if not list_obj:
-            context = {"board": board, "labels": labels, "error": "Geen kolommen beschikbaar op het ticket board."}
+            context = {"board": board, "labels": labels, "teams": teams, "error": "Geen kolommen beschikbaar op het ticket board."}
             return render(request, "aa_kanban/ticket_form.html", context)
 
         card = Card.objects.create(
@@ -277,6 +280,12 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
             description=description,
             created_by=request.user
         )
+        if assigned_team_id:
+            try:
+                card.assigned_team = KanbanTeam.objects.get(pk=assigned_team_id)
+                card.save()
+            except KanbanTeam.DoesNotExist:
+                pass
         if label_id:
             try:
                 card.labels.add(Label.objects.get(pk=label_id))
@@ -289,11 +298,16 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
             msg = f"**New Ticket Submitted!**\nTitle: `{card.title}`\nCreated by: `{request.user.username}`\n[View Board]({url})"
             send_discord_webhook(board.discord_webhook_cards, msg)
 
+        # Trigger Discord Thread creation
+        from aa_kanban.tasks import create_ticket_thread
+        create_ticket_thread.delay(card.id)
+
         return redirect("aa_kanban:ticket_success")
 
-    context = {"boards": ticket_boards, "labels": labels}
+    context = {"boards": ticket_boards, "labels": labels, "teams": teams}
     return render(request, "aa_kanban/ticket_form.html", context)
 
 @login_required
+@permission_required("aa_kanban.create_ticket", raise_exception=True)
 def ticket_success(request: HttpRequest) -> HttpResponse:
     return render(request, "aa_kanban/ticket_success.html")

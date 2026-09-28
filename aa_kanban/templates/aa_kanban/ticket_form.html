@@ -39,6 +39,16 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="assigned_team" class="form-label fw-bold">{% trans "Assigned Team" %}</label>
+                        <select class="form-select" id="assigned_team" name="assigned_team">
+                            <option value="">{% trans "-- Select Team --" %}</option>
+                            {% for team in teams %}
+                                <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">{% trans "Select the specific department or team this issue should be routed to." %}</div>
+                    </div>
                     <div class="mb-4">
                         <label for="description" class="form-label fw-bold">{% trans "Description" %}</label>
                         <textarea class="form-control" id="description" name="description" rows="5" placeholder="{% trans 'Provide more details...' %}"></textarea>

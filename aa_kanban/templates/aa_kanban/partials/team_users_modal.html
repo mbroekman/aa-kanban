@@ -1,0 +1,67 @@
+{% load i18n %}
+<div class="modal-header">
+    <h5 class="modal-title" id="teamUsersModalLabel">
+        <i class="fas fa-users me-2 text-primary"></i>{% trans "Manage Team Members:" %} {{ team.name }}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <!-- Add User Form -->
+    <div class="card mb-4 shadow-sm border-0 bg-light">
+        <div class="card-body py-3">
+            <h6 class="card-title fw-bold text-muted mb-3">{% trans "Add Individual Users" %}</h6>
+            <form hx-post="{% url 'aa_kanban:add_user_to_team' team.id %}" hx-target="#teamUsersModalBody" class="d-flex gap-2">
+                {% csrf_token %}
+                <select name="user_id" class="form-select" required>
+                    <option value="">{% trans "-- Select User --" %}</option>
+                    {% for u in all_users %}
+                        <option value="{{ u.id }}">{{ u.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary text-nowrap">
+                    <i class="fas fa-plus me-1"></i>{% trans "Add" %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Current Members List -->
+    <h6 class="fw-bold border-bottom pb-2 mb-3">{% trans "Current Members" %}</h6>
+    
+    {% if members %}
+        <div class="list-group list-group-flush mb-4">
+            {% for member in members %}
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;">
+                            {{ member.username.0|upper }}
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ member.username }}</div>
+                        </div>
+                    </div>
+                    <form hx-post="{% url 'aa_kanban:remove_user_from_team' team.id member.id %}" hx-target="#teamUsersModalBody" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Remove User' %}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center text-muted py-3 mb-4">
+            <i class="fas fa-user-slash fa-2x mb-2 text-light"></i>
+            <p class="mb-0">{% trans "No individual members added." %}</p>
+        </div>
+    {% endif %}
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+</div>
+
+{% if request.method == "POST" %}
+<div id="team-list-container" hx-swap-oob="true">
+    {% include "aa_kanban/partials/team_list.html" %}
+</div>
+{% endif %}

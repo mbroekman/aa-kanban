@@ -100,8 +100,16 @@ urlpatterns = [
     path("settings/groups/<int:group_id>/users/", views_settings.group_users_modal, name="group_users_modal"),
     path("settings/groups/<int:group_id>/users/add/", views_settings.add_user_to_group, name="add_user_to_group"),
     path("settings/groups/<int:group_id>/users/<int:user_id>/remove/", views_settings.remove_user_from_group, name="remove_user_from_group"),
+    path("settings/groups/<int:group_id>/authgroups/add/", views_settings.add_authgroup_to_group, name="add_authgroup_to_group"),
+    path("settings/groups/<int:group_id>/authgroups/<int:authgroup_id>/remove/", views_settings.remove_authgroup_from_group, name="remove_authgroup_from_group"),
     path("settings/labels/create/", views_settings.create_settings_label, name="create_settings_label"),
     path("settings/labels/<int:label_id>/delete/", views_settings.delete_settings_label, name="delete_settings_label"),
     path("settings/global/update/", views_settings.update_global_settings, name="update_global_settings"),
+    path("settings/teams/create/", views_settings.create_kanban_team, name="create_kanban_team"),
+    path("settings/teams/<int:team_id>/edit/", views_settings.edit_kanban_team, name="edit_kanban_team"),
+    path("settings/teams/<int:team_id>/delete/", views_settings.delete_kanban_team, name="delete_kanban_team"),
+    path("settings/teams/<int:team_id>/users/", views_settings.team_users_modal, name="team_users_modal"),
+    path("settings/teams/<int:team_id>/users/add/", views_settings.add_user_to_team, name="add_user_to_team"),
+    path("settings/teams/<int:team_id>/users/<int:user_id>/remove/", views_settings.remove_user_from_team, name="remove_user_from_team"),
 ]
 

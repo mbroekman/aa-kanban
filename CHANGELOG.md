@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Auth Group Integration**: You can now assign Django Auth Groups directly to Kanban Groups via the Kanban Settings UI. This makes it easier to authorize larger groups of members at once instead of assigning them individually.
+
 ## [0.7.3] - 2026-09-26
 
 ### Added

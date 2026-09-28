@@ -1,0 +1,58 @@
+{% load i18n %}
+{% if teams %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>{% trans "Team Name" %}</th>
+                    <th>{% trans "Discord Role ID" %}</th>
+                    <th>{% trans "Members" %}</th>
+                    <th class="text-end">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team in teams %}
+                <tr>
+                    <td class="fw-medium">{{ team.name }}</td>
+                    <td>
+                        {% if team.discord_role_id %}
+                            <span class="badge bg-secondary">{{ team.discord_role_id }}</span>
+                        {% else %}
+                            <span class="text-muted fst-italic">None</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-info text-dark rounded-pill">{{ team.members.count }}</span>
+                    </td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary me-1"
+                                hx-get="{% url 'aa_kanban:team_users_modal' team.id %}"
+                                hx-target="#teamUsersModalBody"
+                                data-bs-toggle="modal" data-bs-target="#teamUsersModal">
+                            <i class="fas fa-users"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary me-1"
+                                hx-get="{% url 'aa_kanban:edit_kanban_team' team.id %}"
+                                hx-target="#team-{{ team.id }}-edit-row"
+                                hx-swap="outerHTML">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger"
+                                hx-post="{% url 'aa_kanban:delete_kanban_team' team.id %}"
+                                hx-target="#team-list-container"
+                                hx-confirm="{% trans 'Are you sure you want to delete this team? Tickets assigned to it will lose their team assignment.' %}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr id="team-{{ team.id }}-edit-row" style="display: none;"></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="text-center text-muted py-4">
+        <i class="fas fa-users fa-3x mb-3 text-light"></i>
+        <p class="mb-0">{% trans "No teams created yet." %}</p>
+    </div>
+{% endif %}
