@@ -56,6 +56,9 @@ lint.select = [ "E", "F", "I", "W" ]
 lint.ignore = []
 lint.per-file-ignores."**/migrations/*" = [ "E501" ]
 
+[tool.isort]
+profile = "black"
+
 [tool.mypy]
 ignore_missing_imports = true
 python_version = "3.12"

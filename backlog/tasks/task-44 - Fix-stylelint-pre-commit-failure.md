@@ -13,16 +13,23 @@ ordinal: 52000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+
 Stylelint fails due to missing configuration file. Create a minimal .stylelintrc.json.
+
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
+
 <!-- AC:BEGIN -->
+
 - [ ] #1 Stylelint config created, pre-commit passes, changes pushed
+
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
+
 Added .stylelintrc.json to fix stylelint pre-commit error
+
 <!-- SECTION:NOTES:END -->

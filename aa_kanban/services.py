@@ -7,11 +7,10 @@ like discord webhook notifications or permission checks.
 """
 
 from typing import List as TypingList
-from typing import Optional
 
 from django.contrib.auth.models import User
 
-from .models import Board, Card, KanbanSetting, Label, List
+from .models import Board, Card, KanbanSetting
 
 
 def create_kanban_board(

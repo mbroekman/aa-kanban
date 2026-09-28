@@ -2,7 +2,6 @@ import logging
 
 from asgiref.sync import sync_to_async
 from celery import shared_task
-from django.conf import settings
 
 from .models import Card, KanbanSetting
 
@@ -51,7 +50,7 @@ async def _create_discord_thread(bot, card_id: int):
             if card.assigned_team.discord_role_id:
                 assigned_team_msg += f" <@&{card.assigned_team.discord_role_id}>"
         thread_name = f"Ticket #{card.id}: {card.title[:80]}"
-        message_content = f"🎫 **New Ticket Submitted** 🎫\n"
+        message_content = "🎫 **New Ticket Submitted** 🎫\n"
         message_content += f"**Title:** {card.title}\n"
         message_content += (
             f"**Reporter:** {card.created_by.username} {' '.join(mentions)}\n"

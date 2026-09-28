@@ -207,6 +207,8 @@ repos:
       - id: flake8
         name: Flake8
         description: Check for style and complexity issues in Python code.
+        args:
+          - --extend-ignore=E501
 
   - repo: https://github.com/asottile/yesqa
     rev: f2ae90cf9e1661ade79d0881186ce4fd7ba6ee79  # frozen: v1.5.0
