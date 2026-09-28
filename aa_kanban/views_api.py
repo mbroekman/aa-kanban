@@ -436,6 +436,16 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
         created_by=request.user,  # type: ignore[misc]
     )
 
+    if kanban_list.board.discord_webhook_cards:
+        from aa_kanban.utils import send_discord_webhook
+        from django.shortcuts import redirect
+        
+        url = request.build_absolute_uri(
+            redirect("aa_kanban:board_detail", board_slug=kanban_list.board.slug).url
+        )
+        msg = f"**Nieuwe Card Aangemaakt!**\nTitel: `{card.title}`\nAangemaakt door: `{request.user.username}`\nLijst: `{kanban_list.name}`\n[Bekijk Bord]({url})"
+        send_discord_webhook(kanban_list.board.discord_webhook_cards, msg)
+
     return render(
         request,
         "aa_kanban/partials/card_item.html",
