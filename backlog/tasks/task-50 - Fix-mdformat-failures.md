@@ -4,7 +4,7 @@ title: Fix mdformat failures
 status: Done
 assignee: []
 created_date: '2026-09-28 19:04'
-updated_date: '2026-09-28 19:06'
+updated_date: '2026-09-28 19:18'
 labels: []
 dependencies: []
 ordinal: 58000
@@ -19,10 +19,11 @@ Run mdformat to fix formatting issues in markdown files to pass CI.
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 mdformat run, committed, pushed
+- [ ] #2 1
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Ran mdformat to fix formatting.
+Fixed via pre-commit run mdformat --all-files
 <!-- SECTION:NOTES:END -->
