@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-09-28
+
+### Fixed
+
+- **Git Tracking**: Removed accidentally committed `.tmp-env` directory from git tracking and added it to `.gitignore`.
 ## [0.8.1] - 2026-09-28
 
 ### Fixed
