@@ -92,8 +92,12 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
 
     if source_list.id != target_list.id and board.discord_webhook_cards:
         from aa_kanban.utils import send_discord_webhook
-
-        msg = f"Card moved: **{card.title}** was moved from `{source_list.name}` to `{target_list.name}`."
+        from django.shortcuts import redirect
+        
+        url = request.build_absolute_uri(
+            redirect("aa_kanban:board_detail", board_slug=board.slug).url
+        )
+        msg = f"Card moved: **{card.title}** was moved from `{source_list.name}` to `{target_list.name}`.\n[Bekijk Bord]({url})"
         send_discord_webhook(board.discord_webhook_cards, msg)
 
     return JsonResponse(
