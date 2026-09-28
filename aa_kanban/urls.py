@@ -62,6 +62,11 @@ urlpatterns = [
         name="update_card",
     ),
     path(
+        "cards/<int:card_id>/team/",
+        views_api.update_card_team,
+        name="update_card_team",
+    ),
+    path(
         "cards/<int:card_id>/color/",
         views_api.update_card_color,
         name="update_card_color",

@@ -1,0 +1,49 @@
+{% load i18n %}
+
+<label class="form-label small fw-bold text-muted text-uppercase mb-1">{% trans "Assigned Team" %}</label>
+<div class="d-flex flex-wrap align-items-center gap-2">
+    {% if card.assigned_team %}
+        <span class="badge bg-primary d-flex align-items-center gap-1 py-1 px-2">
+            <i class="fas fa-users me-1"></i>{{ card.assigned_team.name }}
+            {% if can_write %}
+                <button type="button"
+                        class="btn-close btn-close-white ms-1"
+                        style="font-size: 0.55rem;"
+                        title="{% trans 'Remove team' %}"
+                        hx-post="{% url 'aa_kanban:update_card_team' card.id %}"
+                        hx-vals='{"team_id": ""}'
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-target="#card-team-container">
+                </button>
+            {% endif %}
+        </span>
+    {% else %}
+        <span class="text-muted small"><em>{% trans "No team assigned" %}</em></span>
+    {% endif %}
+
+    {% if can_write and available_teams %}
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-secondary btn-sm dropdown-toggle py-0 px-2"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="font-size: 0.75rem;">
+                <i class="fas fa-plus me-1"></i>{% trans "Assign Team" %}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                {% for team in available_teams %}
+                    <li>
+                        <button class="dropdown-item small"
+                                type="button"
+                                hx-post="{% url 'aa_kanban:update_card_team' card.id %}"
+                                hx-vals='{"team_id": "{{ team.id }}"}'
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                hx-target="#card-team-container">
+                            <i class="fas fa-users me-2 text-muted"></i>{{ team.name }}
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>

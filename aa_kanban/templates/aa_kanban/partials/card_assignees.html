@@ -30,9 +30,16 @@
                     style="font-size: 0.75rem;">
                 <i class="fas fa-plus me-1"></i>{% trans "Assign" %}
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" id="assigneeDropdownMenu-{{ card.id }}" style="max-height: 300px; overflow-y: auto;">
+                <li class="px-2 py-1 sticky-top bg-white border-bottom">
+                    <input type="text" 
+                           class="form-control form-control-sm" 
+                           id="assigneeSearch-{{ card.id }}" 
+                           onkeyup="filterAssignees('{{ card.id }}')" 
+                           placeholder="{% trans 'Search user...' %}">
+                </li>
                 {% for user in available_users %}
-                    <li>
+                    <li class="assignee-item">
                         <button class="dropdown-item small"
                                 type="button"
                                 hx-post="{% url 'aa_kanban:toggle_assignee' card.id %}"
@@ -45,5 +52,21 @@
                 {% endfor %}
             </ul>
         </div>
+        <script>
+            function filterAssignees(cardId) {
+                var input = document.getElementById('assigneeSearch-' + cardId);
+                var filter = input.value.toUpperCase();
+                var div = document.getElementById("assigneeDropdownMenu-" + cardId);
+                var li = div.getElementsByClassName('assignee-item');
+                for (var i = 0; i < li.length; i++) {
+                    var txtValue = li[i].textContent || li[i].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        li[i].style.display = "";
+                    } else {
+                        li[i].style.display = "none";
+                    }
+                }
+            }
+        </script>
     {% endif %}
 </div>

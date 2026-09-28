@@ -128,23 +128,27 @@ def card_modal(request: HttpRequest, card_id: int) -> HttpResponse:
 
     available_users = []
     available_labels = []
+    available_teams = []
     if can_write:
         available_users = list(
             User.objects.filter(is_active=True)
             .exclude(pk__in=card.assignees.values_list("pk", flat=True))
-            .order_by("username")[:20]
+            .order_by("username")
         )
         available_labels = list(
             Label.objects.exclude(
                 pk__in=card.labels.values_list("pk", flat=True)
             ).order_by("name")
         )
+        from .models import KanbanTeam
+        available_teams = list(KanbanTeam.objects.all())
 
     context = {
         "card": card,
         "can_write": can_write,
         "available_users": available_users,
         "available_labels": available_labels,
+        "available_teams": available_teams,
     }
     return render(request, "aa_kanban/partials/card_modal_content.html", context)
 
@@ -224,7 +228,7 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
     available_users = list(
         User.objects.filter(is_active=True)
         .exclude(pk__in=card.assignees.values_list("pk", flat=True))
-        .order_by("username")[:20]
+        .order_by("username")
     )
 
     from django.template.loader import render_to_string
@@ -582,6 +586,44 @@ def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
             "card": card,
             "can_write": True,
             "available_labels": available_labels,
+        },
+        request=request,
+    )
+    oob_partial = render_to_string(
+        "aa_kanban/partials/card_item.html",
+        {"card": card, "hx_oob": True, "can_write": True},
+        request=request,
+    )
+    return HttpResponse(html_partial + oob_partial)
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def update_card_team(request: HttpRequest, card_id: int) -> HttpResponse:
+    """Update assigned team on a card."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    card = get_object_or_404(Card.objects.select_related("list__board"), pk=card_id)
+    if not card.list.board.can_user_write(request.user):
+        raise PermissionDenied("Write permission required to update card.")
+
+    team_id = request.POST.get("team_id")
+    if team_id:
+        from .models import KanbanTeam
+        card.assigned_team = KanbanTeam.objects.filter(pk=team_id).first()
+    else:
+        card.assigned_team = None
+    card.save(update_fields=["assigned_team", "updated_at"])
+
+    from django.template.loader import render_to_string
+    from .models import KanbanTeam
+
+    html_partial = render_to_string(
+        "aa_kanban/partials/card_team.html",
+        {
+            "card": card,
+            "can_write": True,
+            "available_teams": KanbanTeam.objects.all(),
         },
         request=request,
     )

@@ -60,14 +60,9 @@
     </div>
 
     <!-- Assigned Team -->
-    {% if card.assigned_team %}
-    <div class="mb-3">
-        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{% trans "Assigned Team" %}</label>
-        <div>
-            <span class="badge bg-primary"><i class="fas fa-users me-1"></i>{{ card.assigned_team.name }}</span>
-        </div>
+    <div class="mb-3" id="card-team-container">
+        {% include "aa_kanban/partials/card_team.html" %}
     </div>
-    {% endif %}
 
     <hr class="text-muted opacity-25 my-3">
 
