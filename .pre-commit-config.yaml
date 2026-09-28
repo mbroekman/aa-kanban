@@ -128,6 +128,8 @@ repos:
         name: ESLint
         description: Check for problems in JavaScript files.
         language: node
+        args:
+          - --config=eslint.config.mjs
         additional_dependencies:
           # eslint itself needs to be here when using additional_dependencies.
           - eslint@10.4.1 # https://github.com/eslint/eslint/releases/latest
@@ -142,6 +144,7 @@ repos:
         exclude: aa_trello/static/aa_trello/css/industry\.css
         language: node
         args:
+          - --config=.stylelintrc.json
           - --formatter=compact
         additional_dependencies:
           # stylelint itself needs to be here when using additional_dependencies.
