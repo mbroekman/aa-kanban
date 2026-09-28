@@ -24,3 +24,4 @@ tmp_env/
 /append_task.py
 /make_migrations.py
 precommit-env/
+.tmp-env/
