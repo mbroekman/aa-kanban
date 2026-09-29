@@ -1,7 +1,7 @@
 """Tests for aa_kanban API endpoints."""
 
 import json
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
@@ -317,25 +317,24 @@ class TestToggleAssignee:
 
         target_user = user_factory("target_assignee")
 
-        with patch(
-            "aadiscordbot.tasks.send_direct_message_by_user_id.delay"
-        ) as mock_send_dm:
+        mock_tasks = MagicMock()
+        with patch.dict("sys.modules", {"aadiscordbot.tasks": mock_tasks}):
             # Assign user
             response = client.post(url, {"user_id": target_user.id})
             assert response.status_code == 200
             assert target_user in data["card0"].assignees.all()
-            mock_send_dm.assert_called_once_with(
+            mock_tasks.send_direct_message_by_user_id.delay.assert_called_once_with(
                 target_user.id,
                 "You have been assigned to the card: **Card 0** on board **Board One**.",
             )
 
-            mock_send_dm.reset_mock()
+            mock_tasks.send_direct_message_by_user_id.delay.reset_mock()
 
             # Remove user
             response = client.post(url, {"user_id": target_user.id})
             assert response.status_code == 200
             assert target_user not in data["card0"].assignees.all()
-            mock_send_dm.assert_called_once_with(
+            mock_tasks.send_direct_message_by_user_id.delay.assert_called_once_with(
                 target_user.id,
                 "You have been removed from the card: **Card 0** on board **Board One**.",
             )
