@@ -28,8 +28,11 @@ async def _create_discord_thread(bot, card_id: int):
 
         channel = bot.get_channel(channel_id)
         if not channel:
-            logger.error(f"Discord channel with ID {channel_id} not found by bot.")
-            return
+            try:
+                channel = await bot.fetch_channel(channel_id)
+            except Exception as e:
+                logger.error(f"Discord channel with ID {channel_id} not found by bot: {e}")
+                return
 
         # Prepare mentions
         mentions = []
@@ -106,8 +109,10 @@ def create_ticket_thread(card_id: int):
         from aadiscordbot.tasks import run_task_function
 
         # Instruct aadiscordbot to run our async function inside its event loop
-        run_task_function.delay(
-            "aa_kanban.tasks._create_discord_thread", task_args=[card_id]
+        run_task_function.apply_async(
+            args=["aa_kanban.tasks._create_discord_thread"],
+            kwargs={"task_args": [card_id]},
+            queue="aadiscordbot"
         )
     except ImportError:
         logger.error("aadiscordbot is not installed or available.")

@@ -332,7 +332,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
             return render(request, "aa_kanban/ticket_form.html", context)
 
         # Add to the "Backlog" column or first column
-        list_obj = board.lists.filter(name="Backlog").first() or board.lists.first()
+        list_obj = board.lists.filter(name__iexact="Backlog").first() or board.lists.first()
         if not list_obj:
             context = {
                 "boards": ticket_boards,
