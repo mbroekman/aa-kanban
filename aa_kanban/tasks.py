@@ -84,6 +84,29 @@ async def _create_discord_thread(bot, card_id: int):
             card.discord_thread_id = thread.id
             await sync_to_async(card.save)(update_fields=["discord_thread_id"])
             logger.info(f"Created Discord thread {thread.id} for card {card.id}")
+
+            # Auto-invite team members if a team is assigned
+            if card.assigned_team:
+                try:
+                    from allianceauth.services.modules.discord.models import DiscordUser
+
+                    team_discord_users = await sync_to_async(list)(
+                        DiscordUser.objects.filter(
+                            user__in=card.assigned_team.members.all()
+                        )
+                    )
+                    for du in team_discord_users:
+                        try:
+                            await thread.add_user(discord.Object(id=du.uid))
+                        except Exception as add_err:
+                            logger.warning(
+                                f"Failed to auto-invite DiscordUser {du.uid} to thread: {add_err}"
+                            )
+                except Exception as team_err:
+                    logger.warning(
+                        f"Error fetching Discord users for auto-invite: {team_err}"
+                    )
+
         except discord.errors.Forbidden:
             logger.error(
                 f"Bot lacks permission to create threads in channel {channel_id}"

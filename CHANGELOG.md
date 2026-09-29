@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-29
+
+### Added
+- **Discord Integration**: Added auto-invite functionality. All Auth Users linked to a `KanbanTeam` will now be automatically added to the Discord thread when a ticket is created.
+
 ## [0.10.2] - 2026-09-29
 
 ### Fixed
