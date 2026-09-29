@@ -3,6 +3,7 @@ id: doc-4
 title: AA Kanban User Manual
 type: guide
 created_date: '2026-09-28 06:34'
+updated_date: '2026-09-29 15:23'
 ---
 
 # AA Kanban User Manual
@@ -26,6 +27,7 @@ AA Kanban is designed to keep your team organized using a visual "Kanban" approa
 
 - **Dashboard / Summary View**: See an overview of all your tasks across all boards you have access to.
 - **Drag & Drop**: Effortlessly move tasks between columns as work progresses.
+- **Multilingual Support**: Fully supports English and Dutch language interfaces based on your browser settings.
 - **Real-time Access**: Integrated directly into Alliance Auth, using your existing permissions and authentication.
 
 ______________________________________________________________________
@@ -102,7 +104,7 @@ AA Kanban comes with deep Discord integration, utilizing `aadiscordbot`.
 
 ### Ticket Threads & Syncing
 
-When a user submits a new Ticket, the system automatically creates a **Discord Thread** in the Ticket Channel designated for the receiving board.
+When a user submits a new Ticket, the system automatically creates a **Discord Thread** in the Ticket Channel designated for the receiving board. Additionally, any members belonging to the designated **Assigned Team** are automatically invited and added to the Discord thread.
 
 - **Syncing**: The `KanbanTicketCog` monitors the thread. Any message sent in the Discord thread is automatically synced as a **Comment** on the Kanban Card in the web UI.
 - **Uploading Messages**: Using Discord Context Menus (Right Click on a message -> Apps -> Upload to Ticket), you can directly push important Discord messages from other channels into an active Kanban ticket as a comment!
@@ -129,7 +131,7 @@ Teams are used to route tickets to specific departments.
 - **Create Teams**: Define teams like *Recon*, *HR*, or *IT*.
 - **Target Ticket Board**: Assign a specific board to the team. Any tickets submitted for this team will automatically be routed to that board.
 - **Discord Role ID**: Link a team to a Discord Role. When a ticket is assigned to this team, the associated Discord Role is pinged in the Ticket Thread.
-- **Manage Members**: Add individual Alliance Auth users to teams.
+- **Manage Members**: Add individual Alliance Auth users to teams. Members of a team are automatically added to the Discord thread when a ticket is assigned to that team.
 
 ### Access Control (Kanban Groups)
 
