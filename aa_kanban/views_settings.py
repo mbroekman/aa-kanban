@@ -266,7 +266,7 @@ def delete_settings_label(request: HttpRequest, label_id: int) -> HttpResponse:
 def update_global_settings(request: HttpRequest) -> HttpResponse:
     """Update global settings like the designated Ticket Board."""
     if request.method == "POST":
-        from .models import Board, KanbanSetting
+        from .models import KanbanSetting
 
         settings = KanbanSetting.get_settings()
 

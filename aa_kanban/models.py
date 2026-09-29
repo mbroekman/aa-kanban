@@ -103,6 +103,7 @@ class KanbanSetting(models.Model):
         null=True,
         help_text="Discord Webhook URL for global board creation notifications.",
     )
+
     class Meta:
         verbose_name = "Kanban Setting"
         verbose_name_plural = "Kanban Settings"

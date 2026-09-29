@@ -476,7 +476,6 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
     )
 
 
-
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
 def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
@@ -531,6 +530,7 @@ def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
         request=request,
     )
     return HttpResponse(html_partial + oob_partial)
+
 
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
