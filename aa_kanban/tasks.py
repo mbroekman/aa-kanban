@@ -111,7 +111,7 @@ def create_ticket_thread(card_id: int):
         # Instruct aadiscordbot to run our async function inside its event loop
         run_task_function.apply_async(
             args=["aa_kanban.tasks._create_discord_thread"],
-            kwargs={"task_args": [card_id]},
+            kwargs={"task_args": [card_id], "task_kwargs": {}},
             queue="aadiscordbot"
         )
     except ImportError:

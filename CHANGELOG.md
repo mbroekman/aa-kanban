@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.10.2] - 2026-09-29
+
+### Fixed
+- **Discord Integration**: Fixed a missing argument in the Celery payload for `aadiscordbot`'s `run_task_function` which caused the bot consumer to crash silently.
+
 ## [0.10.1] - 2026-09-29
 
 ### Fixed
