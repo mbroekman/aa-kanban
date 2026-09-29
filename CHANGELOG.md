@@ -7,16 +7,19 @@ All notable changes to this project will be documented in this file.
 ## [0.11.0] - 2026-09-29
 
 ### Added
+
 - **Discord Integration**: Added auto-invite functionality. All Auth Users linked to a `KanbanTeam` will now be automatically added to the Discord thread when a ticket is created.
 
 ## [0.10.2] - 2026-09-29
 
 ### Fixed
+
 - **Discord Integration**: Fixed a missing argument in the Celery payload for `aadiscordbot`'s `run_task_function` which caused the bot consumer to crash silently.
 
 ## [0.10.1] - 2026-09-29
 
 ### Fixed
+
 - **Discord Integration**: Fixed an issue where the Celery worker would silently fail to queue the Discord thread creation if the default Celery queue was used instead of the `aadiscordbot` queue.
 - **Discord Integration**: Fixed an issue where thread creation would silently fail if the Discord channel was not cached by the bot by adding an API fetch fallback.
 - **Ticket Submission**: Fixed a bug where a new ticket card could be placed in the wrong column due to a case-sensitive search for the default "Backlog" column name.
@@ -33,6 +36,7 @@ All notable changes to this project will be documented in this file.
 - **Settings UI**: Re-organized settings page into semantic tabs for better overview (Groups, Teams, Labels).
 - **Settings Layout**: Fixed CSS styling for tab headers to prevent spacing issues.
 - **Empty States**: Fixed UI layout issues on the Teams and Labels pages when no items are defined.
+
 ## [0.9.0] - 2026-09-29
 
 ### Added
