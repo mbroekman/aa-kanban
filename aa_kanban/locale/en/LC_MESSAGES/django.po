@@ -1,0 +1,954 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-29 12:46+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: apps.py:9 templates/aa_kanban/base.html:4
+msgid "Kanban"
+msgstr ""
+
+#: models.py:54
+msgid "Auth groups that belong to this Kanban group."
+msgstr ""
+
+#: models.py:58
+msgid "Kanban Group"
+msgstr ""
+
+#: models.py:59
+msgid "Kanban Groups"
+msgstr ""
+
+#: models.py:74
+msgid "Members of this team."
+msgstr ""
+
+#: models.py:79
+msgid ""
+"Optional Discord Role ID to ping when a ticket is assigned to this team."
+msgstr ""
+
+#: models.py:87
+msgid "The Kanban board where tickets for this team will be created."
+msgstr ""
+
+#: models.py:91
+msgid "Kanban Team"
+msgstr ""
+
+#: models.py:92
+msgid "Kanban Teams"
+msgstr ""
+
+#: models.py:105
+msgid "Discord Webhook URL for global board creation notifications."
+msgstr ""
+
+#: models.py:109
+msgid "Kanban Setting"
+msgstr ""
+
+#: models.py:110
+msgid "Kanban Settings"
+msgstr ""
+
+#: models.py:138
+msgid "Discord Webhook URL for card movement notifications on this board."
+msgstr ""
+
+#: models.py:143
+msgid "Discord Channel ID where ticket threads will be created for this board."
+msgstr ""
+
+#: models.py:147 templates/aa_kanban/partials/create_board_form.html:60
+#: templates/aa_kanban/partials/edit_board_form.html:63
+msgid "Allow members to submit tickets to this board."
+msgstr ""
+
+#: models.py:154
+msgid "Kanban groups that have read-only access to this board."
+msgstr ""
+
+#: models.py:160
+msgid "Kanban groups that have write/mutation access to this board."
+msgstr ""
+
+#: models.py:176
+msgid "Board"
+msgstr ""
+
+#: models.py:177
+msgid "Boards"
+msgstr ""
+
+#: models.py:248
+msgid "Optional context for this column"
+msgstr ""
+
+#: models.py:251
+msgid "Maximum cards (0 for unlimited)"
+msgstr ""
+
+#: models.py:258
+msgid "List"
+msgstr ""
+
+#: models.py:259
+msgid "Lists"
+msgstr ""
+
+#: models.py:280 templates/aa_kanban/partials/card_labels.html:30
+msgid "Label"
+msgstr ""
+
+#: models.py:281 templates/aa_kanban/partials/card_modal_content.html:11
+#: templates/aa_kanban/settings.html:36
+msgid "Labels"
+msgstr ""
+
+#: models.py:316
+msgid "Background color of the card"
+msgstr ""
+
+#: models.py:335
+msgid "Target team for this ticket"
+msgstr ""
+
+#: models.py:340
+msgid "ID of the associated Discord Thread"
+msgstr ""
+
+#: models.py:355
+msgid "Card"
+msgstr ""
+
+#: models.py:356
+msgid "Cards"
+msgstr ""
+
+#: models.py:380 templates/aa_kanban/partials/card_modal_content.html:116
+msgid "Comment"
+msgstr ""
+
+#: models.py:381
+msgid "Comments"
+msgstr ""
+
+#: services.py:80
+#, python-brace-format
+msgid ""
+"**New Ticket Submitted!**\n"
+"Title: `{card_title}`\n"
+"Created by: `{creator}`\n"
+"Board: `{board_name}`"
+msgstr ""
+
+#: tasks.py:52
+#, python-brace-format
+msgid "**Assigned Team:** {team_name}"
+msgstr ""
+
+#: tasks.py:55
+#, python-brace-format
+msgid "Ticket #{card_id}: {card_title}"
+msgstr ""
+
+#: tasks.py:56
+msgid "🎫 **New Ticket Submitted** 🎫\n"
+msgstr ""
+
+#: tasks.py:57
+#, python-brace-format
+msgid "**Title:** {card_title}\n"
+msgstr ""
+
+#: tasks.py:59
+#, python-brace-format
+msgid "**Reporter:** {username} {mentions}\n"
+msgstr ""
+
+#: templates/aa_kanban/base.html:16
+msgid "Confirm Action"
+msgstr ""
+
+#: templates/aa_kanban/base.html:17
+#: templates/aa_kanban/partials/card_modal_content.html:142
+#: templates/aa_kanban/partials/create_board_form.html:7
+#: templates/aa_kanban/partials/edit_board_form.html:7
+#: templates/aa_kanban/partials/edit_group_modal.html:6
+#: templates/aa_kanban/partials/edit_list_modal.html:4
+#: templates/aa_kanban/partials/group_users_modal.html:7
+#: templates/aa_kanban/partials/group_users_modal.html:99
+#: templates/aa_kanban/partials/team_users_modal.html:60
+msgid "Close"
+msgstr ""
+
+#: templates/aa_kanban/base.html:23
+#: templates/aa_kanban/partials/create_board_form.html:103
+#: templates/aa_kanban/partials/edit_board_form.html:115
+#: templates/aa_kanban/partials/edit_group_modal.html:24
+#: templates/aa_kanban/partials/edit_list_modal.html:40
+#: templates/aa_kanban/partials/edit_team_modal.html:30
+#: templates/aa_kanban/ticket_form.html:49
+msgid "Cancel"
+msgstr ""
+
+#: templates/aa_kanban/base.html:24
+msgid "Confirm"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:42 templates/aa_kanban/summary.html:58
+msgid "Back to boards"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:55 templates/aa_kanban/index.html:62
+msgid "Editor"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:57 templates/aa_kanban/index.html:64
+msgid "Read-Only"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:69
+msgid "Board settings"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:88
+#: templates/aa_kanban/partials/board_column.html:28
+#: templates/aa_kanban/summary.html:82
+msgid "No cards"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:104
+#: templates/aa_kanban/partials/board_column.html:42
+msgid "New card title..."
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:106
+#: templates/aa_kanban/partials/board_column.html:44
+msgid "Add card"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:116
+msgid "No lists defined for this board."
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:133
+msgid "New column name..."
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:136
+msgid "Add Column"
+msgstr ""
+
+#: templates/aa_kanban/board_detail.html:150
+#: templates/aa_kanban/board_detail.html:163
+#: templates/aa_kanban/board_detail.html:176
+#: templates/aa_kanban/board_detail.html:189 templates/aa_kanban/index.html:116
+#: templates/aa_kanban/settings.html:187 templates/aa_kanban/settings.html:200
+msgid "Loading..."
+msgstr ""
+
+#: templates/aa_kanban/index.html:11
+msgid "Select a board to view tasks, or manage your assigned projects."
+msgstr ""
+
+#: templates/aa_kanban/index.html:15 templates/aa_kanban/ticket_form.html:4
+#: templates/aa_kanban/ticket_form.html:50
+msgid "Submit Ticket"
+msgstr ""
+
+#: templates/aa_kanban/index.html:20 templates/aa_kanban/index.html:38
+msgid "Summary View"
+msgstr ""
+
+#: templates/aa_kanban/index.html:23 templates/aa_kanban/settings.html:10
+msgid "Settings"
+msgstr ""
+
+#: templates/aa_kanban/index.html:32
+msgid "New Board"
+msgstr ""
+
+#: templates/aa_kanban/index.html:59
+#: templates/aa_kanban/partials/create_board_form.html:58
+#: templates/aa_kanban/partials/edit_board_form.html:61
+#: templates/aa_kanban/partials/edit_team_modal.html:15
+msgid "Ticket Board"
+msgstr ""
+
+#: templates/aa_kanban/index.html:73
+#: templates/aa_kanban/partials/card_modal_content.html:87
+msgid "No description provided."
+msgstr ""
+
+#: templates/aa_kanban/index.html:78
+msgid "columns"
+msgstr ""
+
+#: templates/aa_kanban/index.html:90 templates/aa_kanban/summary.html:97
+msgid "No accessible boards found."
+msgstr ""
+
+#: templates/aa_kanban/index.html:92
+msgid "Create your first board to get started."
+msgstr ""
+
+#: templates/aa_kanban/index.html:100
+msgid "Create First Board"
+msgstr ""
+
+#: templates/aa_kanban/index.html:103
+msgid ""
+"You currently do not have access to any Kanban boards. Contact an "
+"administrator to be added to the appropriate group."
+msgstr ""
+
+#: templates/aa_kanban/partials/board_column.html:8
+msgid "Click to rename"
+msgstr ""
+
+#: templates/aa_kanban/partials/board_column.html:17
+#: templates/aa_kanban/partials/column_header.html:36
+#, python-format
+msgid "Kolom '%(name)s' en alle kaarten permanent verwijderen?"
+msgstr ""
+
+#: templates/aa_kanban/partials/board_column.html:20
+#: templates/aa_kanban/partials/column_header.html:39
+msgid "Delete column"
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:4
+msgid "Manage Labels"
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:9
+msgid "Manage labels for board:"
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:24
+#: templates/aa_kanban/partials/settings_label_list.html:13
+msgid "Delete this label permanently? It will be removed from all cards."
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:25
+#: templates/aa_kanban/partials/settings_label_list.html:14
+msgid "Delete label"
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:33
+msgid "No labels defined for this board yet."
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:43
+msgid "Create New Label"
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:46
+msgid "Label name..."
+msgstr ""
+
+#: templates/aa_kanban/partials/board_labels_modal.html:63
+#: templates/aa_kanban/settings.html:157
+msgid "Add Label"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_assignees.html:12
+msgid "Remove assignee"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_assignees.html:21
+msgid "Unassigned"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_assignees.html:31
+msgid "Assign"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_assignees.html:39
+msgid "Search user..."
+msgstr ""
+
+#: templates/aa_kanban/partials/card_comments.html:21
+msgid "No comments yet."
+msgstr ""
+
+#: templates/aa_kanban/partials/card_item.html:40
+msgid "Team:"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_labels.html:11
+msgid "Remove label"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_labels.html:20
+msgid "No labels"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_labels.html:50
+msgid ""
+"No labels created yet. Use 'Manage Labels' on the board page to create them."
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:19
+msgid "Card Color"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:40
+msgid "Default"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:48
+msgid "Assignees"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:64
+#: templates/aa_kanban/partials/create_board_form.html:33
+#: templates/aa_kanban/partials/edit_board_form.html:32
+#: templates/aa_kanban/partials/edit_list_modal.html:31
+#: templates/aa_kanban/ticket_form.html:45
+msgid "Description"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:74
+msgid "Add a more detailed description..."
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:77
+msgid "Save Description"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:98
+msgid "Activity & Comments"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:113
+msgid "Write a comment..."
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:128
+msgid "Created by"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_modal_content.html:134
+msgid "Are you sure you want to delete this card?"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_team.html:3
+#: templates/aa_kanban/ticket_form.html:35
+msgid "Assigned Team"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_team.html:12
+msgid "Remove team"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_team.html:21
+msgid "No team assigned"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_team.html:31
+msgid "Assign Team"
+msgstr ""
+
+#: templates/aa_kanban/partials/card_title.html:14
+msgid "in list"
+msgstr ""
+
+#: templates/aa_kanban/partials/column_header.html:30
+msgid "Edit column settings"
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:5
+msgid "New Kanban Board"
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:19
+#: templates/aa_kanban/partials/edit_board_form.html:19
+msgid "Board name"
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:25
+msgid "e.g. Sprint Q3"
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:39
+msgid "Optional description..."
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:44
+#: templates/aa_kanban/partials/edit_board_form.html:42
+msgid "Discord Ticket Channel ID"
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:50
+#: templates/aa_kanban/partials/edit_board_form.html:48
+msgid "Optional Discord Channel ID for tickets..."
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:52
+#: templates/aa_kanban/partials/edit_board_form.html:50
+msgid ""
+"If set, tickets for this board will create Discord threads in this channel."
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:65
+#: templates/aa_kanban/partials/edit_board_form.html:68
+msgid "View access (groups)"
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:79
+#: templates/aa_kanban/partials/create_board_form.html:97
+#: templates/aa_kanban/partials/edit_board_form.html:82
+#: templates/aa_kanban/partials/edit_board_form.html:101
+msgid "Hold Ctrl/Cmd to select multiple groups."
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:84
+#: templates/aa_kanban/partials/edit_board_form.html:87
+msgid "Write access (groups)"
+msgstr ""
+
+#: templates/aa_kanban/partials/create_board_form.html:106
+msgid "Create Board"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_board_form.html:5
+msgid "Board Settings"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_board_form.html:109
+msgid ""
+"Are you sure you want to permanently delete this board and all its data?"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_board_form.html:111
+msgid "Delete Board"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_board_form.html:118
+msgid "Save Changes"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_group_modal.html:4
+msgid "Edit Group:"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_group_modal.html:14
+#: templates/aa_kanban/settings.html:55
+msgid "Group Name"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_group_modal.html:26
+#: templates/aa_kanban/partials/edit_list_modal.html:42
+msgid "Save changes"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_list_modal.html:3
+msgid "Edit Column"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_list_modal.html:12
+#: templates/aa_kanban/partials/group_list.html:8
+msgid "Name"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_list_modal.html:21
+msgid "WIP Limit"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_list_modal.html:28
+msgid "Maximum number of cards allowed in this column. Enter 0 for unlimited."
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_list_modal.html:36
+msgid "Optional context or description for this column."
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_team_modal.html:7
+#: templates/aa_kanban/partials/team_list.html:7
+#: templates/aa_kanban/settings.html:92
+msgid "Team Name"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_team_modal.html:11
+#: templates/aa_kanban/partials/team_list.html:8
+msgid "Discord Role ID"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_team_modal.html:17
+#: templates/aa_kanban/settings.html:98
+msgid "Select Board"
+msgstr ""
+
+#: templates/aa_kanban/partials/edit_team_modal.html:25
+msgid "Save"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:9
+#: templates/aa_kanban/partials/team_list.html:9
+msgid "Members"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:10
+#: templates/aa_kanban/partials/group_users_modal.html:56
+msgid "Auth Groups"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:11
+#: templates/aa_kanban/partials/team_list.html:10
+msgid "Actions"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:23
+#: templates/aa_kanban/partials/group_list.html:34
+msgid "more"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:26
+msgid "No members"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:37
+msgid "None"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:47
+msgid "Edit Group Name"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:56
+msgid "Manage Access"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:64
+msgid "Are you sure you want to delete this group?"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:65
+msgid "Delete Group"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_list.html:75
+msgid "No groups have been created yet."
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:5
+msgid "Manage Access:"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:13
+msgid "Individual Users"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:19
+msgid "Select a user to add..."
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:25
+msgid "Add User"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:42
+#: templates/aa_kanban/partials/group_users_modal.html:85
+msgid "Remove from group"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:49
+msgid "No users in this group yet."
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:62
+msgid "Select a group to add..."
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:68
+msgid "Add Group"
+msgstr ""
+
+#: templates/aa_kanban/partials/group_users_modal.html:92
+msgid "No auth groups linked yet."
+msgstr ""
+
+#: templates/aa_kanban/partials/settings_label_list.html:22
+msgid "No global labels defined yet."
+msgstr ""
+
+#: templates/aa_kanban/partials/team_list.html:43
+msgid ""
+"Are you sure you want to delete this team? Tickets assigned to it will lose "
+"their team assignment."
+msgstr ""
+
+#: templates/aa_kanban/partials/team_list.html:56
+msgid "No teams created yet."
+msgstr ""
+
+#: templates/aa_kanban/partials/team_users_modal.html:4
+msgid "Manage Team Members:"
+msgstr ""
+
+#: templates/aa_kanban/partials/team_users_modal.html:12
+msgid "Add Individual Users"
+msgstr ""
+
+#: templates/aa_kanban/partials/team_users_modal.html:16
+msgid "-- Select User --"
+msgstr ""
+
+#: templates/aa_kanban/partials/team_users_modal.html:22
+msgid "Add"
+msgstr ""
+
+#: templates/aa_kanban/partials/team_users_modal.html:29
+msgid "Current Members"
+msgstr ""
+
+#: templates/aa_kanban/partials/team_users_modal.html:45
+msgid "Remove User"
+msgstr ""
+
+#: templates/aa_kanban/partials/team_users_modal.html:55
+msgid "No individual members added."
+msgstr ""
+
+#: templates/aa_kanban/settings.html:11
+msgid "Manage Kanban specific groups."
+msgstr ""
+
+#: templates/aa_kanban/settings.html:15
+msgid "Back to Boards"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:26
+msgid "Groups"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:31
+msgid "Teams"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:49
+msgid "Create Group"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:59 templates/aa_kanban/settings.html:108
+msgid "Create"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:69
+msgid "Existing Groups"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:86
+msgid "Create Team"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:96
+msgid "Target Ticket Board"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:105
+msgid "Tickets assigned to this team will be created on this board."
+msgstr ""
+
+#: templates/aa_kanban/settings.html:118
+msgid "Ticket Teams"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:135
+msgid "Create Label"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:141
+msgid "Label Name"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:145
+msgid "Color"
+msgstr ""
+
+#: templates/aa_kanban/settings.html:167
+msgid "Global Labels"
+msgstr ""
+
+#: templates/aa_kanban/summary.html:54
+msgid "Summary"
+msgstr ""
+
+#: templates/aa_kanban/summary.html:55
+msgid "Overview of all boards and their tasks."
+msgstr ""
+
+#: templates/aa_kanban/summary.html:59
+msgid "Back"
+msgstr ""
+
+#: templates/aa_kanban/summary.html:90
+msgid "No lists in this board."
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:10
+msgid "Submit a Ticket"
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:22
+msgid "Subject"
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:23
+msgid "Brief description of the issue..."
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:26
+msgid "Ticket Type (Label)"
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:28
+msgid "-- Select Type --"
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:37
+msgid "-- Select Team --"
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:42
+msgid "Select the specific department or team this issue should be routed to."
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:46
+msgid "Provide more details..."
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:54
+msgid ""
+"Ticket submission is currently disabled because no ticket board has been "
+"configured."
+msgstr ""
+
+#: templates/aa_kanban/ticket_form.html:56
+#: templates/aa_kanban/ticket_success.html:13
+msgid "Return to Dashboard"
+msgstr ""
+
+#: templates/aa_kanban/ticket_success.html:4
+msgid "Ticket Submitted"
+msgstr ""
+
+#: templates/aa_kanban/ticket_success.html:11
+msgid "Ticket Submitted Successfully!"
+msgstr ""
+
+#: templates/aa_kanban/ticket_success.html:12
+msgid ""
+"Your ticket has been added to the board and our team will look into it "
+"shortly."
+msgstr ""
+
+#: views.py:365
+#, python-brace-format
+msgid ""
+"**New Ticket Submitted!**\n"
+"Title: `{card_title}`\n"
+"Created by: `{username}`\n"
+"[View Board]({url})"
+msgstr ""
+
+#: views_api.py:41
+msgid "Invalid JSON body."
+msgstr ""
+
+#: views_api.py:47
+msgid "Missing target_list_id or new_position."
+msgstr ""
+
+#: views_api.py:53
+msgid "target_list_id and new_position must be integers."
+msgstr ""
+
+#: views_api.py:59
+msgid "Target list does not belong to the same board."
+msgstr ""
+
+#: views_api.py:65
+msgid "Target list has reached its WIP limit."
+msgstr ""
+
+#: views_api.py:100
+#, python-brace-format
+msgid ""
+"Card moved: **{card_title}** was moved from `{source_list_name}` to "
+"`{target_list_name}`.\n"
+"[Bekijk Bord]({url})"
+msgstr ""
+
+#: views_api.py:170
+msgid "Comment text cannot be empty."
+msgstr ""
+
+#: views_api.py:201
+msgid "Missing user_id."
+msgstr ""
+
+#: views_api.py:206
+msgid "user_id must be an integer."
+msgstr ""
+
+#: views_api.py:215
+#, python-brace-format
+msgid ""
+"You have been removed from the card: **{card_title}** on board **{board_name}"
+"**."
+msgstr ""
+
+#: views_api.py:224
+#, python-brace-format
+msgid ""
+"You have been assigned to the card: **{card_title}** on board **{board_name}"
+"**."
+msgstr ""
+
+#: views_api.py:292
+msgid "No valid fields to update."
+msgstr ""
+
+#: views_api.py:363 views_api.py:402
+msgid "Column name cannot be empty."
+msgstr ""
+
+#: views_api.py:450
+msgid "Card title cannot be empty."
+msgstr ""
+
+#: views_api.py:471
+#, python-brace-format
+msgid ""
+"**Nieuwe Card Aangemaakt!**\n"
+"Titel: `{card_title}`\n"
+"Aangemaakt door: `{username}`\n"
+"Lijst: `{list_name}`\n"
+"[Bekijk Bord]({url})"
+msgstr ""
+
+#: views_api.py:498
+msgid "Missing label_id."
+msgstr ""
+
+#: views_api.py:503
+msgid "label_id must be an integer."
+msgstr ""
