@@ -232,8 +232,15 @@ def create_settings_label(request: HttpRequest) -> HttpResponse:
 
         name = request.POST.get("name", "").strip()
         color = request.POST.get("color", "primary").strip()
+        is_ticket_label = request.POST.get("is_ticket_label") == "on"
         if name:
-            Label.objects.get_or_create(name=name, defaults={"color": color})
+            Label.objects.get_or_create(
+                name=name,
+                defaults={
+                    "color": color,
+                    "is_ticket_label": is_ticket_label,
+                },
+            )
 
     from .models import Label
 

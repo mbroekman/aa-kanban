@@ -153,7 +153,13 @@
                                 <option value="dark" class="text-body">Dark (Black)</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm" onclick="setTimeout(() => { document.getElementById('labelName').value = ''; }, 100)">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="is_ticket_label" id="isTicketLabel">
+                            <label class="form-check-label small" for="isTicketLabel">
+                                {% trans "Can be selected on Ticket form" %}
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm mt-2" onclick="setTimeout(() => { document.getElementById('labelName').value = ''; document.getElementById('isTicketLabel').checked = false; }, 100)">
                             <i class="fas fa-plus me-1"></i>{% trans "Add Label" %}
                         </button>
                     </form>

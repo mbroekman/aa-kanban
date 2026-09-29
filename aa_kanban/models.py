@@ -281,6 +281,10 @@ class Label(models.Model):
             "(e.g. primary, success, danger, warning, info, dark)"
         ),
     )
+    is_ticket_label = models.BooleanField(
+        default=False,
+        help_text="If True, this label can be selected by users when creating a ticket.",
+    )
 
     class Meta:
         verbose_name = _("Label")

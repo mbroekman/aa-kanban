@@ -292,7 +292,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
         }
         return render(request, "aa_kanban/ticket_form.html", context)
 
-    labels = Label.objects.all()
+    labels = Label.objects.filter(is_ticket_label=True)
     teams = KanbanTeam.objects.all().order_by("name")
 
     if request.method == "POST":

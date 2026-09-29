@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-09-29
+
+### Added
+
+- **Ticket System**: Added the ability to designate specific Global Labels as 'Ticket Labels' via the frontend Kanban settings. Only these designated labels will be available for users to select when submitting a new ticket.
+
 ## [0.11.0] - 2026-09-29
 
 ### Added
