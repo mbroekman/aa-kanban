@@ -89,8 +89,14 @@ def create_board(request: HttpRequest) -> HttpResponse:
         description = request.POST.get("description", "").strip()
         view_group_ids = request.POST.getlist("view_groups")
         write_group_ids = request.POST.getlist("write_groups")
-        discord_ticket_channel_id_str = request.POST.get("discord_ticket_channel_id", "").strip()
-        discord_ticket_channel_id = int(discord_ticket_channel_id_str) if discord_ticket_channel_id_str.isdigit() else None
+        discord_ticket_channel_id_str = request.POST.get(
+            "discord_ticket_channel_id", ""
+        ).strip()
+        discord_ticket_channel_id = (
+            int(discord_ticket_channel_id_str)
+            if discord_ticket_channel_id_str.isdigit()
+            else None
+        )
         is_ticket_board = request.POST.get("is_ticket_board") == "on"
 
         if not name:
@@ -156,8 +162,14 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         description = request.POST.get("description", "").strip()
         view_group_ids = request.POST.getlist("view_groups")
         write_group_ids = request.POST.getlist("write_groups")
-        discord_ticket_channel_id_str = request.POST.get("discord_ticket_channel_id", "").strip()
-        discord_ticket_channel_id = int(discord_ticket_channel_id_str) if discord_ticket_channel_id_str.isdigit() else None
+        discord_ticket_channel_id_str = request.POST.get(
+            "discord_ticket_channel_id", ""
+        ).strip()
+        discord_ticket_channel_id = (
+            int(discord_ticket_channel_id_str)
+            if discord_ticket_channel_id_str.isdigit()
+            else None
+        )
         is_ticket_board = request.POST.get("is_ticket_board") == "on"
 
         if not name:
@@ -173,7 +185,15 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         board.description = description
         board.discord_ticket_channel_id = discord_ticket_channel_id
         board.is_ticket_board = is_ticket_board
-        board.save(update_fields=["name", "description", "discord_ticket_channel_id", "is_ticket_board", "updated_at"])
+        board.save(
+            update_fields=[
+                "name",
+                "description",
+                "discord_ticket_channel_id",
+                "is_ticket_board",
+                "updated_at",
+            ]
+        )
         board.view_groups.set(KanbanGroup.objects.filter(pk__in=view_group_ids))
         board.write_groups.set(KanbanGroup.objects.filter(pk__in=write_group_ids))
 
@@ -323,7 +343,11 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
             return render(request, "aa_kanban/ticket_form.html", context)
 
         card = Card.objects.create(
-            list=list_obj, title=title, description=description, created_by=request.user, assigned_team=team
+            list=list_obj,
+            title=title,
+            description=description,
+            created_by=request.user,
+            assigned_team=team,
         )
         if label_id:
             try:

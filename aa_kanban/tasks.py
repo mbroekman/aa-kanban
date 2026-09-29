@@ -12,7 +12,9 @@ async def _create_discord_thread(bot, card_id: int):
     try:
         # Load card and settings asynchronously
         card = await sync_to_async(
-            Card.objects.select_related("assigned_team", "created_by", "list__board").get
+            Card.objects.select_related(
+                "assigned_team", "created_by", "list__board"
+            ).get
         )(pk=card_id)
 
         # Prioritize the board's specific ticket channel

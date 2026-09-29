@@ -51,7 +51,7 @@
         </div>
 
         <div class="mb-3 form-check">
-            <input class="form-check-input" type="checkbox" id="edit-board-is-ticket-board" name="is_ticket_board" 
+            <input class="form-check-input" type="checkbox" id="edit-board-is-ticket-board" name="is_ticket_board"
                 {% if form_data %}
                     {% if form_data.is_ticket_board == 'on' %}checked{% endif %}
                 {% elif board.is_ticket_board %}

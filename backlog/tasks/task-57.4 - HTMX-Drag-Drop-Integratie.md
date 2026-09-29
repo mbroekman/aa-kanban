@@ -14,12 +14,17 @@ ordinal: 73000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+
 Voeg SortableJS en HTMX toe aan de views voor asynchroon slepen van Cards tussen Lists.
+
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
+
 <!-- AC:BEGIN -->
+
 - [ ] #1 Cards kunnen visueel gesleept worden tussen lists met SortableJS
 - [ ] #2 HTMX roept backend aan om de order en list relatie asynchroon bij te werken
 - [ ] #3 Backend valideert de drag-and-drop permissies en verwerkt de update
+
 <!-- AC:END -->

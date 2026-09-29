@@ -304,9 +304,12 @@ def edit_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
 
     if request.method == "GET":
         from .models import Board
+
         boards = Board.objects.filter(is_ticket_board=True).order_by("name")
         return render(
-            request, "aa_kanban/partials/edit_team_modal.html", {"team": team, "boards": boards}
+            request,
+            "aa_kanban/partials/edit_team_modal.html",
+            {"team": team, "boards": boards},
         )
 
     if request.method == "POST":

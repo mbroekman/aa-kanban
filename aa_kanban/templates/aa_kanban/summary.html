@@ -68,7 +68,7 @@
                     {{ board.name }}
                 </a>
             </div>
-            
+
             {% if board.lists.all %}
                 <div class="summary-grid" style="grid-template-columns: repeat({{ board.lists.all|length }}, 1fr);">
                     {% for list in board.lists.all %}

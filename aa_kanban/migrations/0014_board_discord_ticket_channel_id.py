@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0013_remove_card_assigned_group_kanbanteam_and_more'),
+        ("aa_kanban", "0013_remove_card_assigned_group_kanbanteam_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='board',
-            name='discord_ticket_channel_id',
-            field=models.BigIntegerField(blank=True, help_text='Discord Channel ID where ticket threads will be created for this board.', null=True),
+            model_name="board",
+            name="discord_ticket_channel_id",
+            field=models.BigIntegerField(
+                blank=True,
+                help_text="Discord Channel ID where ticket threads will be created for this board.",
+                null=True,
+            ),
         ),
     ]

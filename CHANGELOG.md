@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - **Summary View**: Fixed the summary view to properly display columns and cards from all boards instead of just the first one.
 - **Clean up**: Removed unused global Discord ID settings and fixed UI issues with tab layouts.
 - **Styling**: Fixed the editability of the card title label for better contrast and visibility in dark themes. Added cache busting to the CSS file to ensure styling updates propagate.
+
 ## [0.8.2] - 2026-09-28
 
 ### Fixed

@@ -13,5 +13,7 @@ ordinal: 69000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+
 Ontwikkel een custom Django-app voor Alliance Auth genaamd aa-kanban met Trello-like functionaliteit. Deze epic omvat datamodellen, UI, en AA-integratie.
+
 <!-- SECTION:DESCRIPTION:END -->

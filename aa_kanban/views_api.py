@@ -91,9 +91,10 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
                     c.save(update_fields=["order"])
 
     if source_list.id != target_list.id and board.discord_webhook_cards:
-        from aa_kanban.utils import send_discord_webhook
         from django.shortcuts import redirect
-        
+
+        from aa_kanban.utils import send_discord_webhook
+
         url = request.build_absolute_uri(
             redirect("aa_kanban:board_detail", board_slug=board.slug).url
         )
@@ -141,6 +142,7 @@ def card_modal(request: HttpRequest, card_id: int) -> HttpResponse:
             ).order_by("name")
         )
         from .models import KanbanTeam
+
         available_teams = list(KanbanTeam.objects.all())
 
     context = {
@@ -273,9 +275,9 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
         if new_title:
             card.title = new_title
             card.save(update_fields=["title", "updated_at"])
-            
+
         from django.template.loader import render_to_string
-        
+
         html_partial = render_to_string(
             "aa_kanban/partials/card_title.html",
             {"card": card, "can_write": True},
@@ -460,9 +462,10 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
     )
 
     if kanban_list.board.discord_webhook_cards:
-        from aa_kanban.utils import send_discord_webhook
         from django.shortcuts import redirect
-        
+
+        from aa_kanban.utils import send_discord_webhook
+
         url = request.build_absolute_uri(
             redirect("aa_kanban:board_detail", board_slug=kanban_list.board.slug).url
         )
@@ -546,12 +549,14 @@ def update_card_team(request: HttpRequest, card_id: int) -> HttpResponse:
     team_id = request.POST.get("team_id")
     if team_id:
         from .models import KanbanTeam
+
         card.assigned_team = KanbanTeam.objects.filter(pk=team_id).first()
     else:
         card.assigned_team = None
     card.save(update_fields=["assigned_team", "updated_at"])
 
     from django.template.loader import render_to_string
+
     from .models import KanbanTeam
 
     html_partial = render_to_string(

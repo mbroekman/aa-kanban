@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0016_kanbanteam_ticket_board'),
+        ("aa_kanban", "0016_kanbanteam_ticket_board"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='kanbansetting',
-            name='ticket_channel_id',
+            model_name="kanbansetting",
+            name="ticket_channel_id",
         ),
     ]

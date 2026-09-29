@@ -32,10 +32,10 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm" id="assigneeDropdownMenu-{{ card.id }}" style="max-height: 300px; overflow-y: auto;">
                 <li class="px-2 py-1 sticky-top bg-white border-bottom">
-                    <input type="text" 
-                           class="form-control form-control-sm" 
-                           id="assigneeSearch-{{ card.id }}" 
-                           onkeyup="filterAssignees('{{ card.id }}')" 
+                    <input type="text"
+                           class="form-control form-control-sm"
+                           id="assigneeSearch-{{ card.id }}"
+                           onkeyup="filterAssignees('{{ card.id }}')"
                            placeholder="{% trans 'Search user...' %}">
                 </li>
                 {% for user in available_users %}

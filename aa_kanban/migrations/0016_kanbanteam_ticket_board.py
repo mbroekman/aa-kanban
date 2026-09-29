@@ -7,13 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0015_remove_kanbansetting_ticket_boards_and_more'),
+        ("aa_kanban", "0015_remove_kanbansetting_ticket_boards_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='kanbanteam',
-            name='ticket_board',
-            field=models.ForeignKey(blank=True, help_text='The Kanban board where tickets for this team will be created.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='teams', to='aa_kanban.board'),
+            model_name="kanbanteam",
+            name="ticket_board",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="The Kanban board where tickets for this team will be created.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="teams",
+                to="aa_kanban.board",
+            ),
         ),
     ]

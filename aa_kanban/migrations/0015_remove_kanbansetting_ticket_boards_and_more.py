@@ -6,17 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0014_board_discord_ticket_channel_id'),
+        ("aa_kanban", "0014_board_discord_ticket_channel_id"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='kanbansetting',
-            name='ticket_boards',
+            model_name="kanbansetting",
+            name="ticket_boards",
         ),
         migrations.AddField(
-            model_name='board',
-            name='is_ticket_board',
-            field=models.BooleanField(default=False, help_text='Allow members to submit tickets to this board.'),
+            model_name="board",
+            name="is_ticket_board",
+            field=models.BooleanField(
+                default=False,
+                help_text="Allow members to submit tickets to this board.",
+            ),
         ),
     ]
