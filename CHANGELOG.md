@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-29
+
+### Added
+
+- **Multilingual Support**: The project is now fully translatable. Added comprehensive Dutch (NL) and English (EN) language files for both frontend templates and backend logic.
+- **Translation Infrastructure**: Integrated Django's `gettext` for extracting, compiling, and loading locale files.
+
+### Changed
+
+- **Settings UI**: Re-organized settings page into semantic tabs for better overview (Groups, Teams, Labels).
+- **Settings Layout**: Fixed CSS styling for tab headers to prevent spacing issues.
+- **Empty States**: Fixed UI layout issues on the Teams and Labels pages when no items are defined.
 ## [0.9.0] - 2026-09-29
 
 ### Added
