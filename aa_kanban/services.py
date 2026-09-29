@@ -75,9 +75,12 @@ def create_kanban_card(
     # Trigger Discord Webhook Notification if configured for this board
     if board.discord_webhook_cards:
         from django.utils.translation import gettext as _
+
         from aa_kanban.utils import send_discord_webhook
 
-        msg = _("**New Ticket Submitted!**\nTitle: `{card_title}`\nCreated by: `{creator}`\nBoard: `{board_name}`").format(card_title=card.title, creator=creator.username, board_name=board.name)
+        msg = _(
+            "**New Ticket Submitted!**\nTitle: `{card_title}`\nCreated by: `{creator}`\nBoard: `{board_name}`"
+        ).format(card_title=card.title, creator=creator.username, board_name=board.name)
         send_discord_webhook(board.discord_webhook_cards, msg)
 
     return card

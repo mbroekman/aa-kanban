@@ -1,9 +1,9 @@
 """Models for aa_kanban."""
 
 from django.contrib.auth.models import AnonymousUser, Group, User
-from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 
 
 class General(models.Model):
@@ -51,7 +51,7 @@ class KanbanGroup(models.Model):
         Group,
         blank=True,
         related_name="kanban_groups",
-        help_text = _("Auth groups that belong to this Kanban group."),
+        help_text=_("Auth groups that belong to this Kanban group."),
     )
 
     class Meta:
@@ -71,12 +71,14 @@ class KanbanTeam(models.Model):
         User,
         blank=True,
         related_name="kanban_ticket_teams",
-        help_text = _("Members of this team."),
+        help_text=_("Members of this team."),
     )
     discord_role_id = models.BigIntegerField(
         blank=True,
         null=True,
-        help_text = _("Optional Discord Role ID to ping when a ticket is assigned to this team."),
+        help_text=_(
+            "Optional Discord Role ID to ping when a ticket is assigned to this team."
+        ),
     )
     ticket_board = models.ForeignKey(
         "Board",
@@ -84,7 +86,7 @@ class KanbanTeam(models.Model):
         null=True,
         blank=True,
         related_name="teams",
-        help_text = _("The Kanban board where tickets for this team will be created."),
+        help_text=_("The Kanban board where tickets for this team will be created."),
     )
 
     class Meta:
@@ -102,7 +104,7 @@ class KanbanSetting(models.Model):
     board_creation_webhook = models.URLField(
         blank=True,
         null=True,
-        help_text = _("Discord Webhook URL for global board creation notifications."),
+        help_text=_("Discord Webhook URL for global board creation notifications."),
     )
 
     class Meta:
@@ -135,29 +137,33 @@ class Board(models.Model):
     discord_webhook_cards = models.URLField(
         blank=True,
         null=True,
-        help_text = _("Discord Webhook URL for card movement notifications on this board."),
+        help_text=_(
+            "Discord Webhook URL for card movement notifications on this board."
+        ),
     )
     discord_ticket_channel_id = models.BigIntegerField(
         blank=True,
         null=True,
-        help_text = _("Discord Channel ID where ticket threads will be created for this board."),
+        help_text=_(
+            "Discord Channel ID where ticket threads will be created for this board."
+        ),
     )
     is_ticket_board = models.BooleanField(
         default=False,
-        help_text = _("Allow members to submit tickets to this board."),
+        help_text=_("Allow members to submit tickets to this board."),
     )
 
     view_groups = models.ManyToManyField(
         KanbanGroup,
         blank=True,
         related_name="kanban_view_boards",
-        help_text = _("Kanban groups that have read-only access to this board."),
+        help_text=_("Kanban groups that have read-only access to this board."),
     )
     write_groups = models.ManyToManyField(
         KanbanGroup,
         blank=True,
         related_name="kanban_write_boards",
-        help_text = _("Kanban groups that have write/mutation access to this board."),
+        help_text=_("Kanban groups that have write/mutation access to this board."),
     )
 
     created_by = models.ForeignKey(
@@ -245,10 +251,10 @@ class List(models.Model):
     )
     name = models.CharField(max_length=100)
     description = models.TextField(
-        blank=True, default="", help_text = _("Optional context for this column")
+        blank=True, default="", help_text=_("Optional context for this column")
     )
     wip_limit = models.PositiveIntegerField(
-        default=0, help_text = _("Maximum cards (0 for unlimited)")
+        default=0, help_text=_("Maximum cards (0 for unlimited)")
     )
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -313,7 +319,7 @@ class Card(models.Model):
         choices=COLOR_CHOICES,
         default="",
         blank=True,
-        help_text = _("Background color of the card"),
+        help_text=_("Background color of the card"),
     )
 
     assignees = models.ManyToManyField(
@@ -332,12 +338,12 @@ class Card(models.Model):
         null=True,
         blank=True,
         related_name="assigned_tickets",
-        help_text = _("Target team for this ticket"),
+        help_text=_("Target team for this ticket"),
     )
     discord_thread_id = models.BigIntegerField(
         null=True,
         blank=True,
-        help_text = _("ID of the associated Discord Thread"),
+        help_text=_("ID of the associated Discord Thread"),
     )
 
     due_date = models.DateTimeField(null=True, blank=True)

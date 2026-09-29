@@ -1,7 +1,6 @@
 """API and AJAX views for aa_kanban."""
 
 import json
-from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
@@ -15,6 +14,7 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import get_object_or_404, render
+from django.utils.translation import gettext_lazy as _
 
 from .models import Board, Card, Comment, Label, List
 
@@ -50,13 +50,17 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
         target_list_id = int(target_list_id_raw)
         new_position = int(new_position_raw)
     except (ValueError, TypeError):
-        return HttpResponseBadRequest(_("target_list_id and new_position must be integers."))
+        return HttpResponseBadRequest(
+            _("target_list_id and new_position must be integers.")
+        )
 
     target_list = get_object_or_404(List, pk=target_list_id)
 
     # Validate that both lists belong to the exact same board
     if target_list.board_id != board.id:
-        return HttpResponseBadRequest(_("Target list does not belong to the same board."))
+        return HttpResponseBadRequest(
+            _("Target list does not belong to the same board.")
+        )
 
     source_list = card.list
 
@@ -97,7 +101,14 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
         url = request.build_absolute_uri(
             redirect("aa_kanban:board_detail", board_slug=board.slug).url
         )
-        msg = _("Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[Bekijk Bord]({url})").format(card_title=card.title, source_list_name=source_list.name, target_list_name=target_list.name, url=url)
+        msg = _(
+            "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[Bekijk Bord]({url})"
+        ).format(
+            card_title=card.title,
+            source_list_name=source_list.name,
+            target_list_name=target_list.name,
+            url=url,
+        )
         send_discord_webhook(board.discord_webhook_cards, msg)
 
     return JsonResponse(
@@ -212,7 +223,9 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
         try:
             from aadiscordbot.tasks import send_direct_message_by_user_id
 
-            msg = _("You have been removed from the card: **{card_title}** on board **{board_name}**.").format(card_title=card.title, board_name=board.name)
+            msg = _(
+                "You have been removed from the card: **{card_title}** on board **{board_name}**."
+            ).format(card_title=card.title, board_name=board.name)
             send_direct_message_by_user_id.delay(target_user.pk, msg)
         except ImportError:
             pass
@@ -221,7 +234,9 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
         try:
             from aadiscordbot.tasks import send_direct_message_by_user_id
 
-            msg = _("You have been assigned to the card: **{card_title}** on board **{board_name}**.").format(card_title=card.title, board_name=board.name)
+            msg = _(
+                "You have been assigned to the card: **{card_title}** on board **{board_name}**."
+            ).format(card_title=card.title, board_name=board.name)
             send_direct_message_by_user_id.delay(target_user.pk, msg)
         except ImportError:
             pass
@@ -468,7 +483,14 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
         url = request.build_absolute_uri(
             redirect("aa_kanban:board_detail", board_slug=kanban_list.board.slug).url
         )
-        msg = _("**Nieuwe Card Aangemaakt!**\nTitel: `{card_title}`\nAangemaakt door: `{username}`\nLijst: `{list_name}`\n[Bekijk Bord]({url})").format(card_title=card.title, username=request.user.username, list_name=kanban_list.name, url=url)
+        msg = _(
+            "**Nieuwe Card Aangemaakt!**\nTitel: `{card_title}`\nAangemaakt door: `{username}`\nLijst: `{list_name}`\n[Bekijk Bord]({url})"
+        ).format(
+            card_title=card.title,
+            username=request.user.username,
+            list_name=kanban_list.name,
+            url=url,
+        )
         send_discord_webhook(kanban_list.board.discord_webhook_cards, msg)
 
     return render(

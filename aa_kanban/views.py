@@ -357,12 +357,15 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
 
         if board.discord_webhook_cards:
             from django.utils.translation import gettext as _
+
             from aa_kanban.utils import send_discord_webhook
 
             url = request.build_absolute_uri(
                 redirect("aa_kanban:board_detail", board_slug=board.slug).url
             )
-            msg = _("**New Ticket Submitted!**\nTitle: `{card_title}`\nCreated by: `{username}`\n[View Board]({url})").format(card_title=card.title, username=request.user.username, url=url)
+            msg = _(
+                "**New Ticket Submitted!**\nTitle: `{card_title}`\nCreated by: `{username}`\n[View Board]({url})"
+            ).format(card_title=card.title, username=request.user.username, url=url)
             send_discord_webhook(board.discord_webhook_cards, msg)
 
         # Trigger Discord Thread creation
