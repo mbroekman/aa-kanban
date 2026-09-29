@@ -1,9 +1,10 @@
 ---
 id: TASK-51
 title: Develop native Kanban (Trello-like) App
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-28 19:14'
+updated_date: '2026-09-29 06:22'
 labels: []
 dependencies: []
 ordinal: 59000

@@ -269,21 +269,6 @@ def update_global_settings(request: HttpRequest) -> HttpResponse:
         from .models import Board, KanbanSetting
 
         settings = KanbanSetting.get_settings()
-        ticket_board_ids = request.POST.getlist("ticket_board_ids")
-        if ticket_board_ids:
-            boards = Board.objects.filter(pk__in=ticket_board_ids)
-            settings.ticket_boards.set(boards)
-        else:
-            settings.ticket_boards.clear()
-
-        ticket_channel_id = request.POST.get("ticket_channel_id")
-        if ticket_channel_id:
-            try:
-                settings.ticket_channel_id = int(ticket_channel_id)
-            except ValueError:
-                settings.ticket_channel_id = None
-        else:
-            settings.ticket_channel_id = None
 
         settings.save()
 
@@ -298,8 +283,12 @@ def create_kanban_team(request: HttpRequest) -> HttpResponse:
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
+        ticket_board_id = request.POST.get("ticket_board_id")
         if name:
-            KanbanTeam.objects.get_or_create(name=name)
+            team, _ = KanbanTeam.objects.get_or_create(name=name)
+            if ticket_board_id and ticket_board_id.isdigit():
+                team.ticket_board_id = int(ticket_board_id)
+                team.save(update_fields=["ticket_board_id"])
 
     teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
     return render(request, "aa_kanban/partials/team_list.html", {"teams": teams})
@@ -314,20 +303,27 @@ def edit_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
     team = get_object_or_404(KanbanTeam, pk=team_id)
 
     if request.method == "GET":
+        from .models import Board
+        boards = Board.objects.filter(is_ticket_board=True).order_by("name")
         return render(
-            request, "aa_kanban/partials/edit_team_modal.html", {"team": team}
+            request, "aa_kanban/partials/edit_team_modal.html", {"team": team, "boards": boards}
         )
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
         discord_role_id = request.POST.get("discord_role_id", "").strip()
+        ticket_board_id = request.POST.get("ticket_board_id", "").strip()
         if name:
             team.name = name
             if discord_role_id and discord_role_id.isdigit():
                 team.discord_role_id = int(discord_role_id)
             else:
                 team.discord_role_id = None
-            team.save(update_fields=["name", "discord_role_id"])
+            if ticket_board_id and ticket_board_id.isdigit():
+                team.ticket_board_id = int(ticket_board_id)
+            else:
+                team.ticket_board_id = None
+            team.save(update_fields=["name", "discord_role_id", "ticket_board_id"])
 
         teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
         response = render(

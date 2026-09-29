@@ -90,9 +90,9 @@ Users with the `create_ticket` permission will see a **Submit Ticket** menu item
 1. Add relevant **Labels**.
 1. Submit. The ticket is automatically routed to the designated Ticket Board.
 
-### Ticket Board Designation
+### Ticket Routing & Board Designation
 
-Administrators can designate one or more boards as "Ticket Boards" from the **Settings** menu. All member-submitted tickets will appear in the first column (*Backlog*) of these designated boards.
+Administrators can designate any board as a "Ticket Board" via its Board Settings. When a user submits a ticket, they must select a target **Assigned Team**. The system automatically routes the ticket to the board associated with that team. All member-submitted tickets will appear in the first column (*Backlog*) of the destination board.
 
 ______________________________________________________________________
 
@@ -102,7 +102,7 @@ AA Kanban comes with deep Discord integration, utilizing `aadiscordbot`.
 
 ### Ticket Threads & Syncing
 
-When a user submits a new Ticket, the system automatically creates a **Discord Thread** in your designated Ticket Channel.
+When a user submits a new Ticket, the system automatically creates a **Discord Thread** in the Ticket Channel designated for the receiving board.
 
 - **Syncing**: The `KanbanTicketCog` monitors the thread. Any message sent in the Discord thread is automatically synced as a **Comment** on the Kanban Card in the web UI.
 - **Uploading Messages**: Using Discord Context Menus (Right Click on a message -> Apps -> Upload to Ticket), you can directly push important Discord messages from other channels into an active Kanban ticket as a comment!
@@ -127,6 +127,7 @@ The **Settings** menu (accessible to users with `manage_boards` permissions) all
 Teams are used to route tickets to specific departments.
 
 - **Create Teams**: Define teams like *Recon*, *HR*, or *IT*.
+- **Target Ticket Board**: Assign a specific board to the team. Any tickets submitted for this team will automatically be routed to that board.
 - **Discord Role ID**: Link a team to a Discord Role. When a ticket is assigned to this team, the associated Discord Role is pinged in the Ticket Thread.
 - **Manage Members**: Add individual Alliance Auth users to teams.
 
@@ -141,8 +142,6 @@ Kanban Groups determine who can view and edit specific boards.
 ### Global Labels & Settings
 
 - **Global Labels**: Create colored labels that can be used across all boards.
-- **Ticket Boards**: Select which boards receive member-submitted tickets.
-- **Ticket Channel ID**: Enter the Discord Channel ID where new Ticket Threads should be spawned.
 
 *(Note: Technical configurations such as Webhook URLs are securely managed within the standard Django Admin panel under `Boards` and `Kanban Settings`.)*
 

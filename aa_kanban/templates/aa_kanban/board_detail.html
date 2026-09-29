@@ -5,7 +5,7 @@
 {% block page_title %}{{ board.name }} - {{ app_name }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}">
+<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}?v=2">
 <style>
     .kanban-board-container {
         display: flex;
@@ -58,16 +58,7 @@
             {% endif %}
 
             {% if can_write or can_manage %}
-                <button type="button"
-                        class="btn btn-sm btn-secondary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#labelsModal"
-                        hx-get="{% url 'aa_kanban:board_labels_modal' board.slug %}"
-                        hx-target="#labelsModalBody"
-                        hx-trigger="click"
-                        title="{% trans 'Manage labels' %}">
-                    <i class="fas fa-tags"></i>
-                </button>
+
                 <button type="button"
                         class="btn btn-sm btn-secondary"
                         data-bs-toggle="modal"

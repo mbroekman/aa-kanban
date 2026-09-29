@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-29
+
+### Added
+
+- **Per-Board Ticket Configuration**: Moved the "Ticket Board" configuration from a global setting to a per-board setting. Boards can now be individually marked as ticket boards.
+- **Per-Board Discord Channels**: Moved the "Discord Ticket Channel ID" from global settings to the individual boards. Tickets created for different teams/boards can now trigger threads in their own designated Discord channels.
+- **Team-based Ticket Routing**: The ticket submission form now automatically routes new tickets to the correct board based on the selected target team. The board selection dropdown was removed for simplicity.
+
+### Changed
+
+- **UI Improvements**: Added a "Ticket Board" badge on the main boards overview to easily identify ticket boards.
+- **Settings UI**: Split the Settings page into organized tabs (Groups, Teams, Labels) for better overview and management.
+- **Summary View**: Fixed the summary view to properly display columns and cards from all boards instead of just the first one.
+- **Clean up**: Removed unused global Discord ID settings and fixed UI issues with tab layouts.
+- **Styling**: Fixed the editability of the card title label for better contrast and visibility in dark themes. Added cache busting to the CSS file to ensure styling updates propagate.
 ## [0.8.2] - 2026-09-28
 
 ### Fixed

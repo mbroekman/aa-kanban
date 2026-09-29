@@ -54,11 +54,16 @@
                                         {{ board.name }}
                                     </a>
                                 </h4>
-                                {% if request.user.is_superuser or board.created_by == request.user or board in request.user.kanban_write_boards.all %}
-                                    <span class="badge bg-success">{% trans "Editor" %}</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{% trans "Read-Only" %}</span>
-                                {% endif %}
+                                <div class="d-flex gap-1 align-items-center">
+                                    {% if board.is_ticket_board %}
+                                        <span class="badge bg-warning text-dark" title="{% trans 'Ticket Board' %}"><i class="fas fa-ticket-alt"></i></span>
+                                    {% endif %}
+                                    {% if request.user.is_superuser or board.created_by == request.user or board in request.user.kanban_write_boards.all %}
+                                        <span class="badge bg-success">{% trans "Editor" %}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{% trans "Read-Only" %}</span>
+                                    {% endif %}
+                                </div>
                             </div>
 
                             <p class="card-text text-muted small flex-grow-1">

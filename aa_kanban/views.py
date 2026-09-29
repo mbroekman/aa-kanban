@@ -89,6 +89,9 @@ def create_board(request: HttpRequest) -> HttpResponse:
         description = request.POST.get("description", "").strip()
         view_group_ids = request.POST.getlist("view_groups")
         write_group_ids = request.POST.getlist("write_groups")
+        discord_ticket_channel_id_str = request.POST.get("discord_ticket_channel_id", "").strip()
+        discord_ticket_channel_id = int(discord_ticket_channel_id_str) if discord_ticket_channel_id_str.isdigit() else None
+        is_ticket_board = request.POST.get("is_ticket_board") == "on"
 
         if not name:
             context = {
@@ -101,6 +104,8 @@ def create_board(request: HttpRequest) -> HttpResponse:
         board = Board.objects.create(
             name=name,
             description=description,
+            discord_ticket_channel_id=discord_ticket_channel_id,
+            is_ticket_board=is_ticket_board,
             created_by=request.user,  # type: ignore[misc]
         )
         if view_group_ids:
@@ -151,6 +156,9 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         description = request.POST.get("description", "").strip()
         view_group_ids = request.POST.getlist("view_groups")
         write_group_ids = request.POST.getlist("write_groups")
+        discord_ticket_channel_id_str = request.POST.get("discord_ticket_channel_id", "").strip()
+        discord_ticket_channel_id = int(discord_ticket_channel_id_str) if discord_ticket_channel_id_str.isdigit() else None
+        is_ticket_board = request.POST.get("is_ticket_board") == "on"
 
         if not name:
             context = {
@@ -163,7 +171,9 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
 
         board.name = name
         board.description = description
-        board.save(update_fields=["name", "description", "updated_at"])
+        board.discord_ticket_channel_id = discord_ticket_channel_id
+        board.is_ticket_board = is_ticket_board
+        board.save(update_fields=["name", "description", "discord_ticket_channel_id", "is_ticket_board", "updated_at"])
         board.view_groups.set(KanbanGroup.objects.filter(pk__in=view_group_ids))
         board.write_groups.set(KanbanGroup.objects.filter(pk__in=write_group_ids))
 
@@ -252,10 +262,9 @@ def summary(request: HttpRequest) -> HttpResponse:
 @permission_required("aa_kanban.create_ticket", raise_exception=True)
 def create_ticket(request: HttpRequest) -> HttpResponse:
     """Allow members to create tickets as cards on a designated ticket board."""
-    from .models import Board, KanbanSetting, KanbanTeam, Label
+    from .models import Board, KanbanTeam, Label
 
-    settings = KanbanSetting.get_settings()
-    ticket_boards = settings.ticket_boards.all()
+    ticket_boards = Board.objects.filter(is_ticket_board=True)
     if not ticket_boards.exists():
         # If no ticket board is configured, show an error message
         context = {
@@ -270,7 +279,6 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
         title = request.POST.get("title", "").strip()
         description = request.POST.get("description", "").strip()
         label_id = request.POST.get("label")
-        board_id = request.POST.get("board")
         assigned_team_id = request.POST.get("assigned_team")
 
         if not title:
@@ -283,13 +291,23 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
             return render(request, "aa_kanban/ticket_form.html", context)
 
         try:
-            board = ticket_boards.get(pk=board_id)
-        except Board.DoesNotExist:
+            team = KanbanTeam.objects.get(pk=assigned_team_id)
+        except KanbanTeam.DoesNotExist:
             context = {
                 "boards": ticket_boards,
                 "labels": labels,
                 "teams": teams,
-                "error": "Ongeldig ticket board geselecteerd.",
+                "error": "Ongeldig team geselecteerd.",
+            }
+            return render(request, "aa_kanban/ticket_form.html", context)
+
+        board = team.ticket_board
+        if not board or not board.is_ticket_board:
+            context = {
+                "boards": ticket_boards,
+                "labels": labels,
+                "teams": teams,
+                "error": "Het geselecteerde team heeft geen geldig ticket board geconfigureerd.",
             }
             return render(request, "aa_kanban/ticket_form.html", context)
 
@@ -297,7 +315,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
         list_obj = board.lists.filter(name="Backlog").first() or board.lists.first()
         if not list_obj:
             context = {
-                "board": board,
+                "boards": ticket_boards,
                 "labels": labels,
                 "teams": teams,
                 "error": "Geen kolommen beschikbaar op het ticket board.",
@@ -305,14 +323,8 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
             return render(request, "aa_kanban/ticket_form.html", context)
 
         card = Card.objects.create(
-            list=list_obj, title=title, description=description, created_by=request.user
+            list=list_obj, title=title, description=description, created_by=request.user, assigned_team=team
         )
-        if assigned_team_id:
-            try:
-                card.assigned_team = KanbanTeam.objects.get(pk=assigned_team_id)
-                card.save()
-            except KanbanTeam.DoesNotExist:
-                pass
         if label_id:
             try:
                 card.labels.add(Label.objects.get(pk=label_id))

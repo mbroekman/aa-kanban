@@ -3,7 +3,7 @@ import logging
 from asgiref.sync import sync_to_async
 from celery import shared_task
 
-from .models import Card, KanbanSetting
+from .models import Card
 
 logger = logging.getLogger(__name__)
 
@@ -12,14 +12,14 @@ async def _create_discord_thread(bot, card_id: int):
     try:
         # Load card and settings asynchronously
         card = await sync_to_async(
-            Card.objects.select_related("assigned_team", "created_by").get
+            Card.objects.select_related("assigned_team", "created_by", "list__board").get
         )(pk=card_id)
-        kanban_settings = await sync_to_async(KanbanSetting.get_settings)()
 
-        channel_id = kanban_settings.ticket_channel_id
+        # Prioritize the board's specific ticket channel
+        channel_id = card.list.board.discord_ticket_channel_id
         if not channel_id:
             logger.warning(
-                "No ticket_channel_id configured, skipping Discord thread creation."
+                "No ticket_channel_id configured on board, skipping Discord thread creation."
             )
             return
 

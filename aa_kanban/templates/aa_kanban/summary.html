@@ -6,7 +6,7 @@
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}">
+<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}?v=2">
 <style>
     .summary-table {
         width: 100%;
@@ -62,34 +62,33 @@
     </div>
 
     {% if boards %}
-        <!-- Headers -->
-        <div class="summary-grid d-none d-md-grid text-center fw-bold text-muted mb-2">
-            {% for col in default_columns %}
-                <div>{{ col }}</div>
-            {% endfor %}
-        </div>
-
         {% for board in boards %}
             <div class="board-header">
                 <a href="{% url 'aa_kanban:board_detail' board.slug %}" class="text-decoration-none">
                     {{ board.name }}
                 </a>
             </div>
-            <div class="summary-grid">
-                {% for col in default_columns %}
-                    <div class="summary-cell">
-                        {% with column_cards=board.lists.all|get_cards_for_column:col %}
-                            {% for card in column_cards %}
-                                {% include "aa_kanban/partials/card_item.html" with card=card can_write=False hide_menu=True summary_mode=True %}
-                            {% empty %}
-                                <div class="text-center py-2 text-muted small">
-                                    <em>{% trans "No cards" %}</em>
-                                </div>
-                            {% endfor %}
-                        {% endwith %}
-                    </div>
-                {% endfor %}
-            </div>
+            
+            {% if board.lists.all %}
+                <div class="summary-grid" style="grid-template-columns: repeat({{ board.lists.all|length }}, 1fr);">
+                    {% for list in board.lists.all %}
+                        <div class="d-flex flex-column">
+                            <div class="text-center fw-bold text-muted mb-2">{{ list.name }}</div>
+                            <div class="summary-cell flex-grow-1">
+                                {% for card in list.cards.all %}
+                                    {% include "aa_kanban/partials/card_item.html" with card=card can_write=False hide_menu=True summary_mode=True %}
+                                {% empty %}
+                                    <div class="text-center py-2 text-muted small">
+                                        <em>{% trans "No cards" %}</em>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-muted small mb-4"><em>{% trans "No lists in this board." %}</em></div>
+            {% endif %}
         {% endfor %}
     {% else %}
         <div class="card border-0 shadow-sm text-center py-5">

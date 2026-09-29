@@ -81,22 +81,6 @@ urlpatterns = [
         views_api.toggle_label,
         name="toggle_label",
     ),
-    # Labels management (per board) via HTMX
-    path(
-        "boards/<slug:board_slug>/labels/modal/",
-        views_api.board_labels_modal,
-        name="board_labels_modal",
-    ),
-    path(
-        "boards/<slug:board_slug>/labels/create/",
-        views_api.create_label,
-        name="create_label",
-    ),
-    path(
-        "boards/<slug:board_slug>/labels/<int:label_id>/delete/",
-        views_api.delete_label,
-        name="delete_label",
-    ),
     # Settings and Groups
     path("settings/", views_settings.kanban_settings, name="settings"),
     path(

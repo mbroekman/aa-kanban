@@ -17,15 +17,7 @@
             {% if boards %}
                 <form method="POST" action="{% url 'aa_kanban:create_ticket' %}">
                     {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="board" class="form-label fw-bold">{% trans "Department / Board" %} <span class="text-danger">*</span></label>
-                        <select class="form-select" id="board" name="board" required>
-                            <option value="">{% trans "-- Select Destination --" %}</option>
-                            {% for b in boards %}
-                                <option value="{{ b.id }}">{{ b.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+
                     <div class="mb-3">
                         <label for="title" class="form-label fw-bold">{% trans "Subject" %} <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="title" name="title" required placeholder="{% trans 'Brief description of the issue...' %}">
@@ -40,8 +32,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="assigned_team" class="form-label fw-bold">{% trans "Assigned Team" %}</label>
-                        <select class="form-select" id="assigned_team" name="assigned_team">
+                        <label for="assigned_team" class="form-label fw-bold">{% trans "Assigned Team" %} <span class="text-danger">*</span></label>
+                        <select class="form-select" id="assigned_team" name="assigned_team" required>
                             <option value="">{% trans "-- Select Team --" %}</option>
                             {% for team in teams %}
                                 <option value="{{ team.id }}">{{ team.name }}</option>

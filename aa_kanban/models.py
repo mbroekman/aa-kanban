@@ -77,6 +77,14 @@ class KanbanTeam(models.Model):
         null=True,
         help_text="Optional Discord Role ID to ping when a ticket is assigned to this team.",
     )
+    ticket_board = models.ForeignKey(
+        "Board",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="teams",
+        help_text="The Kanban board where tickets for this team will be created.",
+    )
 
     class Meta:
         verbose_name = "Kanban Team"
@@ -95,18 +103,6 @@ class KanbanSetting(models.Model):
         null=True,
         help_text="Discord Webhook URL for global board creation notifications.",
     )
-    ticket_boards = models.ManyToManyField(
-        "Board",
-        blank=True,
-        help_text="Boards where member tickets can be created.",
-        related_name="+",
-    )
-    ticket_channel_id = models.BigIntegerField(
-        blank=True,
-        null=True,
-        help_text="Discord Channel ID where ticket threads will be created.",
-    )
-
     class Meta:
         verbose_name = "Kanban Setting"
         verbose_name_plural = "Kanban Settings"
@@ -138,6 +134,15 @@ class Board(models.Model):
         blank=True,
         null=True,
         help_text="Discord Webhook URL for card movement notifications on this board.",
+    )
+    discord_ticket_channel_id = models.BigIntegerField(
+        blank=True,
+        null=True,
+        help_text="Discord Channel ID where ticket threads will be created for this board.",
+    )
+    is_ticket_board = models.BooleanField(
+        default=False,
+        help_text="Allow members to submit tickets to this board.",
     )
 
     view_groups = models.ManyToManyField(

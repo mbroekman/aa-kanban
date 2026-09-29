@@ -11,6 +11,15 @@
                 <label class="form-label small fw-bold text-muted mb-1">{% trans "Discord Role ID" %}</label>
                 <input type="text" class="form-control form-control-sm" name="discord_role_id" value="{{ team.discord_role_id|default_if_none:'' }}" placeholder="Optional">
             </div>
+            <div class="flex-grow-1">
+                <label class="form-label small fw-bold text-muted mb-1">{% trans "Ticket Board" %}</label>
+                <select class="form-select form-select-sm" name="ticket_board_id">
+                    <option value="">-- {% trans "Select Board" %} --</option>
+                    {% for board in boards %}
+                        <option value="{{ board.id }}" {% if team.ticket_board_id == board.id %}selected{% endif %}>{{ board.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div>
                 <button type="submit" class="btn btn-sm btn-success">
                     <i class="fas fa-check me-1"></i>{% trans "Save" %}

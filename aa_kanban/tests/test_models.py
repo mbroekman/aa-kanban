@@ -128,6 +128,7 @@ class TestBoardModel:
 class TestListAndCardModels:
     def test_list_and_card_creation_and_ordering(self, board_factory, user_factory):
         board = board_factory(name="Dev Board")
+        board.lists.all().delete()
         list1 = List.objects.create(board=board, name="To Do", order=1)
         list2 = List.objects.create(board=board, name="In Progress", order=0)
 
@@ -149,18 +150,14 @@ class TestListAndCardModels:
         board = board_factory(name="Temporary Board")
         lst = List.objects.create(board=board, name="Column")
         card = Card.objects.create(list=lst, title="Temporary Card")
-        label = Label.objects.create(board=board, name="Bug", color="danger")
-        card.labels.add(label)
 
         assert List.objects.filter(pk=lst.pk).exists()
         assert Card.objects.filter(pk=card.pk).exists()
-        assert Label.objects.filter(pk=label.pk).exists()
 
         board.delete()
 
         assert not List.objects.filter(pk=lst.pk).exists()
         assert not Card.objects.filter(pk=card.pk).exists()
-        assert not Label.objects.filter(pk=label.pk).exists()
 
 
 @pytest.mark.django_db
@@ -169,7 +166,7 @@ class TestLabelAndCommentModels:
         board = board_factory(name="Scrum Board")
         lst = List.objects.create(board=board, name="Backlog")
         card = Card.objects.create(list=lst, title="Feature X")
-        label = Label.objects.create(board=board, name="Enhancement", color="info")
+        label = Label.objects.create(name="Enhancement", color="info")
         card.labels.add(label)
 
         assert str(label) == "Enhancement (info)"
