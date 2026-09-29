@@ -1,6 +1,7 @@
 """Models for aa_kanban."""
 
 from django.contrib.auth.models import AnonymousUser, Group, User
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.utils.text import slugify
 
@@ -50,12 +51,12 @@ class KanbanGroup(models.Model):
         Group,
         blank=True,
         related_name="kanban_groups",
-        help_text="Auth groups that belong to this Kanban group.",
+        help_text = _("Auth groups that belong to this Kanban group."),
     )
 
     class Meta:
-        verbose_name = "Kanban Group"
-        verbose_name_plural = "Kanban Groups"
+        verbose_name = _("Kanban Group")
+        verbose_name_plural = _("Kanban Groups")
         ordering = ["name"]
 
     def __str__(self) -> str:
@@ -70,12 +71,12 @@ class KanbanTeam(models.Model):
         User,
         blank=True,
         related_name="kanban_ticket_teams",
-        help_text="Members of this team.",
+        help_text = _("Members of this team."),
     )
     discord_role_id = models.BigIntegerField(
         blank=True,
         null=True,
-        help_text="Optional Discord Role ID to ping when a ticket is assigned to this team.",
+        help_text = _("Optional Discord Role ID to ping when a ticket is assigned to this team."),
     )
     ticket_board = models.ForeignKey(
         "Board",
@@ -83,12 +84,12 @@ class KanbanTeam(models.Model):
         null=True,
         blank=True,
         related_name="teams",
-        help_text="The Kanban board where tickets for this team will be created.",
+        help_text = _("The Kanban board where tickets for this team will be created."),
     )
 
     class Meta:
-        verbose_name = "Kanban Team"
-        verbose_name_plural = "Kanban Teams"
+        verbose_name = _("Kanban Team")
+        verbose_name_plural = _("Kanban Teams")
         ordering = ["name"]
 
     def __str__(self) -> str:
@@ -101,12 +102,12 @@ class KanbanSetting(models.Model):
     board_creation_webhook = models.URLField(
         blank=True,
         null=True,
-        help_text="Discord Webhook URL for global board creation notifications.",
+        help_text = _("Discord Webhook URL for global board creation notifications."),
     )
 
     class Meta:
-        verbose_name = "Kanban Setting"
-        verbose_name_plural = "Kanban Settings"
+        verbose_name = _("Kanban Setting")
+        verbose_name_plural = _("Kanban Settings")
 
     def __str__(self) -> str:
         return "Global Kanban Settings"
@@ -134,29 +135,29 @@ class Board(models.Model):
     discord_webhook_cards = models.URLField(
         blank=True,
         null=True,
-        help_text="Discord Webhook URL for card movement notifications on this board.",
+        help_text = _("Discord Webhook URL for card movement notifications on this board."),
     )
     discord_ticket_channel_id = models.BigIntegerField(
         blank=True,
         null=True,
-        help_text="Discord Channel ID where ticket threads will be created for this board.",
+        help_text = _("Discord Channel ID where ticket threads will be created for this board."),
     )
     is_ticket_board = models.BooleanField(
         default=False,
-        help_text="Allow members to submit tickets to this board.",
+        help_text = _("Allow members to submit tickets to this board."),
     )
 
     view_groups = models.ManyToManyField(
         KanbanGroup,
         blank=True,
         related_name="kanban_view_boards",
-        help_text="Kanban groups that have read-only access to this board.",
+        help_text = _("Kanban groups that have read-only access to this board."),
     )
     write_groups = models.ManyToManyField(
         KanbanGroup,
         blank=True,
         related_name="kanban_write_boards",
-        help_text="Kanban groups that have write/mutation access to this board.",
+        help_text = _("Kanban groups that have write/mutation access to this board."),
     )
 
     created_by = models.ForeignKey(
@@ -172,8 +173,8 @@ class Board(models.Model):
     objects = BoardQuerySet.as_manager()
 
     class Meta:
-        verbose_name = "Board"
-        verbose_name_plural = "Boards"
+        verbose_name = _("Board")
+        verbose_name_plural = _("Boards")
         ordering = ["name"]
 
     def __str__(self) -> str:
@@ -244,18 +245,18 @@ class List(models.Model):
     )
     name = models.CharField(max_length=100)
     description = models.TextField(
-        blank=True, default="", help_text="Optional context for this column"
+        blank=True, default="", help_text = _("Optional context for this column")
     )
     wip_limit = models.PositiveIntegerField(
-        default=0, help_text="Maximum cards (0 for unlimited)"
+        default=0, help_text = _("Maximum cards (0 for unlimited)")
     )
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "List"
-        verbose_name_plural = "Lists"
+        verbose_name = _("List")
+        verbose_name_plural = _("Lists")
         ordering = ["order", "id"]
 
     def __str__(self) -> str:
@@ -276,8 +277,8 @@ class Label(models.Model):
     )
 
     class Meta:
-        verbose_name = "Label"
-        verbose_name_plural = "Labels"
+        verbose_name = _("Label")
+        verbose_name_plural = _("Labels")
         ordering = ["name"]
 
     def __str__(self) -> str:
@@ -312,7 +313,7 @@ class Card(models.Model):
         choices=COLOR_CHOICES,
         default="",
         blank=True,
-        help_text="Background color of the card",
+        help_text = _("Background color of the card"),
     )
 
     assignees = models.ManyToManyField(
@@ -331,12 +332,12 @@ class Card(models.Model):
         null=True,
         blank=True,
         related_name="assigned_tickets",
-        help_text="Target team for this ticket",
+        help_text = _("Target team for this ticket"),
     )
     discord_thread_id = models.BigIntegerField(
         null=True,
         blank=True,
-        help_text="ID of the associated Discord Thread",
+        help_text = _("ID of the associated Discord Thread"),
     )
 
     due_date = models.DateTimeField(null=True, blank=True)
@@ -351,8 +352,8 @@ class Card(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Card"
-        verbose_name_plural = "Cards"
+        verbose_name = _("Card")
+        verbose_name_plural = _("Cards")
         ordering = ["order", "id"]
 
     def __str__(self) -> str:
@@ -376,8 +377,8 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Comment"
-        verbose_name_plural = "Comments"
+        verbose_name = _("Comment")
+        verbose_name_plural = _("Comments")
         ordering = ["created_at"]
 
     def __str__(self) -> str:

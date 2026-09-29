@@ -2,6 +2,7 @@ import logging
 
 from asgiref.sync import sync_to_async
 from celery import shared_task
+from django.utils.translation import gettext as _
 
 from .models import Card
 
@@ -48,14 +49,14 @@ async def _create_discord_thread(bot, card_id: int):
 
         assigned_team_msg = ""
         if card.assigned_team:
-            assigned_team_msg = f"**Assigned Team:** {card.assigned_team.name}"
+            assigned_team_msg = _("**Assigned Team:** {team_name}").format(team_name=card.assigned_team.name)
             if card.assigned_team.discord_role_id:
                 assigned_team_msg += f" <@&{card.assigned_team.discord_role_id}>"
-        thread_name = f"Ticket #{card.id}: {card.title[:80]}"
-        message_content = "🎫 **New Ticket Submitted** 🎫\n"
-        message_content += f"**Title:** {card.title}\n"
+        thread_name = _("Ticket #{card_id}: {card_title}").format(card_id=card.id, card_title=card.title[:80])
+        message_content = _("🎫 **New Ticket Submitted** 🎫\n")
+        message_content += _("**Title:** {card_title}\n").format(card_title=card.title)
         message_content += (
-            f"**Reporter:** {card.created_by.username} {' '.join(mentions)}\n"
+            _("**Reporter:** {username} {mentions}\n").format(username=card.created_by.username, mentions=' '.join(mentions))
         )
         if assigned_team_msg:
             message_content += f"{assigned_team_msg}\n"

@@ -1,6 +1,7 @@
 """API and AJAX views for aa_kanban."""
 
 import json
+from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
@@ -37,33 +38,31 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
             target_list_id_raw = body_data.get("target_list_id")
             new_position_raw = body_data.get("new_position")
         except (json.JSONDecodeError, UnicodeDecodeError):
-            return HttpResponseBadRequest("Invalid JSON body.")
+            return HttpResponseBadRequest(_("Invalid JSON body."))
     else:
         target_list_id_raw = request.POST.get("target_list_id")
         new_position_raw = request.POST.get("new_position")
 
     if target_list_id_raw is None or new_position_raw is None:
-        return HttpResponseBadRequest("Missing target_list_id or new_position.")
+        return HttpResponseBadRequest(_("Missing target_list_id or new_position."))
 
     try:
         target_list_id = int(target_list_id_raw)
         new_position = int(new_position_raw)
     except (ValueError, TypeError):
-        return HttpResponseBadRequest(
-            "target_list_id and new_position must be integers."
-        )
+        return HttpResponseBadRequest(_("target_list_id and new_position must be integers."))
 
     target_list = get_object_or_404(List, pk=target_list_id)
 
     # Validate that both lists belong to the exact same board
     if target_list.board_id != board.id:
-        return HttpResponseBadRequest("Target list does not belong to the same board.")
+        return HttpResponseBadRequest(_("Target list does not belong to the same board."))
 
     source_list = card.list
 
     if source_list.id != target_list.id and target_list.wip_limit > 0:
         if target_list.cards.count() >= target_list.wip_limit:
-            return HttpResponseBadRequest("Target list has reached its WIP limit.")
+            return HttpResponseBadRequest(_("Target list has reached its WIP limit."))
 
     with transaction.atomic():
         target_cards = list(
@@ -98,7 +97,7 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
         url = request.build_absolute_uri(
             redirect("aa_kanban:board_detail", board_slug=board.slug).url
         )
-        msg = f"Card moved: **{card.title}** was moved from `{source_list.name}` to `{target_list.name}`.\n[Bekijk Bord]({url})"
+        msg = _("Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[Bekijk Bord]({url})").format(card_title=card.title, source_list_name=source_list.name, target_list_name=target_list.name, url=url)
         send_discord_webhook(board.discord_webhook_cards, msg)
 
     return JsonResponse(
@@ -168,7 +167,7 @@ def add_comment(request: HttpRequest, card_id: int) -> HttpResponse:
 
     comment_text = request.POST.get("comment", "").strip()
     if not comment_text:
-        return HttpResponseBadRequest("Comment text cannot be empty.")
+        return HttpResponseBadRequest(_("Comment text cannot be empty."))
 
     Comment.objects.create(
         card=card, author=request.user, text=comment_text  # type: ignore[misc]
@@ -199,12 +198,12 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
 
     user_id_raw = request.POST.get("user_id")
     if not user_id_raw:
-        return HttpResponseBadRequest("Missing user_id.")
+        return HttpResponseBadRequest(_("Missing user_id."))
 
     try:
         user_id = int(user_id_raw)
     except (ValueError, TypeError):
-        return HttpResponseBadRequest("user_id must be an integer.")
+        return HttpResponseBadRequest(_("user_id must be an integer."))
 
     target_user = get_object_or_404(User, pk=user_id)
 
@@ -213,7 +212,7 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
         try:
             from aadiscordbot.tasks import send_direct_message_by_user_id
 
-            msg = f"You have been removed from the card: **{card.title}** on board **{board.name}**."
+            msg = _("You have been removed from the card: **{card_title}** on board **{board_name}**.").format(card_title=card.title, board_name=board.name)
             send_direct_message_by_user_id.delay(target_user.pk, msg)
         except ImportError:
             pass
@@ -222,7 +221,7 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
         try:
             from aadiscordbot.tasks import send_direct_message_by_user_id
 
-            msg = f"You have been assigned to the card: **{card.title}** on board **{board.name}**."
+            msg = _("You have been assigned to the card: **{card_title}** on board **{board_name}**.").format(card_title=card.title, board_name=board.name)
             send_direct_message_by_user_id.delay(target_user.pk, msg)
         except ImportError:
             pass
@@ -290,7 +289,7 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
         )
         return HttpResponse(html_partial + oob_partial)
 
-    return HttpResponseBadRequest("No valid fields to update.")
+    return HttpResponseBadRequest(_("No valid fields to update."))
 
 
 @login_required
@@ -361,7 +360,7 @@ def create_list(request: HttpRequest, board_slug: str) -> HttpResponse:
 
     name = request.POST.get("name", "").strip()
     if not name:
-        return HttpResponseBadRequest("Column name cannot be empty.")
+        return HttpResponseBadRequest(_("Column name cannot be empty."))
 
     last_order = board.lists.order_by("-order").values_list("order", flat=True).first()
     order = (last_order or 0) + 1
@@ -400,7 +399,7 @@ def edit_list(request: HttpRequest, list_id: int) -> HttpResponse:
             wip_limit = 0
 
         if not name:
-            return HttpResponseBadRequest("Column name cannot be empty.")
+            return HttpResponseBadRequest(_("Column name cannot be empty."))
 
         kanban_list.name = name
         kanban_list.description = description
@@ -448,7 +447,7 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
 
     title = request.POST.get("title", "").strip()
     if not title:
-        return HttpResponseBadRequest("Card title cannot be empty.")
+        return HttpResponseBadRequest(_("Card title cannot be empty."))
 
     last_order = (
         kanban_list.cards.order_by("-order").values_list("order", flat=True).first()
@@ -469,7 +468,7 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
         url = request.build_absolute_uri(
             redirect("aa_kanban:board_detail", board_slug=kanban_list.board.slug).url
         )
-        msg = f"**Nieuwe Card Aangemaakt!**\nTitel: `{card.title}`\nAangemaakt door: `{request.user.username}`\nLijst: `{kanban_list.name}`\n[Bekijk Bord]({url})"
+        msg = _("**Nieuwe Card Aangemaakt!**\nTitel: `{card_title}`\nAangemaakt door: `{username}`\nLijst: `{list_name}`\n[Bekijk Bord]({url})").format(card_title=card.title, username=request.user.username, list_name=kanban_list.name, url=url)
         send_discord_webhook(kanban_list.board.discord_webhook_cards, msg)
 
     return render(
@@ -496,12 +495,12 @@ def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
 
     label_id_raw = request.POST.get("label_id")
     if not label_id_raw:
-        return HttpResponseBadRequest("Missing label_id.")
+        return HttpResponseBadRequest(_("Missing label_id."))
 
     try:
         label_id = int(label_id_raw)
     except (ValueError, TypeError):
-        return HttpResponseBadRequest("label_id must be an integer.")
+        return HttpResponseBadRequest(_("label_id must be an integer."))
 
     target_label = get_object_or_404(Label, pk=label_id)
 
