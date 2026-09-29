@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-09-29
+
+### Fixed
+- **Discord Integration**: Fixed an issue where the Celery worker would silently fail to queue the Discord thread creation if the default Celery queue was used instead of the `aadiscordbot` queue.
+- **Discord Integration**: Fixed an issue where thread creation would silently fail if the Discord channel was not cached by the bot by adding an API fetch fallback.
+- **Ticket Submission**: Fixed a bug where a new ticket card could be placed in the wrong column due to a case-sensitive search for the default "Backlog" column name.
+
 ## [0.10.0] - 2026-09-29
 
 ### Added
