@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.11.3] - 2026-10-02
+
+### Fixed
+
+- **Discord Notifications**: Fixed an issue where Discord DM notifications for card assignments were failing silently (or causing serialization errors in Celery) because the lazy translation Promise objects were not cast to strings before dispatch.
+- **Chore**: Updated `.gitignore` to exclude standard build, testing, and temporary cache directories.
+
 ## [0.11.2] - 2026-09-29
 
 ### Added
