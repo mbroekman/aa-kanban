@@ -226,7 +226,7 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
             msg = _(
                 "You have been removed from the card: **{card_title}** on board **{board_name}**."
             ).format(card_title=card.title, board_name=board.name)
-            send_direct_message_by_user_id.delay(target_user.pk, msg)
+            send_direct_message_by_user_id.delay(target_user.pk, str(msg))
         except ImportError:
             pass
     else:
@@ -237,7 +237,7 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
             msg = _(
                 "You have been assigned to the card: **{card_title}** on board **{board_name}**."
             ).format(card_title=card.title, board_name=board.name)
-            send_direct_message_by_user_id.delay(target_user.pk, msg)
+            send_direct_message_by_user_id.delay(target_user.pk, str(msg))
         except ImportError:
             pass
 
