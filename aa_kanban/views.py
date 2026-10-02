@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Count, Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext_lazy as _
 
 from .models import Board, Card, KanbanGroup, List
 from .permissions import board_view_required
@@ -102,7 +103,7 @@ def create_board(request: HttpRequest) -> HttpResponse:
         if not name:
             context = {
                 "all_groups": all_groups,
-                "error": "Board naam is verplicht.",
+                "error": _("Board name is required."),
                 "form_data": request.POST,
             }
             return render(request, "aa_kanban/partials/create_board_form.html", context)
@@ -176,7 +177,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
             context = {
                 "board": board,
                 "all_groups": all_groups,
-                "error": "Board naam is verplicht.",
+                "error": _("Board name is required."),
                 "form_data": request.POST,
             }
             return render(request, "aa_kanban/partials/edit_board_form.html", context)
@@ -288,7 +289,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
     if not ticket_boards.exists():
         # If no ticket board is configured, show an error message
         context = {
-            "error": "Ticket system is currently unavailable. No ticket boards are configured."
+            "error": _("Ticket system is currently unavailable. No ticket boards are configured.")
         }
         return render(request, "aa_kanban/ticket_form.html", context)
 
@@ -306,7 +307,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "boards": ticket_boards,
                 "labels": labels,
                 "teams": teams,
-                "error": "Titel is verplicht.",
+                "error": _("Title is required."),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
 
@@ -317,7 +318,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "boards": ticket_boards,
                 "labels": labels,
                 "teams": teams,
-                "error": "Ongeldig team geselecteerd.",
+                "error": _("Invalid team selected."),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
 
@@ -327,7 +328,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "boards": ticket_boards,
                 "labels": labels,
                 "teams": teams,
-                "error": "Het geselecteerde team heeft geen geldig ticket board geconfigureerd.",
+                "error": _("The selected team does not have a valid ticket board configured."),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
 
@@ -340,7 +341,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "boards": ticket_boards,
                 "labels": labels,
                 "teams": teams,
-                "error": "Geen kolommen beschikbaar op het ticket board.",
+                "error": _("No columns available on the ticket board."),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
 

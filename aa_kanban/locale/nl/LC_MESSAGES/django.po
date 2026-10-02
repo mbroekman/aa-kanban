@@ -952,3 +952,21 @@ msgstr "Ontbrekende label_id."
 #: views_api.py:503
 msgid "label_id must be an integer."
 msgstr "label_id moet een integer zijn."
+
+msgid "Board name is required."
+msgstr "Board naam is verplicht."
+
+msgid "Ticket system is currently unavailable. No ticket boards are configured."
+msgstr "Ticket systeem is momenteel niet beschikbaar. Er zijn geen ticket boards geconfigureerd."
+
+msgid "Title is required."
+msgstr "Titel is verplicht."
+
+msgid "Invalid team selected."
+msgstr "Ongeldig team geselecteerd."
+
+msgid "The selected team does not have a valid ticket board configured."
+msgstr "Het geselecteerde team heeft geen geldig ticket board geconfigureerd."
+
+msgid "No columns available on the ticket board."
+msgstr "Geen kolommen beschikbaar op het ticket board."
