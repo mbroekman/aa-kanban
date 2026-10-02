@@ -20,14 +20,14 @@
 
                     <div class="mb-3">
                         <label for="title" class="form-label fw-bold">{% trans "Subject" %} <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="title" name="title" required placeholder="{% trans 'Brief description of the issue...' %}">
+                        <input type="text" class="form-control" id="title" name="title" required placeholder="{% trans 'Brief description of the issue...' %}" value="{{ title|default:"" }}">
                     </div>
                     <div class="mb-3">
                         <label for="label" class="form-label fw-bold">{% trans "Ticket Type (Label)" %}</label>
                         <select class="form-select" id="label" name="label">
                             <option value="">{% trans "-- Select Type --" %}</option>
                             {% for label in labels %}
-                                <option value="{{ label.id }}">{{ label.name }}</option>
+                                <option value="{{ label.id }}" {% if label_id == label.id %}selected{% endif %}>{{ label.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -36,14 +36,14 @@
                         <select class="form-select" id="assigned_team" name="assigned_team" required>
                             <option value="">{% trans "-- Select Team --" %}</option>
                             {% for team in teams %}
-                                <option value="{{ team.id }}">{{ team.name }}</option>
+                                <option value="{{ team.id }}" {% if assigned_team_id == team.id %}selected{% endif %}>{{ team.name }}</option>
                             {% endfor %}
                         </select>
                         <div class="form-text">{% trans "Select the specific department or team this issue should be routed to." %}</div>
                     </div>
                     <div class="mb-4">
                         <label for="description" class="form-label fw-bold">{% trans "Description" %}</label>
-                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="{% trans 'Provide more details...' %}"></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="{% trans 'Provide more details...' %}">{{ description|default:"" }}</textarea>
                     </div>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <a href="{% url 'aa_kanban:index' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.11.4] - 2026-10-02
+
+### Fixed
+
+- **Ticket Submission**: Fixed a bug where regular users would see an empty dialog when creating a ticket because they could inadvertently select a team without a ticket board. The dropdown now only shows valid teams.
+- **Ticket Submission**: Improved the ticket form to preserve user inputs (title, description) when a validation error occurs.
+
 ## [0.11.3] - 2026-10-02
 
 ### Fixed
