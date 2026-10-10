@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.12.0] - 2026-10-10
 
 ### Added
 
@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file.
   - Label additions and removals (`toggle_label`).
   - Team assignments, role mentions, and auto-inviting new team members to the thread (`update_card_team`).
 - **Auth Groups for KanbanTeam & Thread Auto-Invite**: Teams (`KanbanTeam`) now support linking Django Auth Groups (`Group`) alongside individual members via frontend settings (`team_users_modal`). Auto-invite to Discord ticket threads (both on creation and team reassignment) automatically invites all members from both direct assignments and linked Auth Groups.
+- **Team Settings Modal**: Converted `edit_team_modal.html` into a full Bootstrap 5 modal dialog with global `closeModal` event handling for seamless HTMX closes.
+- **Agent Guidelines**: Aligned `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` and `.cursorrules` with the central workspace standards.
 
 ## [0.11.4] - 2026-10-02
 

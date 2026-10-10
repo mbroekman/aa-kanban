@@ -66,3 +66,14 @@ You can customize the application by adding the following settings to your `loca
 # Change the name of the app in the Alliance Auth sidebar menu (default: "Kanban")
 AA_KANBAN_APP_NAME = "Ticket System" 
 ```
+
+## Periodic Tasks (Celery Beat)
+
+To enable automatic hourly alerts for stale/inactive cards on boards that have `stale_card_alert_hours` configured, add the following task to your `local.py`:
+
+```python
+CELERYBEAT_SCHEDULE["aa_kanban_check_stale_cards"] = {
+    "task": "aa_kanban.tasks.check_stale_cards",
+    "schedule": crontab(minute="0", hour="*"),
+}
+```
