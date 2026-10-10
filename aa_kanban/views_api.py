@@ -93,23 +93,36 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
                     c.order = idx
                     c.save(update_fields=["order"])
 
-    if source_list.id != target_list.id and board.discord_webhook_cards:
-        from django.shortcuts import redirect
+    if source_list.id != target_list.id:
+        if card.discord_thread_id:
+            from aa_kanban.tasks import notify_ticket_thread
 
-        from aa_kanban.utils import send_discord_webhook
+            thread_msg = _(
+                "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}` by **{username}**."
+            ).format(
+                source_list_name=source_list.name,
+                target_list_name=target_list.name,
+                username=request.user.username,
+            )
+            notify_ticket_thread.delay(card.discord_thread_id, str(thread_msg))
 
-        url = request.build_absolute_uri(
-            redirect("aa_kanban:board_detail", board_slug=board.slug).url
-        )
-        msg = _(
-            "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[Bekijk Bord]({url})"
-        ).format(
-            card_title=card.title,
-            source_list_name=source_list.name,
-            target_list_name=target_list.name,
-            url=url,
-        )
-        send_discord_webhook(board.discord_webhook_cards, msg)
+        if board.discord_webhook_cards:
+            from django.shortcuts import redirect
+
+            from aa_kanban.utils import send_discord_webhook
+
+            url = request.build_absolute_uri(
+                redirect("aa_kanban:board_detail", board_slug=board.slug).url
+            )
+            msg = _(
+                "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[Bekijk Bord]({url})"
+            ).format(
+                card_title=card.title,
+                source_list_name=source_list.name,
+                target_list_name=target_list.name,
+                url=url,
+            )
+            send_discord_webhook(board.discord_webhook_cards, msg)
 
     return JsonResponse(
         {
@@ -528,8 +541,29 @@ def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
 
     if card.labels.filter(pk=target_label.pk).exists():
         card.labels.remove(target_label)
+        is_added = False
     else:
         card.labels.add(target_label)
+        is_added = True
+
+    if card.discord_thread_id:
+        from aa_kanban.tasks import notify_ticket_thread
+
+        if is_added:
+            label_msg = _(
+                "🏷️ **Label Added:** `{label_name}` by **{username}**."
+            ).format(
+                label_name=target_label.name,
+                username=request.user.username,
+            )
+        else:
+            label_msg = _(
+                "🏷️ **Label Removed:** `{label_name}` by **{username}**."
+            ).format(
+                label_name=target_label.name,
+                username=request.user.username,
+            )
+        notify_ticket_thread.delay(card.discord_thread_id, str(label_msg))
 
     available_labels = list(
         Label.objects.exclude(pk__in=card.labels.values_list("pk", flat=True)).order_by(
@@ -575,6 +609,31 @@ def update_card_team(request: HttpRequest, card_id: int) -> HttpResponse:
     else:
         card.assigned_team = None
     card.save(update_fields=["assigned_team", "updated_at"])
+
+    if card.discord_thread_id:
+        from aa_kanban.tasks import notify_ticket_thread
+
+        if card.assigned_team:
+            team_role_mention = ""
+            if card.assigned_team.discord_role_id:
+                team_role_mention = f" <@&{card.assigned_team.discord_role_id}>"
+            team_msg = _(
+                "👥 **Team Update:** Assigned to **{team_name}**{role_mention} by **{username}**."
+            ).format(
+                team_name=card.assigned_team.name,
+                role_mention=team_role_mention,
+                username=request.user.username,
+            )
+            notify_ticket_thread.delay(
+                card.discord_thread_id,
+                str(team_msg),
+                team_id=card.assigned_team.id,
+            )
+        else:
+            team_msg = _(
+                "👥 **Team Update:** Team unassigned by **{username}**."
+            ).format(username=request.user.username)
+            notify_ticket_thread.delay(card.discord_thread_id, str(team_msg))
 
     from django.template.loader import render_to_string
 

@@ -168,4 +168,14 @@ urlpatterns = [
         views_settings.remove_user_from_team,
         name="remove_user_from_team",
     ),
+    path(
+        "settings/teams/<int:team_id>/authgroups/add/",
+        views_settings.add_authgroup_to_team,
+        name="add_authgroup_to_team",
+    ),
+    path(
+        "settings/teams/<int:team_id>/authgroups/<int:authgroup_id>/remove/",
+        views_settings.remove_authgroup_from_team,
+        name="remove_authgroup_from_team",
+    ),
 ]

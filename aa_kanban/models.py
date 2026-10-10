@@ -73,6 +73,12 @@ class KanbanTeam(models.Model):
         related_name="kanban_ticket_teams",
         help_text=_("Members of this team."),
     )
+    groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="kanban_ticket_teams",
+        help_text=_("Auth groups that belong to this team."),
+    )
     discord_role_id = models.BigIntegerField(
         blank=True,
         null=True,
@@ -88,6 +94,16 @@ class KanbanTeam(models.Model):
         related_name="teams",
         help_text=_("The Kanban board where tickets for this team will be created."),
     )
+
+    def get_all_members(self):
+        """Get all distinct users who are either direct members or belong to linked auth groups."""
+        return (
+            User.objects.filter(
+                models.Q(pk__in=self.members.values_list("pk", flat=True))
+                | models.Q(groups__in=self.groups.all())
+            )
+            .distinct()
+        )
 
     class Meta:
         verbose_name = _("Kanban Team")
@@ -146,6 +162,26 @@ class Board(models.Model):
         null=True,
         help_text=_(
             "Discord Channel ID where ticket threads will be created for this board."
+        ),
+    )
+    discord_alert_channel_id = models.BigIntegerField(
+        blank=True,
+        null=True,
+        help_text=_(
+            "Discord Channel ID for stale card alerts. If blank, falls back to ticket channel."
+        ),
+    )
+    discord_alert_webhook = models.URLField(
+        blank=True,
+        null=True,
+        help_text=_(
+            "Discord Webhook URL for stale card alerts. If blank, falls back to card movement webhook."
+        ),
+    )
+    stale_card_alert_hours = models.PositiveIntegerField(
+        default=0,
+        help_text=_(
+            "Hours of inactivity after which cards trigger an alert (0 to disable)."
         ),
     )
     is_ticket_board = models.BooleanField(
@@ -239,6 +275,43 @@ class Board(models.Model):
         user_group_ids = set(user_kanban_groups)
         write_group_ids = set(self.write_groups.values_list("id", flat=True))
         return bool(user_group_ids & write_group_ids)
+
+    def get_stale_cards(self):
+        """Return cards on this board that have been inactive longer than stale_card_alert_hours.
+
+        Excludes cards in finished/completed columns (e.g. 'Done', 'Afgerond').
+        Considers both card updates and comment timestamps for activity.
+        """
+        if not self.stale_card_alert_hours or self.stale_card_alert_hours <= 0:
+            return Card.objects.none()
+
+        from datetime import timedelta
+
+        from django.db.models import Max, Q
+        from django.utils import timezone
+
+        cutoff = timezone.now() - timedelta(hours=self.stale_card_alert_hours)
+        done_keywords = ["done", "afgerond", "completed", "closed", "gesloten"]
+        done_q = Q()
+        for kw in done_keywords:
+            done_q |= Q(list__name__icontains=kw)
+
+        return (
+            Card.objects.filter(list__board=self)
+            .exclude(done_q)
+            .annotate(last_comment_time=Max("comments__created_at"))
+            .filter(
+                Q(last_comment_time__isnull=True, updated_at__lt=cutoff)
+                | Q(
+                    last_comment_time__isnull=False,
+                    last_comment_time__lt=cutoff,
+                    updated_at__lt=cutoff,
+                )
+            )
+            .select_related("list", "created_by")
+            .prefetch_related("assignees")
+            .order_by("updated_at")
+        )
 
 
 class List(models.Model):

@@ -37,30 +37,90 @@
                       rows="2">{{ form_data.description|default:board.description }}</textarea>
         </div>
 
-        <div class="mb-3">
-            <label for="edit-board-discord-ticket-channel" class="form-label fw-semibold">
-                <i class="fab fa-discord me-1 text-primary"></i>{% trans "Discord Ticket Channel ID" %}
-            </label>
-            <input type="text"
-                   id="edit-board-discord-ticket-channel"
-                   name="discord_ticket_channel_id"
-                   class="form-control"
-                   placeholder="{% trans 'Optional Discord Channel ID for tickets...' %}"
-                   value="{{ form_data.discord_ticket_channel_id|default:board.discord_ticket_channel_id|default_if_none:'' }}">
-            <div class="form-text">{% trans "If set, tickets for this board will create Discord threads in this channel." %}</div>
-        </div>
+        <div class="card mb-3 border-secondary">
+            <div class="card-header py-2 fw-semibold">
+                <i class="fab fa-discord text-primary me-1"></i>{% trans "Discord & Alerting" %}
+            </div>
+            <div class="card-body py-2">
+                <div class="mb-3">
+                    <label for="edit-board-stale-card-alert-hours" class="form-label fw-semibold">
+                        <i class="fas fa-hourglass-half me-1 text-warning"></i>{% trans "Stale Card Alert (hours)" %}
+                    </label>
+                    <input type="number"
+                           min="0"
+                           id="edit-board-stale-card-alert-hours"
+                           name="stale_card_alert_hours"
+                           class="form-control"
+                           placeholder="0"
+                           value="{{ form_data.stale_card_alert_hours|default:board.stale_card_alert_hours|default:0 }}">
+                    <div class="form-text">{% trans "Send a Discord notification when cards remain inactive for this many hours (0 to disable). 'Done'/'Afgerond' columns are excluded." %}</div>
+                </div>
 
-        <div class="mb-3 form-check">
-            <input class="form-check-input" type="checkbox" id="edit-board-is-ticket-board" name="is_ticket_board"
-                {% if form_data %}
-                    {% if form_data.is_ticket_board == 'on' %}checked{% endif %}
-                {% elif board.is_ticket_board %}
-                    checked
-                {% endif %}>
-            <label class="form-check-label fw-semibold" for="edit-board-is-ticket-board">
-                <i class="fas fa-ticket-alt me-1 text-warning"></i>{% trans "Ticket Board" %}
-            </label>
-            <div class="form-text">{% trans "Allow members to submit tickets to this board." %}</div>
+                <div class="mb-3">
+                    <label for="edit-board-discord-alert-channel" class="form-label fw-semibold">
+                        <i class="fab fa-discord me-1 text-info"></i>{% trans "Discord Alert Channel ID" %}
+                    </label>
+                    <input type="text"
+                           id="edit-board-discord-alert-channel"
+                           name="discord_alert_channel_id"
+                           class="form-control"
+                           placeholder="{% trans 'Optional Discord Channel ID for stale card alerts...' %}"
+                           value="{{ form_data.discord_alert_channel_id|default:board.discord_alert_channel_id|default_if_none:'' }}">
+                    <div class="form-text">{% trans "Discord Channel ID where stale card alerts will be posted by the bot. Falls back to Ticket Channel ID if blank." %}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="edit-board-discord-alert-webhook" class="form-label fw-semibold">
+                        <i class="fas fa-link me-1 text-info"></i>{% trans "Discord Alert Webhook URL" %}
+                    </label>
+                    <input type="url"
+                           id="edit-board-discord-alert-webhook"
+                           name="discord_alert_webhook"
+                           class="form-control"
+                           placeholder="https://discord.com/api/webhooks/..."
+                           value="{{ form_data.discord_alert_webhook|default:board.discord_alert_webhook|default_if_none:'' }}">
+                    <div class="form-text">{% trans "Discord Webhook URL for stale card alerts. Falls back to Card Movement Webhook if blank." %}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="edit-board-discord-webhook-cards" class="form-label fw-semibold">
+                        <i class="fas fa-exchange-alt me-1 text-secondary"></i>{% trans "Discord Card Movement Webhook URL" %}
+                    </label>
+                    <input type="url"
+                           id="edit-board-discord-webhook-cards"
+                           name="discord_webhook_cards"
+                           class="form-control"
+                           placeholder="https://discord.com/api/webhooks/..."
+                           value="{{ form_data.discord_webhook_cards|default:board.discord_webhook_cards|default_if_none:'' }}">
+                    <div class="form-text">{% trans "Webhook URL for notifications when cards are created or moved." %}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="edit-board-discord-ticket-channel" class="form-label fw-semibold">
+                        <i class="fas fa-ticket-alt me-1 text-primary"></i>{% trans "Discord Ticket Channel ID" %}
+                    </label>
+                    <input type="text"
+                           id="edit-board-discord-ticket-channel"
+                           name="discord_ticket_channel_id"
+                           class="form-control"
+                           placeholder="{% trans 'Optional Discord Channel ID for tickets...' %}"
+                           value="{{ form_data.discord_ticket_channel_id|default:board.discord_ticket_channel_id|default_if_none:'' }}">
+                    <div class="form-text">{% trans "If set, tickets for this board will create Discord threads in this channel." %}</div>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="edit-board-is-ticket-board" name="is_ticket_board"
+                        {% if form_data %}
+                            {% if form_data.is_ticket_board == 'on' %}checked{% endif %}
+                        {% elif board.is_ticket_board %}
+                            checked
+                        {% endif %}>
+                    <label class="form-check-label fw-semibold" for="edit-board-is-ticket-board">
+                        <i class="fas fa-ticket-alt me-1 text-warning"></i>{% trans "Ticket Board" %}
+                    </label>
+                    <div class="form-text">{% trans "Allow members to submit tickets to this board." %}</div>
+                </div>
+            </div>
         </div>
 
         <div class="mb-3">

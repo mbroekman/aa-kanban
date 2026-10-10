@@ -76,5 +76,16 @@
                 }
             }
         });
+
+        // Automatically close open Bootstrap modals on closeModal HTMX event
+        document.body.addEventListener('closeModal', function() {
+            const modals = document.querySelectorAll('.modal.show');
+            modals.forEach(function(modalEl) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) {
+                    modal.hide();
+                }
+            });
+        });
     </script>
 {% endblock %}

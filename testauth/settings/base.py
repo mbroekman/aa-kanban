@@ -79,6 +79,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "allianceauth.analytics.tasks.analytics_daily_stats",
         "schedule": crontab(minute="0", hour="2"),
     },
+    "aa_kanban_check_stale_cards": {
+        "task": "aa_kanban.tasks.check_stale_cards",
+        "schedule": crontab(minute="0", hour="*"),
+    },
 }
 
 

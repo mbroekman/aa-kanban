@@ -970,3 +970,65 @@ msgstr "Het geselecteerde team heeft geen geldig ticket board geconfigureerd."
 
 msgid "No columns available on the ticket board."
 msgstr "Geen kolommen beschikbaar op het ticket board."
+
+msgid "Discord & Alerting"
+msgstr "Discord & Signalering"
+
+msgid "Stale Card Alert (hours)"
+msgstr "Signalering stilstaande kaarten (uren)"
+
+msgid "Send a Discord notification when cards remain inactive for this many hours (0 to disable). 'Done'/'Afgerond' columns are excluded."
+msgstr "Stuur een Discord notificatie wanneer kaarten langer inactief blijven dan dit aantal uren (0 om uit te schakelen). 'Done'/'Afgerond' kolommen worden uitgesloten."
+
+msgid "Discord Alert Channel ID"
+msgstr "Discord Alert Kanaal ID"
+
+msgid "Optional Discord Channel ID for stale card alerts..."
+msgstr "Optioneel Discord Kanaal ID voor stilstand-signaleringen..."
+
+msgid "Discord Channel ID where stale card alerts will be posted by the bot. Falls back to Ticket Channel ID if blank."
+msgstr "Discord Kanaal ID waar stilstand-signaleringen worden geplaatst door de bot. Valt terug op Ticket Kanaal ID indien leeg."
+
+msgid "Discord Alert Webhook URL"
+msgstr "Discord Alert Webhook URL"
+
+msgid "Discord Webhook URL for stale card alerts. Falls back to Card Movement Webhook if blank."
+msgstr "Discord Webhook URL voor stilstand-signaleringen. Valt terug op Card Movement Webhook indien leeg."
+
+msgid "Discord Card Movement Webhook URL"
+msgstr "Discord Card Movement Webhook URL"
+
+msgid "Webhook URL for notifications when cards are created or moved."
+msgstr "Webhook URL voor notificaties wanneer kaarten worden aangemaakt of verplaatst."
+
+msgid "Hours of inactivity after which cards trigger an alert (0 to disable)."
+msgstr "Aantal uren inactiviteit waarna kaarten een signalering triggeren (0 om uit te schakelen)."
+
+msgid "Discord Channel ID for stale card alerts. If blank, falls back to ticket channel."
+msgstr "Discord Kanaal ID voor signaleringen van stilstaande kaarten. Valt terug op het ticketkanaal indien leeg."
+
+msgid "Discord Webhook URL for stale card alerts. If blank, falls back to card movement webhook."
+msgstr "Discord Webhook URL voor signaleringen van stilstaande kaarten. Valt terug op de card movement webhook indien leeg."
+
+msgid "Niet toegewezen"
+msgstr "Niet toegewezen"
+
+msgid "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}` by **{username}**."
+msgstr "🔄 **Status Update:** Card verplaatst van `{source_list_name}` naar `{target_list_name}` door **{username}**."
+
+msgid "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}`."
+msgstr "🔄 **Status Update:** Card verplaatst van `{source_list_name}` naar `{target_list_name}`."
+
+msgid "🏷️ **Label Added:** `{label_name}` by **{username}**."
+msgstr "🏷️ **Label Toegevoegd:** `{label_name}` door **{username}**."
+
+msgid "🏷️ **Label Removed:** `{label_name}` by **{username}**."
+msgstr "🏷️ **Label Verwijderd:** `{label_name}` door **{username}**."
+
+msgid "👥 **Team Update:** Assigned to **{team_name}**{role_mention} by **{username}**."
+msgstr "👥 **Team Update:** Toegewezen aan **{team_name}**{role_mention} door **{username}**."
+
+msgid "👥 **Team Update:** Team unassigned by **{username}**."
+msgstr "👥 **Team Update:** Team toewijzing verwijderd door **{username}**."
+
+

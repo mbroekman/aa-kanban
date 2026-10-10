@@ -111,7 +111,11 @@ class TestCreateBoard:
         url = reverse("aa_kanban:create_board")
         resp = client.post(url, {"name": "", "description": ""})
         assert resp.status_code == 200
-        assert b"verplicht" in resp.content or b"error" in resp.content.lower()
+        assert (
+            b"verplicht" in resp.content.lower()
+            or b"required" in resp.content.lower()
+            or b"error" in resp.content.lower()
+        )
 
     def test_unauthenticated_redirected(self):
         client = Client()

@@ -99,6 +99,36 @@ def move_kanban_card(card_id: int, target_column_name: str) -> Card:
             f"Target column '{target_column_name}' does not exist on this board."
         )
 
-    card.list = target_list
-    card.save(update_fields=["list", "updated_at"])
+    old_list_name = card.list.name
+    if card.list_id != target_list.id:
+        card.list = target_list
+        card.save(update_fields=["list", "updated_at"])
+
+        if card.discord_thread_id:
+            from django.utils.translation import gettext as _
+
+            from aa_kanban.tasks import notify_ticket_thread
+
+            thread_msg = _(
+                "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}`."
+            ).format(
+                source_list_name=old_list_name,
+                target_list_name=target_list.name,
+            )
+            notify_ticket_thread.delay(card.discord_thread_id, str(thread_msg))
+
+        if board.discord_webhook_cards:
+            from django.utils.translation import gettext as _
+
+            from aa_kanban.utils import send_discord_webhook
+
+            msg = _(
+                "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`."
+            ).format(
+                card_title=card.title,
+                source_list_name=old_list_name,
+                target_list_name=target_list.name,
+            )
+            send_discord_webhook(board.discord_webhook_cards, msg)
+
     return card

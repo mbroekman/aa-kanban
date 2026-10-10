@@ -22,30 +22,45 @@
                         {% endif %}
                     </td>
                     <td>
-                        <span class="badge bg-info text-dark rounded-pill">{{ team.members.count }}</span>
+                        <span class="badge bg-info text-dark rounded-pill" title="{% trans 'Individual Users' %}">
+                            <i class="fas fa-user me-1"></i>{{ team.members.count }}
+                        </span>
+                        {% if team.groups.count %}
+                            <span class="badge bg-secondary rounded-pill ms-1" title="{% trans 'Auth Groups' %}">
+                                <i class="fas fa-users-cog me-1"></i>{{ team.groups.count }}
+                            </span>
+                        {% endif %}
                     </td>
-                    <td class="text-end">
-                        <button type="button" class="btn btn-sm btn-outline-primary me-1"
-                                hx-get="{% url 'aa_kanban:team_users_modal' team.id %}"
-                                hx-target="#teamUsersModalBody"
-                                data-bs-toggle="modal" data-bs-target="#teamUsersModal">
-                            <i class="fas fa-users"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary me-1"
+                    <td class="text-end text-nowrap">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary me-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#teamUsersModal"
                                 hx-get="{% url 'aa_kanban:edit_kanban_team' team.id %}"
-                                hx-target="#team-{{ team.id }}-edit-row"
-                                hx-swap="outerHTML">
+                                hx-target="#teamUsersModalBody"
+                                title="{% trans 'Edit Team Settings' %}">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger"
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary me-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#teamUsersModal"
+                                hx-get="{% url 'aa_kanban:team_users_modal' team.id %}"
+                                hx-target="#teamUsersModalBody"
+                                title="{% trans 'Manage Members & Groups' %}">
+                            <i class="fas fa-users"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
                                 hx-post="{% url 'aa_kanban:delete_kanban_team' team.id %}"
                                 hx-target="#team-list-container"
-                                hx-confirm="{% trans 'Are you sure you want to delete this team? Tickets assigned to it will lose their team assignment.' %}">
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                hx-confirm="{% trans 'Are you sure you want to delete this team? Tickets assigned to it will lose their team assignment.' %}"
+                                title="{% trans 'Delete Team' %}">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
                 </tr>
-                <tr id="team-{{ team.id }}-edit-row" style="display: none;"></tr>
                 {% endfor %}
             </tbody>
         </table>

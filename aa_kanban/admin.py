@@ -23,7 +23,14 @@ from .models import (
 class BoardAdmin(admin.ModelAdmin):
     """Read-only board overview, except for technical webhook settings."""
 
-    list_display = ("name", "slug", "created_by", "created_at", "updated_at")
+    list_display = (
+        "name",
+        "slug",
+        "stale_card_alert_hours",
+        "created_by",
+        "created_at",
+        "updated_at",
+    )
     search_fields = ("name", "description")
     readonly_fields = (
         "name",
@@ -155,4 +162,4 @@ class KanbanTeamAdmin(admin.ModelAdmin):
 
     list_display = ("name", "discord_role_id")
     search_fields = ("name",)
-    filter_horizontal = ("members",)
+    filter_horizontal = ("members", "groups")

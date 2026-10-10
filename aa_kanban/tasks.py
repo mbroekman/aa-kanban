@@ -4,9 +4,150 @@ from asgiref.sync import sync_to_async
 from celery import shared_task
 from django.utils.translation import gettext as _
 
-from .models import Card
+from .models import Board, Card
 
 logger = logging.getLogger(__name__)
+
+
+async def _send_stale_cards_discord(bot, channel_id: int, message_content: str):
+    """Async task run inside aadiscordbot to send stale card alerts to a Discord channel."""
+    try:
+        channel = bot.get_channel(channel_id)
+        if not channel:
+            try:
+                channel = await bot.fetch_channel(channel_id)
+            except Exception as e:
+                logger.error(
+                    f"Discord channel with ID {channel_id} not found by bot: {e}"
+                )
+                return
+
+        # Discord message limit is 2000 chars
+        if len(message_content) <= 1900:
+            await channel.send(content=message_content)
+        else:
+            chunks = [
+                message_content[i : i + 1800]
+                for i in range(0, len(message_content), 1800)
+            ]
+            for chunk in chunks:
+                await channel.send(content=chunk)
+
+        logger.info(
+            f"Sent stale cards notification to Discord channel {channel_id}"
+        )
+    except Exception as e:
+        logger.exception(f"Error in _send_stale_cards_discord: {e}")
+
+
+def format_stale_cards_message(board, stale_cards) -> str:
+    """Format a Discord message summarizing stale cards on a board."""
+    from django.conf import settings
+    from django.urls import reverse
+    from django.utils import timezone
+
+    count = len(stale_cards)
+    site_url = getattr(settings, "SITE_URL", "").rstrip("/")
+    try:
+        board_path = reverse(
+            "aa_kanban:board_detail", kwargs={"board_slug": board.slug}
+        )
+    except Exception:
+        board_path = f"/kanban/board/{board.slug}/"
+    board_url = f"{site_url}{board_path}" if site_url else board_path
+
+    now = timezone.now()
+    header = _(
+        "⚠️ **Kanban Signalering: Stilstaande Cards op '{board_name}'** ⚠️\n"
+        "Er zijn **{count}** card(s) die langer dan **{hours}** uur stil staan:\n"
+    ).format(
+        board_name=board.name,
+        count=count,
+        hours=board.stale_card_alert_hours,
+    )
+
+    lines = [str(header)]
+    max_display = 15
+    for card in stale_cards[:max_display]:
+        last_activity = card.updated_at
+        if (
+            hasattr(card, "last_comment_time")
+            and card.last_comment_time
+            and card.last_comment_time > last_activity
+        ):
+            last_activity = card.last_comment_time
+
+        diff = now - last_activity
+        hours_inactive = int(diff.total_seconds() // 3600)
+        days = hours_inactive // 24
+        remaining_hours = hours_inactive % 24
+        if days > 0:
+            duration_str = f"{days}d {remaining_hours}u"
+        else:
+            duration_str = f"{hours_inactive}u"
+
+        assignee_names = [u.username for u in card.assignees.all()]
+        assignee_str = (
+            ", ".join(assignee_names) if assignee_names else str(_("Niet toegewezen"))
+        )
+
+        lines.append(
+            f"• **{card.title}** (Lijst: `{card.list.name}`, Stilstand: **{duration_str}**, Toegewezen: {assignee_str})"
+        )
+
+    if count > max_display:
+        lines.append(
+            str(
+                _("\n*... en nog {extra_count} andere card(s).*").format(
+                    extra_count=count - max_display
+                )
+            )
+        )
+
+    lines.append(str(_("\n🔗 [Bord bekijken]({url})").format(url=board_url)))
+    return "\n".join(lines)
+
+
+@shared_task
+def check_stale_cards():
+    """Periodically check all boards with stale_card_alert_hours configured and alert Discord."""
+    from aa_kanban.utils import send_discord_webhook
+
+    boards = Board.objects.filter(stale_card_alert_hours__gt=0)
+    for board in boards:
+        stale_cards = list(board.get_stale_cards())
+        if not stale_cards:
+            continue
+
+        message = format_stale_cards_message(board, stale_cards)
+        channel_id = (
+            board.discord_alert_channel_id or board.discord_ticket_channel_id
+        )
+        webhook_url = (
+            board.discord_alert_webhook or board.discord_webhook_cards
+        )
+
+        sent_bot = False
+        if channel_id:
+            try:
+                from aadiscordbot.tasks import run_task_function
+
+                run_task_function.apply_async(
+                    args=["aa_kanban.tasks._send_stale_cards_discord"],
+                    kwargs={
+                        "task_args": [channel_id, message],
+                        "task_kwargs": {},
+                    },
+                    queue="aadiscordbot",
+                )
+                sent_bot = True
+            except ImportError:
+                logger.warning(
+                    "aadiscordbot is not available, falling back to webhook if configured."
+                )
+
+        if not sent_bot and webhook_url:
+            send_discord_webhook(webhook_url, message)
 
 
 async def _create_discord_thread(bot, card_id: int):
@@ -92,9 +233,12 @@ async def _create_discord_thread(bot, card_id: int):
                 try:
                     from allianceauth.services.modules.discord.models import DiscordUser
 
+                    all_team_members = await sync_to_async(list)(
+                        card.assigned_team.get_all_members()
+                    )
                     team_discord_users = await sync_to_async(list)(
                         DiscordUser.objects.filter(
-                            user__in=card.assigned_team.members.all()
+                            user__in=all_team_members
                         )
                     )
                     for du in team_discord_users:
@@ -141,3 +285,76 @@ def create_ticket_thread(card_id: int):
         )
     except ImportError:
         logger.error("aadiscordbot is not installed or available.")
+
+
+async def _send_discord_thread_message(
+    bot,
+    thread_id: int,
+    message_content: str,
+    team_id: int | None = None,
+):
+    """Send an update message to a Discord ticket thread, optionally auto-inviting new team members."""
+    try:
+        thread = bot.get_channel(thread_id)
+        if not thread:
+            try:
+                thread = await bot.fetch_channel(thread_id)
+            except Exception as e:
+                logger.error(
+                    f"Discord thread with ID {thread_id} not found by bot: {e}"
+                )
+                return
+
+        await thread.send(content=message_content)
+        logger.info(f"Posted update message to Discord thread {thread_id}")
+
+        if team_id:
+            from .models import KanbanTeam
+
+            try:
+                team = await sync_to_async(KanbanTeam.objects.get)(pk=team_id)
+                import discord
+                from allianceauth.services.modules.discord.models import DiscordUser
+
+                all_team_members = await sync_to_async(list)(team.get_all_members())
+                team_discord_users = await sync_to_async(list)(
+                    DiscordUser.objects.filter(user__in=all_team_members)
+                )
+                for du in team_discord_users:
+                    try:
+                        await thread.add_user(discord.Object(id=du.uid))
+                    except Exception as add_err:
+                        logger.warning(
+                            f"Failed to auto-invite user {du.uid} to thread: {add_err}"
+                        )
+            except Exception as team_err:
+                logger.warning(
+                    f"Error auto-inviting team members to thread: {team_err}"
+                )
+
+    except Exception as e:
+        logger.exception(f"Error in _send_discord_thread_message: {e}")
+
+
+@shared_task
+def notify_ticket_thread(
+    thread_id: int, message_content: str, team_id: int | None = None
+):
+    """Celery task to post an update message to a card's Discord thread."""
+    if not thread_id:
+        return
+
+    try:
+        from aadiscordbot.tasks import run_task_function
+
+        run_task_function.apply_async(
+            args=["aa_kanban.tasks._send_discord_thread_message"],
+            kwargs={
+                "task_args": [thread_id, str(message_content)],
+                "task_kwargs": {"team_id": team_id},
+            },
+            queue="aadiscordbot",
+        )
+    except ImportError:
+        logger.warning("aadiscordbot is not installed or available.")
+

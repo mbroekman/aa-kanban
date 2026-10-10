@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Stale Card Alerting**: Added board setting `stale_card_alert_hours` to configure inactivity alerts for cards (measured in hours).
+- **Discord Notifications**: Added automated hourly notifications for stale cards dispatched to the board's Discord Bot Channel ID (via `aadiscordbot`) and/or Discord Webhook URL.
+- **Finished Columns Exclusion**: Excludes cards placed in finished/completed columns ('Done', 'Afgerond', etc.) from stale card warnings.
+- **Comment Activity Tracking**: Inactivity evaluation counts both card edits and comments placed on the card.
+- **Periodic Celery Task**: Added `check_stale_cards` scheduled hourly in Celery Beat.
+- **Discord Ticket Thread Activity Notifications**: Updates to ticket cards linked to a Discord thread (`discord_thread_id`) are now automatically posted directly into the thread:
+  - Column/status movements (`move_card` and `services.move_kanban_card`).
+  - Label additions and removals (`toggle_label`).
+  - Team assignments, role mentions, and auto-inviting new team members to the thread (`update_card_team`).
+- **Auth Groups for KanbanTeam & Thread Auto-Invite**: Teams (`KanbanTeam`) now support linking Django Auth Groups (`Group`) alongside individual members via frontend settings (`team_users_modal`). Auto-invite to Discord ticket threads (both on creation and team reassignment) automatically invites all members from both direct assignments and linked Auth Groups.
+
 ## [0.11.4] - 2026-10-02
 
 ### Fixed

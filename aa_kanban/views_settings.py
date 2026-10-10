@@ -13,7 +13,7 @@ def kanban_settings(request: HttpRequest) -> HttpResponse:
     from .models import Board, KanbanSetting, KanbanTeam, Label
 
     groups = KanbanGroup.objects.prefetch_related("members", "groups").order_by("name")
-    teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
+    teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
     labels = Label.objects.order_by("name")
     settings = KanbanSetting.get_settings()
     boards = Board.objects.order_by("name")
@@ -297,7 +297,7 @@ def create_kanban_team(request: HttpRequest) -> HttpResponse:
                 team.ticket_board_id = int(ticket_board_id)
                 team.save(update_fields=["ticket_board_id"])
 
-    teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
+    teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
     return render(request, "aa_kanban/partials/team_list.html", {"teams": teams})
 
 
@@ -335,7 +335,7 @@ def edit_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
                 team.ticket_board_id = None
             team.save(update_fields=["name", "discord_role_id", "ticket_board_id"])
 
-        teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
+        teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
         response = render(
             request, "aa_kanban/partials/team_list.html", {"teams": teams}
         )
@@ -355,24 +355,29 @@ def delete_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
         team = get_object_or_404(KanbanTeam, pk=team_id)
         team.delete()
 
-    teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
+    teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
     return render(request, "aa_kanban/partials/team_list.html", {"teams": teams})
 
 
 @login_required
 @permission_required("aa_kanban.manage_boards", raise_exception=True)
 def team_users_modal(request: HttpRequest, team_id: int) -> HttpResponse:
-    """HTMX endpoint to render the user management modal for a team."""
+    """HTMX endpoint to render the user and auth group management modal for a team."""
     from .models import KanbanTeam
 
     team = get_object_or_404(KanbanTeam, pk=team_id)
     all_users = User.objects.exclude(
         pk__in=team.members.values_list("pk", flat=True)
     ).order_by("username")
+    all_authgroups = Group.objects.exclude(
+        pk__in=team.groups.values_list("pk", flat=True)
+    ).order_by("name")
     context = {
         "team": team,
         "members": team.members.order_by("username"),
         "all_users": all_users,
+        "authgroups": team.groups.order_by("name"),
+        "all_authgroups": all_authgroups,
     }
     return render(request, "aa_kanban/partials/team_users_modal.html", context)
 
@@ -393,11 +398,16 @@ def add_user_to_team(request: HttpRequest, team_id: int) -> HttpResponse:
     all_users = User.objects.exclude(
         pk__in=team.members.values_list("pk", flat=True)
     ).order_by("username")
-    teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
+    all_authgroups = Group.objects.exclude(
+        pk__in=team.groups.values_list("pk", flat=True)
+    ).order_by("name")
+    teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
     context = {
         "team": team,
         "members": team.members.order_by("username"),
         "all_users": all_users,
+        "authgroups": team.groups.order_by("name"),
+        "all_authgroups": all_authgroups,
         "teams": teams,
     }
     return render(request, "aa_kanban/partials/team_users_modal.html", context)
@@ -419,11 +429,78 @@ def remove_user_from_team(
     all_users = User.objects.exclude(
         pk__in=team.members.values_list("pk", flat=True)
     ).order_by("username")
-    teams = KanbanTeam.objects.prefetch_related("members").order_by("name")
+    all_authgroups = Group.objects.exclude(
+        pk__in=team.groups.values_list("pk", flat=True)
+    ).order_by("name")
+    teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
     context = {
         "team": team,
         "members": team.members.order_by("username"),
         "all_users": all_users,
+        "authgroups": team.groups.order_by("name"),
+        "all_authgroups": all_authgroups,
+        "teams": teams,
+    }
+    return render(request, "aa_kanban/partials/team_users_modal.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.manage_boards", raise_exception=True)
+def add_authgroup_to_team(request: HttpRequest, team_id: int) -> HttpResponse:
+    """HTMX endpoint to add an Auth Group to a KanbanTeam."""
+    from .models import KanbanTeam
+
+    team = get_object_or_404(KanbanTeam, pk=team_id)
+    if request.method == "POST":
+        authgroup_id = request.POST.get("authgroup_id")
+        if authgroup_id:
+            authgroup = get_object_or_404(Group, pk=authgroup_id)
+            team.groups.add(authgroup)
+
+    all_users = User.objects.exclude(
+        pk__in=team.members.values_list("pk", flat=True)
+    ).order_by("username")
+    all_authgroups = Group.objects.exclude(
+        pk__in=team.groups.values_list("pk", flat=True)
+    ).order_by("name")
+    teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
+    context = {
+        "team": team,
+        "members": team.members.order_by("username"),
+        "all_users": all_users,
+        "authgroups": team.groups.order_by("name"),
+        "all_authgroups": all_authgroups,
+        "teams": teams,
+    }
+    return render(request, "aa_kanban/partials/team_users_modal.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.manage_boards", raise_exception=True)
+def remove_authgroup_from_team(
+    request: HttpRequest, team_id: int, authgroup_id: int
+) -> HttpResponse:
+    """HTMX endpoint to remove an Auth Group from a KanbanTeam."""
+    from .models import KanbanTeam
+
+    team = get_object_or_404(KanbanTeam, pk=team_id)
+    if request.method == "POST":
+        authgroup = get_object_or_404(Group, pk=authgroup_id)
+        team.groups.remove(authgroup)
+
+    all_users = User.objects.exclude(
+        pk__in=team.members.values_list("pk", flat=True)
+    ).order_by("username")
+    all_authgroups = Group.objects.exclude(
+        pk__in=team.groups.values_list("pk", flat=True)
+    ).order_by("name")
+    teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
+    context = {
+        "team": team,
+        "members": team.members.order_by("username"),
+        "all_users": all_users,
+        "authgroups": team.groups.order_by("name"),
+        "all_authgroups": all_authgroups,
         "teams": teams,
     }
     return render(request, "aa_kanban/partials/team_users_modal.html", context)

@@ -1,9 +1,9 @@
 {% load i18n %}
-<div class="modal-header">
+<div class="modal-header bg-light">
     <h5 class="modal-title" id="teamUsersModalLabel">
         <i class="fas fa-users me-2 text-primary"></i>{% trans "Manage Team Members:" %} {{ team.name }}
     </h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
 </div>
 <div class="modal-body">
     <!-- Add User Form -->
@@ -29,7 +29,7 @@
     <h6 class="fw-bold border-bottom pb-2 mb-3">{% trans "Current Members" %}</h6>
 
     {% if members %}
-        <div class="list-group list-group-flush mb-4">
+        <div class="list-group list-group-flush mb-4" style="max-height: 200px; overflow-y: auto;">
             {% for member in members %}
                 <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <div class="d-flex align-items-center">
@@ -55,8 +55,56 @@
             <p class="mb-0">{% trans "No individual members added." %}</p>
         </div>
     {% endif %}
+
+    <!-- Add Auth Group Form -->
+    <div class="card mb-4 shadow-sm border-0 bg-light">
+        <div class="card-body py-3">
+            <h6 class="card-title fw-bold text-muted mb-3">{% trans "Add Auth Groups" %}</h6>
+            <form hx-post="{% url 'aa_kanban:add_authgroup_to_team' team.id %}" hx-target="#teamUsersModalBody" class="d-flex gap-2">
+                {% csrf_token %}
+                <select name="authgroup_id" class="form-select" required>
+                    <option value="">{% trans "-- Select Auth Group --" %}</option>
+                    {% for ag in all_authgroups %}
+                        <option value="{{ ag.id }}">{{ ag.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary text-nowrap">
+                    <i class="fas fa-plus me-1"></i>{% trans "Add Group" %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Linked Auth Groups List -->
+    <h6 class="fw-bold border-bottom pb-2 mb-3">{% trans "Linked Auth Groups" %}</h6>
+
+    {% if authgroups %}
+        <div class="list-group list-group-flush mb-2" style="max-height: 200px; overflow-y: auto;">
+            {% for authgroup in authgroups %}
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-users-cog fs-4 text-secondary me-3"></i>
+                        <div>
+                            <div class="fw-bold">{{ authgroup.name }}</div>
+                        </div>
+                    </div>
+                    <form hx-post="{% url 'aa_kanban:remove_authgroup_from_team' team.id authgroup.id %}" hx-target="#teamUsersModalBody" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{% trans 'Remove Group' %}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center text-muted py-3">
+            <i class="fas fa-users-slash fa-2x mb-2 text-light"></i>
+            <p class="mb-0">{% trans "No auth groups linked." %}</p>
+        </div>
+    {% endif %}
 </div>
-<div class="modal-footer">
+<div class="modal-footer bg-light">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
 </div>
 

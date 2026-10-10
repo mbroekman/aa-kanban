@@ -178,3 +178,27 @@ class TestLabelAndCommentModels:
         )
         assert str(comment) == f"Comment by {author} on {card.title}"
         assert comment in card.comments.all()
+
+
+@pytest.mark.django_db
+class TestKanbanTeamModel:
+    def test_kanban_team_get_all_members(self, user_factory):
+        from django.contrib.auth.models import Group
+        from aa_kanban.models import KanbanTeam
+
+        u1 = user_factory("team_user1")
+        u2 = user_factory("team_user2")
+        u3 = user_factory("team_user3")
+
+        auth_group = Group.objects.create(name="Special Ops Auth Group")
+        u2.groups.add(auth_group)
+        u3.groups.add(auth_group)
+
+        team = KanbanTeam.objects.create(name="Strike Team")
+        team.members.add(u1)
+        team.members.add(u2)
+        team.groups.add(auth_group)
+
+        all_members = set(team.get_all_members())
+        assert all_members == {u1, u2, u3}
+        assert team.get_all_members().count() == 3
