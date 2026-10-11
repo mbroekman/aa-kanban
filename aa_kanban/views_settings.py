@@ -335,7 +335,9 @@ def edit_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
                 team.ticket_board_id = None
             team.save(update_fields=["name", "discord_role_id", "ticket_board_id"])
 
-        teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by("name")
+        teams = KanbanTeam.objects.prefetch_related("members", "groups").order_by(
+            "name"
+        )
         response = render(
             request, "aa_kanban/partials/team_list.html", {"teams": teams}
         )

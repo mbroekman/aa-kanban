@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from aa_kanban.models import Board, Card, Comment, List
-from aa_kanban.tasks import check_stale_cards, format_stale_cards_message
+from aa_kanban.tasks import check_stale_cards
 
 
 @pytest.fixture
@@ -226,7 +226,10 @@ def test_check_stale_cards_task_bot_channel_dispatch(board_setup):
     Card.objects.filter(pk=card.pk).update(updated_at=past_48h)
 
     mock_run_task = MagicMock()
-    with patch.dict("sys.modules", {"aadiscordbot.tasks": MagicMock(run_task_function=mock_run_task)}):
+    with patch.dict(
+        "sys.modules",
+        {"aadiscordbot.tasks": MagicMock(run_task_function=mock_run_task)},
+    ):
         check_stale_cards()
         assert mock_run_task.apply_async.called
         kwargs = mock_run_task.apply_async.call_args[1]

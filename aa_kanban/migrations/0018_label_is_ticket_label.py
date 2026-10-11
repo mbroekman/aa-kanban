@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('aa_kanban', '0017_remove_kanbansetting_ticket_channel_id'),
+        ("aa_kanban", "0017_remove_kanbansetting_ticket_channel_id"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='label',
-            name='is_ticket_label',
-            field=models.BooleanField(default=False, help_text='If True, this label can be selected by users when creating a ticket.'),
+            model_name="label",
+            name="is_ticket_label",
+            field=models.BooleanField(
+                default=False,
+                help_text="If True, this label can be selected by users when creating a ticket.",
+            ),
         ),
     ]

@@ -97,13 +97,10 @@ class KanbanTeam(models.Model):
 
     def get_all_members(self):
         """Get all distinct users who are either direct members or belong to linked auth groups."""
-        return (
-            User.objects.filter(
-                models.Q(pk__in=self.members.values_list("pk", flat=True))
-                | models.Q(groups__in=self.groups.all())
-            )
-            .distinct()
-        )
+        return User.objects.filter(
+            models.Q(pk__in=self.members.values_list("pk", flat=True))
+            | models.Q(groups__in=self.groups.all())
+        ).distinct()
 
     class Meta:
         verbose_name = _("Kanban Team")

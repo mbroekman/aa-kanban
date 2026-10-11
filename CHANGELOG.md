@@ -19,6 +19,10 @@ All notable changes to this project will be documented in this file.
 - **Team Settings Modal**: Converted `edit_team_modal.html` into a full Bootstrap 5 modal dialog with global `closeModal` event handling for seamless HTMX closes.
 - **Agent Guidelines**: Aligned `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` and `.cursorrules` with the central workspace standards.
 
+### Fixed
+
+- **CI & Pre-Commit**: Resolved Flake8 E203 whitespace error in Discord message chunking, added E203 to Flake8 extend-ignore, and formatted markdown files with mdformat.
+
 ## [0.11.4] - 2026-10-02
 
 ### Fixed

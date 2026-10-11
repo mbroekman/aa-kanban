@@ -26,16 +26,14 @@ async def _send_stale_cards_discord(bot, channel_id: int, message_content: str):
         if len(message_content) <= 1900:
             await channel.send(content=message_content)
         else:
-            chunks = [
-                message_content[i : i + 1800]
-                for i in range(0, len(message_content), 1800)
-            ]
+            chunks = []
+            for i in range(0, len(message_content), 1800):
+                end_idx = i + 1800
+                chunks.append(message_content[i:end_idx])
             for chunk in chunks:
                 await channel.send(content=chunk)
 
-        logger.info(
-            f"Sent stale cards notification to Discord channel {channel_id}"
-        )
+        logger.info(f"Sent stale cards notification to Discord channel {channel_id}")
     except Exception as e:
         logger.exception(f"Error in _send_stale_cards_discord: {e}")
 
@@ -120,12 +118,8 @@ def check_stale_cards():
             continue
 
         message = format_stale_cards_message(board, stale_cards)
-        channel_id = (
-            board.discord_alert_channel_id or board.discord_ticket_channel_id
-        )
-        webhook_url = (
-            board.discord_alert_webhook or board.discord_webhook_cards
-        )
+        channel_id = board.discord_alert_channel_id or board.discord_ticket_channel_id
+        webhook_url = board.discord_alert_webhook or board.discord_webhook_cards
 
         sent_bot = False
         if channel_id:
@@ -237,9 +231,7 @@ async def _create_discord_thread(bot, card_id: int):
                         card.assigned_team.get_all_members()
                     )
                     team_discord_users = await sync_to_async(list)(
-                        DiscordUser.objects.filter(
-                            user__in=all_team_members
-                        )
+                        DiscordUser.objects.filter(user__in=all_team_members)
                     )
                     for du in team_discord_users:
                         try:
@@ -357,4 +349,3 @@ def notify_ticket_thread(
         )
     except ImportError:
         logger.warning("aadiscordbot is not installed or available.")
-

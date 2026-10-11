@@ -184,6 +184,7 @@ class TestLabelAndCommentModels:
 class TestKanbanTeamModel:
     def test_kanban_team_get_all_members(self, user_factory):
         from django.contrib.auth.models import Group
+
         from aa_kanban.models import KanbanTeam
 
         u1 = user_factory("team_user1")

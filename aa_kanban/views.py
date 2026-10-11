@@ -345,12 +345,16 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
     if not ticket_boards.exists():
         # If no ticket board is configured, show an error message
         context = {
-            "error": _("Ticket system is currently unavailable. No ticket boards are configured.")
+            "error": _(
+                "Ticket system is currently unavailable. No ticket boards are configured."
+            )
         }
         return render(request, "aa_kanban/ticket_form.html", context)
 
     labels = Label.objects.filter(is_ticket_label=True)
-    teams = KanbanTeam.objects.filter(ticket_board__is_ticket_board=True).order_by("name")
+    teams = KanbanTeam.objects.filter(ticket_board__is_ticket_board=True).order_by(
+        "name"
+    )
 
     if request.method == "POST":
         title = request.POST.get("title", "").strip()
@@ -366,7 +370,11 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "title": title,
                 "description": description,
                 "label_id": int(label_id) if label_id and label_id.isdigit() else None,
-                "assigned_team_id": int(assigned_team_id) if assigned_team_id and assigned_team_id.isdigit() else None,
+                "assigned_team_id": (
+                    int(assigned_team_id)
+                    if assigned_team_id and assigned_team_id.isdigit()
+                    else None
+                ),
                 "error": _("Title is required."),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
@@ -381,7 +389,11 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "title": title,
                 "description": description,
                 "label_id": int(label_id) if label_id and label_id.isdigit() else None,
-                "assigned_team_id": int(assigned_team_id) if assigned_team_id and assigned_team_id.isdigit() else None,
+                "assigned_team_id": (
+                    int(assigned_team_id)
+                    if assigned_team_id and assigned_team_id.isdigit()
+                    else None
+                ),
                 "error": _("Invalid team selected."),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
@@ -395,8 +407,14 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "title": title,
                 "description": description,
                 "label_id": int(label_id) if label_id and label_id.isdigit() else None,
-                "assigned_team_id": int(assigned_team_id) if assigned_team_id and assigned_team_id.isdigit() else None,
-                "error": _("The selected team does not have a valid ticket board configured."),
+                "assigned_team_id": (
+                    int(assigned_team_id)
+                    if assigned_team_id and assigned_team_id.isdigit()
+                    else None
+                ),
+                "error": _(
+                    "The selected team does not have a valid ticket board configured."
+                ),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
 
@@ -412,7 +430,11 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 "title": title,
                 "description": description,
                 "label_id": int(label_id) if label_id and label_id.isdigit() else None,
-                "assigned_team_id": int(assigned_team_id) if assigned_team_id and assigned_team_id.isdigit() else None,
+                "assigned_team_id": (
+                    int(assigned_team_id)
+                    if assigned_team_id and assigned_team_id.isdigit()
+                    else None
+                ),
                 "error": _("No columns available on the ticket board."),
             }
             return render(request, "aa_kanban/ticket_form.html", context)
@@ -431,8 +453,6 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
                 pass
 
         if board.discord_webhook_cards:
-            from django.utils.translation import gettext as _
-
             from aa_kanban.utils import send_discord_webhook
 
             url = request.build_absolute_uri(

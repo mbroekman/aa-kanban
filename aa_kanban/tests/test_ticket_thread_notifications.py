@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group
 from django.test import Client
 from django.urls import reverse
 
-from aa_kanban.models import Board, Card, KanbanGroup, KanbanTeam, Label, List
+from aa_kanban.models import Board, Card, KanbanGroup, KanbanTeam, Label
 from aa_kanban.services import move_kanban_card
 from aa_kanban.tasks import (
     _create_discord_thread,
@@ -197,7 +197,10 @@ def test_services_move_kanban_card_notifies_thread(ticket_setup):
 def test_notify_ticket_thread_delegates_to_aadiscordbot():
     """notify_ticket_thread dispatches to aadiscordbot queue."""
     mock_run_task = MagicMock()
-    with patch.dict("sys.modules", {"aadiscordbot.tasks": MagicMock(run_task_function=mock_run_task)}):
+    with patch.dict(
+        "sys.modules",
+        {"aadiscordbot.tasks": MagicMock(run_task_function=mock_run_task)},
+    ):
         notify_ticket_thread(555666777, "Test Message", team_id=42)
         assert mock_run_task.apply_async.called
         kwargs = mock_run_task.apply_async.call_args[1]
