@@ -36,3 +36,9 @@ Onderzoek en herstel de fouten in de pre-commit workflow op GitHub Actions (run 
 3. Valideer met pre-commit run --all-files.
 4. Werk documentatie en backlog bij.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Tweede CI-run faalde op mdformat voor dit taakbestand: lokaal werd het overgeslagen omdat `pre-commit run --all-files` alleen getrackte bestanden controleert. backlog-md schrijft taakbestanden in een eigen formaat dat mdformat steeds herschrijft (zelfde oorzaak als TASK-50/52). Oplossing: `backlog/` uitgesloten van de mdformat hook. Geverifieerd met een verse clone op Linux.
+<!-- SECTION:NOTES:END -->
