@@ -1,9 +1,10 @@
 ---
 id: TASK-79
 title: Release fix v0.12.1
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-11 21:13'
+updated_date: '2026-10-11 21:15'
 labels: []
 dependencies: []
 ordinal: 95000
@@ -19,7 +20,7 @@ Patch release v0.12.1 voor de stale card alerts taalfix (i18n). Versienummer bum
 <!-- AC:BEGIN -->
 - [x] #1 Versienummer verhoogd naar 0.12.1 in aa_kanban/__init__.py
 - [x] #2 CHANGELOG.md bijgewerkt met sectie [0.12.1]
-- [ ] #3 Git tag v0.12.1 aangemaakt en gepusht naar origin
-- [ ] #4 GitHub Release v0.12.1 gepubliceerd
-- [ ] #5 PyPI package v0.12.1 geverifieerd
+- [x] #3 Git tag v0.12.1 aangemaakt en gepusht naar origin
+- [x] #4 GitHub Release v0.12.1 gepubliceerd
+- [x] #5 PyPI package v0.12.1 geverifieerd
 <!-- AC:END -->
