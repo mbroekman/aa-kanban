@@ -56,8 +56,8 @@ def format_stale_cards_message(board, stale_cards) -> str:
 
     now = timezone.now()
     header = _(
-        "⚠️ **Kanban Signalering: Stilstaande Cards op '{board_name}'** ⚠️\n"
-        "Er zijn **{count}** card(s) die langer dan **{hours}** uur stil staan:\n"
+        "⚠️ **Kanban Alert: Stale Cards on '{board_name}'** ⚠️\n"
+        "There are **{count}** card(s) that have been inactive for more than **{hours}** hour(s):\n"
     ).format(
         board_name=board.name,
         count=count,
@@ -80,29 +80,38 @@ def format_stale_cards_message(board, stale_cards) -> str:
         days = hours_inactive // 24
         remaining_hours = hours_inactive % 24
         if days > 0:
-            duration_str = f"{days}d {remaining_hours}u"
+            duration_str = f"{days}d {remaining_hours}h"
         else:
-            duration_str = f"{hours_inactive}u"
+            duration_str = f"{hours_inactive}h"
 
         assignee_names = [u.username for u in card.assignees.all()]
         assignee_str = (
-            ", ".join(assignee_names) if assignee_names else str(_("Niet toegewezen"))
+            ", ".join(assignee_names) if assignee_names else str(_("Unassigned"))
         )
 
         lines.append(
-            f"• **{card.title}** (Lijst: `{card.list.name}`, Stilstand: **{duration_str}**, Toegewezen: {assignee_str})"
+            str(
+                _(
+                    "• **{title}** (List: `{list_name}`, Inactive: **{duration}**, Assigned: {assignees})"
+                ).format(
+                    title=card.title,
+                    list_name=card.list.name,
+                    duration=duration_str,
+                    assignees=assignee_str,
+                )
+            )
         )
 
     if count > max_display:
         lines.append(
             str(
-                _("\n*... en nog {extra_count} andere card(s).*").format(
+                _("\n*... and {extra_count} more card(s).*").format(
                     extra_count=count - max_display
                 )
             )
         )
 
-    lines.append(str(_("\n🔗 [Bord bekijken]({url})").format(url=board_url)))
+    lines.append(str(_("\n🔗 [View Board]({url})").format(url=board_url)))
     return "\n".join(lines)
 
 

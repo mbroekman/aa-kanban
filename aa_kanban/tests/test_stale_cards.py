@@ -236,3 +236,38 @@ def test_check_stale_cards_task_bot_channel_dispatch(board_setup):
         assert kwargs["queue"] == "aadiscordbot"
         assert kwargs["kwargs"]["task_args"][0] == 9988776655
         assert "Stuck in Review" in kwargs["kwargs"]["task_args"][1]
+
+
+@pytest.mark.django_db
+def test_format_stale_cards_message_english_and_dutch(board_setup):
+    """Test format_stale_cards_message outputs English by default and translates to Dutch."""
+    from django.utils import translation
+
+    from aa_kanban.tasks import format_stale_cards_message
+
+    board = board_setup["board"]
+    card = Card.objects.create(
+        list=board_setup["in_progress"],
+        title="Stale Unit Card",
+    )
+    stale_cards = [card]
+
+    # 1. English (default)
+    with translation.override("en"):
+        msg_en = format_stale_cards_message(board, stale_cards)
+        assert "Kanban Alert: Stale Cards" in msg_en
+        assert "There are **1** card(s) that have been inactive for more than" in msg_en
+        assert "List: `In Progress`" in msg_en
+        assert "Inactive:" in msg_en
+        assert "Assigned: Unassigned" in msg_en
+        assert "View Board" in msg_en
+
+    # 2. Dutch
+    with translation.override("nl"):
+        msg_nl = format_stale_cards_message(board, stale_cards)
+        assert "Kanban Signalering: Stilstaande Cards" in msg_nl
+        assert "Er zijn **1** card(s) die langer dan" in msg_nl
+        assert "Lijst: `In Progress`" in msg_nl
+        assert "Stilstand:" in msg_nl
+        assert "Toegewezen: Niet toegewezen" in msg_nl
+        assert "Bord bekijken" in msg_nl

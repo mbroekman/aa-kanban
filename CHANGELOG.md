@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **i18n / Stale Card Alerts**: Converted hardcoded Dutch strings in stale card alert notifications to standard English and added Dutch translations in `django.po` so alerts respect the configured site language.
 - **CI & Pre-Commit**: Resolved Flake8 E203 whitespace error in Discord message chunking, added E203 to Flake8 extend-ignore, and formatted markdown files with mdformat.
 - **CI & Pre-Commit**: Excluded `backlog/` from the mdformat hook, since backlog-md rewrites task files in its own format and repeatedly broke CI.
 

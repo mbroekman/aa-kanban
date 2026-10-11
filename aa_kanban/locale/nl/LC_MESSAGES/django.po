@@ -1031,4 +1031,32 @@ msgstr "👥 **Team Update:** Toegewezen aan **{team_name}**{role_mention} door 
 msgid "👥 **Team Update:** Team unassigned by **{username}**."
 msgstr "👥 **Team Update:** Team toewijzing verwijderd door **{username}**."
 
+msgid ""
+"⚠️ **Kanban Alert: Stale Cards on '{board_name}'** ⚠️\n"
+"There are **{count}** card(s) that have been inactive for more than **{hours}** hour(s):\n"
+msgstr ""
+"⚠️ **Kanban Signalering: Stilstaande Cards op '{board_name}'** ⚠️\n"
+"Er zijn **{count}** card(s) die langer dan **{hours}** uur stil staan:\n"
+
+msgid "Unassigned"
+msgstr "Niet toegewezen"
+
+msgid "• **{title}** (List: `{list_name}`, Inactive: **{duration}**, Assigned: {assignees})"
+msgstr "• **{title}** (Lijst: `{list_name}`, Stilstand: **{duration}**, Toegewezen: {assignees})"
+
+msgid ""
+"\n"
+"*... and {extra_count} more card(s).*"
+msgstr ""
+"\n"
+"*... en nog {extra_count} andere card(s).*"
+
+msgid ""
+"\n"
+"🔗 [View Board]({url})"
+msgstr ""
+"\n"
+"🔗 [Bord bekijken]({url})"
+
+
 
