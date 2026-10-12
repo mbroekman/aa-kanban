@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Image Support in Card Descriptions & Tickets (TASK-77)**:
+  - Added backend endpoint `/kanban/api/upload-image/` with 5MB size limit, MIME type, and magic bytes validation (PNG, JPEG, GIF, WebP).
+  - Added `KanbanAttachment` model and migration `0022_kanbanattachment` for tracking uploaded media securely in `MEDIA_ROOT`.
+  - Added clipboard paste (`Ctrl+V`), drag-and-drop, and file upload picker button (`[Attach Image]`) to both the card description editor and ticket submission form.
+  - Added safe Markdown rendering engine (`aa_kanban.markdown`) with BeautifulSoup XSS sanitization, responsive image styling, and Bootstrap 5 fullscreen lightbox zoom modal on image click.
+  - Added `/kanban/api/preview-markdown/` endpoint and live `[Write]` / `[Preview]` tabs in the ticket submission form and card modal.
+
 ## [0.12.1] - 2026-10-11
 
 ### Fixed

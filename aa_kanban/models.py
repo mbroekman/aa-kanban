@@ -503,3 +503,30 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return f"Comment by {self.author} on {self.card.title}"
+
+
+class KanbanAttachment(models.Model):
+    """Uploaded image or file attachment for cards and tickets."""
+
+    uploader = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="kanban_attachments",
+    )
+    file = models.FileField(
+        upload_to="aa_kanban/uploads/%Y/%m/",
+        help_text=_("Uploaded image or attachment file"),
+    )
+    original_filename = models.CharField(max_length=255)
+    size = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Kanban Attachment")
+        verbose_name_plural = _("Kanban Attachments")
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.original_filename} ({self.size} bytes)"

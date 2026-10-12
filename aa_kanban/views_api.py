@@ -293,9 +293,19 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
     if "description" in request.POST:
         card.description = request.POST.get("description", "").strip()
         card.save(update_fields=["description", "updated_at"])
-        return HttpResponse(
+        from aa_kanban.markdown import render_markdown
+
+        rendered_desc = render_markdown(card.description)
+        if not rendered_desc:
+            rendered_desc = (
+                f'<em class="text-muted">{_("No description provided.")}</em>'
+            )
+
+        status_html = (
             '<span class="text-success"><i class="fas fa-check me-1"></i>Saved!</span>'
         )
+        oob_desc = f'<div id="card-desc-rendered" class="kanban-desc-rendered-content text-break" hx-swap-oob="innerHTML">{rendered_desc}</div>'
+        return HttpResponse(status_html + oob_desc)
 
     if "title" in request.POST:
         new_title = request.POST.get("title", "").strip()
@@ -654,3 +664,106 @@ def update_card_team(request: HttpRequest, card_id: int) -> HttpResponse:
         request=request,
     )
     return HttpResponse(html_partial + oob_partial)
+
+
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB
+ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+
+
+def _detect_image_type(chunk: bytes) -> str | None:
+    """Detect image type from initial bytes."""
+    if chunk.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png"
+    if chunk.startswith(b"\xff\xd8\xff"):
+        return "jpeg"
+    if chunk.startswith(b"GIF87a") or chunk.startswith(b"GIF89a"):
+        return "gif"
+    if chunk.startswith(b"RIFF") and len(chunk) >= 12 and chunk[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+@login_required
+def upload_image(request: HttpRequest) -> JsonResponse:
+    """Upload an image file for use in card descriptions or ticket forms."""
+    if not (
+        request.user.has_perm("aa_kanban.basic_access")
+        or request.user.has_perm("aa_kanban.create_ticket")
+    ):
+        raise PermissionDenied("Permission required to upload images.")
+
+    if request.method != "POST":
+        return JsonResponse({"error": str(_("Method not allowed."))}, status=405)
+
+    upload_file = request.FILES.get("image") or request.FILES.get("file")
+    if not upload_file:
+        return JsonResponse({"error": str(_("No image file provided."))}, status=400)
+
+    if upload_file.size > MAX_UPLOAD_SIZE:
+        return JsonResponse(
+            {"error": str(_("Image exceeds maximum size limit of 5MB."))},
+            status=400,
+        )
+
+    import os
+
+    ext = os.path.splitext(upload_file.name)[1].lower()
+    if ext not in ALLOWED_IMAGE_EXTENSIONS:
+        return JsonResponse(
+            {
+                "error": str(
+                    _("Unsupported image format. Allowed formats: PNG, JPG, GIF, WebP.")
+                )
+            },
+            status=400,
+        )
+
+    # Validate image magic bytes
+    initial_bytes = upload_file.read(16)
+    upload_file.seek(0)
+    detected_type = _detect_image_type(initial_bytes)
+    if not detected_type:
+        return JsonResponse(
+            {"error": str(_("Invalid or corrupted image file."))},
+            status=400,
+        )
+
+    from .models import KanbanAttachment
+
+    attachment = KanbanAttachment.objects.create(
+        uploader=request.user,
+        file=upload_file,
+        original_filename=upload_file.name,
+        size=upload_file.size,
+    )
+
+    file_url = attachment.file.url
+    return JsonResponse(
+        {
+            "id": attachment.id,
+            "url": file_url,
+            "filename": attachment.original_filename,
+            "markdown": f"![{attachment.original_filename}]({file_url})",
+        }
+    )
+
+
+@login_required
+def preview_markdown(request: HttpRequest) -> HttpResponse:
+    """Render markdown text to sanitized HTML for live preview."""
+    if not (
+        request.user.has_perm("aa_kanban.basic_access")
+        or request.user.has_perm("aa_kanban.create_ticket")
+    ):
+        raise PermissionDenied("Permission required to preview markdown.")
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    raw_text = request.POST.get("text", "")
+    from aa_kanban.markdown import render_markdown
+
+    html = render_markdown(raw_text)
+    if not html:
+        html = f'<em class="text-muted">{_("Nothing to preview.")}</em>'
+    return HttpResponse(html)

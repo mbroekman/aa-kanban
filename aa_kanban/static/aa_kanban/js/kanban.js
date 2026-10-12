@@ -220,18 +220,171 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize tooltips on load
     initTooltips();
+    initMarkdownImageUploads();
 
-    // Initialize tooltips after HTMX swaps
+    // Toggle Card Description View/Edit mode
+    window.toggleCardDescMode = function (mode) {
+        const viewEl = document.getElementById("card-desc-view");
+        const formEl = document.getElementById("card-desc-form");
+        const editBtn = document.getElementById("btn-card-desc-edit");
+        const viewBtn = document.getElementById("btn-card-desc-view");
+        const textarea = document.getElementById("card-desc-textarea");
+
+        if (mode === "edit") {
+            if (viewEl) viewEl.classList.add("d-none");
+            if (formEl) formEl.classList.remove("d-none");
+            if (editBtn) editBtn.classList.add("d-none");
+            if (viewBtn) viewBtn.classList.remove("d-none");
+            if (textarea) textarea.focus();
+        } else {
+            if (formEl) formEl.classList.add("d-none");
+            if (viewEl) viewEl.classList.remove("d-none");
+            if (editBtn) editBtn.classList.remove("d-none");
+            if (viewBtn) viewBtn.classList.add("d-none");
+        }
+    };
+
+    // Markdown Image Upload Initialization (Paste, Drag & Drop, File Picker)
+    function initMarkdownImageUploads() {
+        document.querySelectorAll(".kanban-markdown-textarea").forEach(function (textarea) {
+            if (textarea.dataset.imageUploadBound === "true") return;
+            textarea.dataset.imageUploadBound = "true";
+
+            const uploadUrl = textarea.dataset.uploadUrl || "/kanban/api/upload-image/";
+            const wrapper = textarea.closest(".kanban-markdown-editor-wrapper") || textarea;
+
+            // 1. Paste handler (Ctrl+V)
+            textarea.addEventListener("paste", function (e) {
+                const clipboardData = e.clipboardData || window.clipboardData;
+                if (!clipboardData || !clipboardData.items) return;
+
+                for (let i = 0; i < clipboardData.items.length; i++) {
+                    const item = clipboardData.items[i];
+                    if (item.type.indexOf("image") === 0) {
+                        e.preventDefault();
+                        const file = item.getAsFile();
+                        if (file) {
+                            uploadAndInsert(file, textarea, uploadUrl);
+                        }
+                        break;
+                    }
+                }
+            });
+
+            // 2. Drag & Drop handler
+            wrapper.addEventListener("dragover", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                wrapper.classList.add("dragover");
+            });
+
+            wrapper.addEventListener("dragleave", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                wrapper.classList.remove("dragover");
+            });
+
+            wrapper.addEventListener("drop", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                wrapper.classList.remove("dragover");
+
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.indexOf("image") === 0) {
+                        uploadAndInsert(file, textarea, uploadUrl);
+                    }
+                }
+            });
+
+            // 3. Attach Image Button handler (Card or Ticket)
+            const parent = textarea.closest("form") || textarea.parentElement;
+            const attachBtn = parent ? parent.querySelector("#btn-attach-card-img, #btn-attach-ticket-img") : null;
+            if (attachBtn && !attachBtn.dataset.bound) {
+                attachBtn.dataset.bound = "true";
+                const fileInput = document.createElement("input");
+                fileInput.type = "file";
+                fileInput.accept = "image/png, image/jpeg, image/gif, image/webp";
+                fileInput.style.display = "none";
+                document.body.appendChild(fileInput);
+
+                attachBtn.addEventListener("click", function () {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener("change", function () {
+                    if (fileInput.files && fileInput.files.length > 0) {
+                        uploadAndInsert(fileInput.files[0], textarea, uploadUrl);
+                        fileInput.value = "";
+                    }
+                });
+            }
+        });
+    }
+
+    function uploadAndInsert(file, textarea, uploadUrl) {
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            showToast("Upload Error", "Image file exceeds 5MB limit.", "danger");
+            return;
+        }
+
+        const safeFilename = file.name || "image.png";
+        const placeholder = `\n![Uploading ${safeFilename}...]()\n`;
+        const startPos = textarea.selectionStart || textarea.value.length;
+        const endPos = textarea.selectionEnd || textarea.value.length;
+        const textBefore = textarea.value.substring(0, startPos);
+        const textAfter = textarea.value.substring(endPos);
+
+        textarea.value = textBefore + placeholder + textAfter;
+        textarea.selectionStart = textarea.selectionEnd = startPos + placeholder.length;
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        fetch(uploadUrl, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCsrfToken(),
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: formData,
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                return response.json().then(function (errData) {
+                    throw new Error(errData.error || `Upload failed (HTTP ${response.status})`);
+                });
+            }
+            return response.json();
+        })
+        .then(function (data) {
+            const markdownImg = `\n![${data.filename || safeFilename}](${data.url})\n`;
+            textarea.value = textarea.value.replace(placeholder, markdownImg);
+            textarea.dispatchEvent(new Event("input", { bubbles: true }));
+        })
+        .catch(function (error) {
+            console.error("Image upload failed:", error);
+            textarea.value = textarea.value.replace(placeholder, "");
+            showToast("Upload Failed", error.message || "Failed to upload image.", "danger");
+        });
+    }
+
+    // Initialize after HTMX swaps
     document.body.addEventListener('htmx:afterSwap', function(evt) {
         initTooltips();
         updateListCounts();
+        initMarkdownImageUploads();
     });
 
-    // Reset forms after successful HTMX post
+    // Reset forms after successful HTMX post (except description edit form)
     document.body.addEventListener('htmx:afterRequest', function(evt) {
         if (evt.detail.successful) {
             const elt = evt.detail.elt;
-            if (elt && elt.tagName === 'FORM' && elt.hasAttribute('hx-post')) {
+            if (elt && elt.id === 'card-desc-form') {
+                toggleCardDescMode('view');
+            } else if (elt && elt.tagName === 'FORM' && elt.hasAttribute('hx-post')) {
                 elt.reset();
             }
         }

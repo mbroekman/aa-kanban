@@ -81,6 +81,13 @@ urlpatterns = [
         views_api.toggle_label,
         name="toggle_label",
     ),
+    # Image upload and Markdown preview
+    path("api/upload-image/", views_api.upload_image, name="upload_image"),
+    path(
+        "api/preview-markdown/",
+        views_api.preview_markdown,
+        name="preview_markdown",
+    ),
     # Settings and Groups
     path("settings/", views_settings.kanban_settings, name="settings"),
     path(

@@ -26,6 +26,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Global Kanban Image Lightbox Modal -->
+    <div class="modal fade" id="kanbanImageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1095;">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-dark text-white border-0 shadow-lg">
+                <div class="modal-header border-0 py-2">
+                    <h6 class="modal-title text-truncate" id="kanbanImageLightboxTitle">{% trans "Image Preview" %}</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+                </div>
+                <div class="modal-body text-center p-2">
+                    <img id="kanbanImageLightboxImg" src="" class="img-fluid rounded" style="max-height: 85vh; object-fit: contain;" alt="{% trans 'Preview' %}">
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_javascript %}
@@ -86,6 +101,22 @@
                     modal.hide();
                 }
             });
+        });
+
+        // Global delegate for clicking rendered markdown images to open Lightbox
+        document.body.addEventListener('click', function(e) {
+            const img = e.target.closest('.kanban-rendered-image, [data-image-zoom="true"]');
+            if (img && img.tagName === 'IMG') {
+                const modalEl = document.getElementById('kanbanImageLightboxModal');
+                if (modalEl) {
+                    const lightboxImg = document.getElementById('kanbanImageLightboxImg');
+                    const lightboxTitle = document.getElementById('kanbanImageLightboxTitle');
+                    if (lightboxImg) lightboxImg.src = img.src;
+                    if (lightboxTitle) lightboxTitle.textContent = img.alt || img.title || "{% trans 'Image Preview' %}";
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
+            }
         });
     </script>
 {% endblock %}

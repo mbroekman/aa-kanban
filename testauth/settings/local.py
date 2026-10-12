@@ -40,6 +40,11 @@ STORAGES = {
     },
 }
 
+import tempfile
+
+MEDIA_ROOT = os.path.join(tempfile.gettempdir(), "testauth_media")
+MEDIA_URL = "/media/"
+
 # Change this to change the name of the auth site displayed
 # in page titles and the site header.
 SITE_NAME = "testauth"

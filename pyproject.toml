@@ -38,6 +38,15 @@ dynamic = [
 ]
 dependencies = [
     "allianceauth>=5",
+    "markdown>=3.4",
+]
+
+[dependency-groups]
+dev = [
+    "django-webtest>=1.9.15",
+    "factory-boy>=3.3.3",
+    "pytest>=9.1.1",
+    "pytest-django>=4.14",
 ]
 
 [tool.hatch]

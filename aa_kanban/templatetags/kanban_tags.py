@@ -25,3 +25,15 @@ def get_cards_for_column(lists, col_name):
             cards.extend(list(kanban_list.cards.all()))
 
     return cards
+
+
+@register.filter
+def render_markdown(text: str):
+    """Safely render Markdown to sanitized HTML."""
+    if not text:
+        return ""
+    from django.utils.safestring import mark_safe
+
+    from aa_kanban.markdown import render_markdown as _render_markdown
+
+    return mark_safe(_render_markdown(text))
