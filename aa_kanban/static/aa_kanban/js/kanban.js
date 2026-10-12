@@ -8,12 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const canWrite = boardContainer.dataset.canWrite === "true";
-    if (!canWrite) {
-        // Read-only access: do not initialize SortableJS
-        return;
-    }
-
-    const cardContainers = document.querySelectorAll(".kanban-cards");
+    if (canWrite) {
+        const cardContainers = document.querySelectorAll(".kanban-cards");
     cardContainers.forEach(function (container) {
         if (typeof Sortable === "undefined") {
             console.error("SortableJS is not loaded.");
@@ -100,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
         });
     });
+    }
 
     function updateListCounts() {
         document.querySelectorAll(".kanban-column").forEach(function (col) {
@@ -204,6 +201,44 @@ document.addEventListener("DOMContentLoaded", function () {
         // Re-initialize tooltips for new content
         initTooltips();
     });
+
+    // Card modal lifecycle & dynamic loading via Bootstrap show.bs.modal
+    const cardModalEl = document.getElementById("cardModal");
+    if (cardModalEl) {
+        cardModalEl.addEventListener("show.bs.modal", function (event) {
+            const triggerEl = event.relatedTarget;
+            if (!triggerEl) {
+                return;
+            }
+            const modalUrl = triggerEl.dataset.modalUrl || triggerEl.getAttribute("data-modal-url") || triggerEl.getAttribute("hx-get");
+            if (modalUrl) {
+                const modalBody = document.getElementById("cardModalBody");
+                if (modalBody) {
+                    modalBody.innerHTML = `
+                        <div class="modal-body text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>`;
+                }
+                if (typeof htmx !== "undefined") {
+                    htmx.ajax("GET", modalUrl, { target: "#cardModalBody", swap: "innerHTML" });
+                }
+            }
+        });
+
+        cardModalEl.addEventListener("hidden.bs.modal", function () {
+            const modalBody = document.getElementById("cardModalBody");
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div class="modal-body text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>`;
+            }
+        });
+    }
 
     function initTooltips() {
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');

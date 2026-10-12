@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Card Modal Infinite Spinner on Click (TASK-83)**: Fixed card detail modal hanging with an infinite loading spinner when clicked. Migrated modal loading from conflicting click attributes on the SortableJS drag handle to native Bootstrap 5 `show.bs.modal` event handling with `htmx.ajax`, added clean loading spinner resets on show/hidden lifecycle, and ensured modal event handlers run for both read-only and write users.
 - **Card & Ticket Description Input Field Contrast (TASK-82)**: Restored standard Bootstrap 5 `.form-control` appearance on card and ticket description textareas, ensuring high contrast, crisp borders, and distinct input background matching other form fields across all dark and light themes (e.g. Darkly).
 
 ## [0.12.1] - 2026-10-11

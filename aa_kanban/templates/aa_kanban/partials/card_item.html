@@ -4,10 +4,9 @@
      {% if hx_oob %}{% if hx_oob_append %}hx-swap-oob="beforeend:#list-cards-{{ card.list.id }}"{% else %}hx-swap-oob="true"{% endif %}{% endif %}
      data-card-id="{{ card.id }}"
      data-move-url="{% url 'aa_kanban:move_card' card.id %}"
+     data-modal-url="{% url 'aa_kanban:card_modal' card.id %}"
      data-bs-toggle="modal"
-     data-bs-target="#cardModal"
-     hx-get="{% url 'aa_kanban:card_modal' card.id %}"
-     hx-target="#cardModalBody">
+     data-bs-target="#cardModal">
 
     {% if card.labels.all and not summary_mode %}
         <div class="d-flex flex-wrap gap-1 mb-2">
