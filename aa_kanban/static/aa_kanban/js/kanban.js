@@ -2,13 +2,13 @@
  * aa-kanban - SortableJS and HTMX integration for Drag & Drop Kanban
  */
 document.addEventListener("DOMContentLoaded", function () {
+    // Board-specific drag-and-drop setup (Sortable) only applies on pages
+    // that render a board (.kanban-board-container). Markdown image uploads
+    // and the rest of this script run unconditionally below, since they're
+    // also used on standalone pages like the ticket submission form.
     const boardContainer = document.querySelector(".kanban-board-container");
-    if (!boardContainer) {
-        return;
-    }
-
-    const canWrite = boardContainer.dataset.canWrite === "true";
-    if (canWrite) {
+    const canWrite = boardContainer && boardContainer.dataset.canWrite === "true";
+    if (boardContainer && canWrite) {
         const cardContainers = document.querySelectorAll(".kanban-cards");
     cardContainers.forEach(function (container) {
         if (typeof Sortable === "undefined") {
