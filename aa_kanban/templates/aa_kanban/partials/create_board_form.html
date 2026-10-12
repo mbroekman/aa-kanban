@@ -59,6 +59,20 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="board-stale-card-repeat-hours" class="form-label fw-semibold">
+                        <i class="fas fa-redo me-1 text-warning"></i>{% trans "Alert Reminder Repeat (hours)" %}
+                    </label>
+                    <input type="number"
+                           min="0"
+                           id="board-stale-card-repeat-hours"
+                           name="stale_card_repeat_hours"
+                           class="form-control"
+                           placeholder="24"
+                           value="{{ form_data.stale_card_repeat_hours|default:24 }}">
+                    <div class="form-text">{% trans "Hours to wait before sending a repeat reminder for an inactive card (0 for one-time alert only)." %}</div>
+                </div>
+
+                <div class="mb-3">
                     <label for="board-discord-alert-channel" class="form-label fw-semibold">
                         <i class="fab fa-discord me-1 text-info"></i>{% trans "Discord Alert Channel ID" %}
                     </label>

@@ -1058,5 +1058,18 @@ msgstr ""
 "\n"
 "🔗 [Bord bekijken]({url})"
 
+msgid "Alert Reminder Repeat (hours)"
+msgstr "Herhaling signalering (uren)"
+
+msgid "Hours to wait before sending a repeat reminder for an inactive card (0 for one-time alert only)."
+msgstr "Aantal uren wachten alvorens een herinnering te sturen voor een inactieve kaart (0 voor alleen eenmalige signalering)."
+
+msgid "Hours between reminder alerts for a still inactive card (0 for one-time alert only)."
+msgstr "Uren tussen herinneringssignalen voor een nog steeds inactieve kaart (0 voor alleen eenmalige signalering)."
+
+msgid "Timestamp when the last stale card alert was sent for this card."
+msgstr "Tijdstip waarop de laatste signalering voor deze kaart is verzonden."
+
+
 
 

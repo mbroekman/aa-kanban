@@ -120,6 +120,14 @@ def create_board(request: HttpRequest) -> HttpResponse:
             if stale_card_alert_hours_str.isdigit()
             else 0
         )
+        stale_card_repeat_hours_str = request.POST.get(
+            "stale_card_repeat_hours", "24"
+        ).strip()
+        stale_card_repeat_hours = (
+            int(stale_card_repeat_hours_str)
+            if stale_card_repeat_hours_str.isdigit()
+            else 24
+        )
         is_ticket_board = request.POST.get("is_ticket_board") == "on"
 
         if not name:
@@ -138,6 +146,7 @@ def create_board(request: HttpRequest) -> HttpResponse:
             discord_alert_webhook=discord_alert_webhook,
             discord_webhook_cards=discord_webhook_cards,
             stale_card_alert_hours=stale_card_alert_hours,
+            stale_card_repeat_hours=stale_card_repeat_hours,
             is_ticket_board=is_ticket_board,
             created_by=request.user,  # type: ignore[misc]
         )
@@ -219,6 +228,14 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
             if stale_card_alert_hours_str.isdigit()
             else 0
         )
+        stale_card_repeat_hours_str = request.POST.get(
+            "stale_card_repeat_hours", "24"
+        ).strip()
+        stale_card_repeat_hours = (
+            int(stale_card_repeat_hours_str)
+            if stale_card_repeat_hours_str.isdigit()
+            else 24
+        )
         is_ticket_board = request.POST.get("is_ticket_board") == "on"
 
         if not name:
@@ -237,6 +254,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         board.discord_alert_webhook = discord_alert_webhook
         board.discord_webhook_cards = discord_webhook_cards
         board.stale_card_alert_hours = stale_card_alert_hours
+        board.stale_card_repeat_hours = stale_card_repeat_hours
         board.is_ticket_board = is_ticket_board
         board.save(
             update_fields=[
@@ -247,6 +265,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
                 "discord_alert_webhook",
                 "discord_webhook_cards",
                 "stale_card_alert_hours",
+                "stale_card_repeat_hours",
                 "is_ticket_board",
                 "updated_at",
             ]

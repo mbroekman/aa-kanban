@@ -131,6 +131,7 @@ def check_stale_cards():
         webhook_url = board.discord_alert_webhook or board.discord_webhook_cards
 
         sent_bot = False
+        alert_dispatched = False
         if channel_id:
             try:
                 from aadiscordbot.tasks import run_task_function
@@ -144,6 +145,7 @@ def check_stale_cards():
                     queue="aadiscordbot",
                 )
                 sent_bot = True
+                alert_dispatched = True
             except ImportError:
                 logger.warning(
                     "aadiscordbot is not available, falling back to webhook if configured."
@@ -151,6 +153,14 @@ def check_stale_cards():
 
         if not sent_bot and webhook_url:
             send_discord_webhook(webhook_url, message)
+            alert_dispatched = True
+
+        if alert_dispatched:
+            from django.utils import timezone
+
+            Card.objects.filter(pk__in=[c.pk for c in stale_cards]).update(
+                last_stale_alert_at=timezone.now()
+            )
 
 
 async def _create_discord_thread(bot, card_id: int):

@@ -181,6 +181,12 @@ class Board(models.Model):
             "Hours of inactivity after which cards trigger an alert (0 to disable)."
         ),
     )
+    stale_card_repeat_hours = models.PositiveIntegerField(
+        default=24,
+        help_text=_(
+            "Hours between reminder alerts for a still inactive card (0 for one-time alert only)."
+        ),
+    )
     is_ticket_board = models.BooleanField(
         default=False,
         help_text=_("Allow members to submit tickets to this board."),
@@ -278,22 +284,26 @@ class Board(models.Model):
 
         Excludes cards in finished/completed columns (e.g. 'Done', 'Afgerond').
         Considers both card updates and comment timestamps for activity.
+        Respects stale_card_repeat_hours for throttling:
+          - If repeat_hours == 0: cards already alerted are excluded until new activity occurs.
+          - If repeat_hours > 0: cards already alerted are excluded until repeat_hours have passed.
         """
         if not self.stale_card_alert_hours or self.stale_card_alert_hours <= 0:
             return Card.objects.none()
 
         from datetime import timedelta
 
-        from django.db.models import Max, Q
+        from django.db.models import F, Max, Q
         from django.utils import timezone
 
-        cutoff = timezone.now() - timedelta(hours=self.stale_card_alert_hours)
+        now = timezone.now()
+        cutoff = now - timedelta(hours=self.stale_card_alert_hours)
         done_keywords = ["done", "afgerond", "completed", "closed", "gesloten"]
         done_q = Q()
         for kw in done_keywords:
             done_q |= Q(list__name__icontains=kw)
 
-        return (
+        qs = (
             Card.objects.filter(list__board=self)
             .exclude(done_q)
             .annotate(last_comment_time=Max("comments__created_at"))
@@ -305,7 +315,32 @@ class Board(models.Model):
                     updated_at__lt=cutoff,
                 )
             )
-            .select_related("list", "created_by")
+        )
+
+        # Throttling / repeat check
+        if self.stale_card_repeat_hours == 0:
+            qs = qs.filter(
+                Q(last_stale_alert_at__isnull=True)
+                | Q(last_stale_alert_at__lt=F("updated_at"))
+                | Q(
+                    last_comment_time__isnull=False,
+                    last_stale_alert_at__lt=F("last_comment_time"),
+                )
+            )
+        else:
+            repeat_cutoff = now - timedelta(hours=self.stale_card_repeat_hours)
+            qs = qs.filter(
+                Q(last_stale_alert_at__isnull=True)
+                | Q(last_stale_alert_at__lt=repeat_cutoff)
+                | Q(last_stale_alert_at__lt=F("updated_at"))
+                | Q(
+                    last_comment_time__isnull=False,
+                    last_stale_alert_at__lt=F("last_comment_time"),
+                )
+            )
+
+        return (
+            qs.select_related("list", "created_by")
             .prefetch_related("assignees")
             .order_by("updated_at")
         )
@@ -421,6 +456,11 @@ class Card(models.Model):
     )
 
     due_date = models.DateTimeField(null=True, blank=True)
+    last_stale_alert_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_("Timestamp when the last stale card alert was sent for this card."),
+    )
     created_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

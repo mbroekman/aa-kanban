@@ -154,6 +154,7 @@ def test_create_and_edit_board_with_stale_alert_fields(user_factory):
             "name": "Alerts Board",
             "description": "Board with alerts",
             "stale_card_alert_hours": "36",
+            "stale_card_repeat_hours": "12",
             "discord_alert_channel_id": "987654321",
             "discord_alert_webhook": "https://discord.com/api/webhooks/alert-test",
             "discord_webhook_cards": "https://discord.com/api/webhooks/cards-test",
@@ -163,6 +164,7 @@ def test_create_and_edit_board_with_stale_alert_fields(user_factory):
 
     board = Board.objects.get(name="Alerts Board")
     assert board.stale_card_alert_hours == 36
+    assert board.stale_card_repeat_hours == 12
     assert board.discord_alert_channel_id == 987654321
     assert board.discord_alert_webhook == "https://discord.com/api/webhooks/alert-test"
     assert board.discord_webhook_cards == "https://discord.com/api/webhooks/cards-test"
@@ -174,6 +176,7 @@ def test_create_and_edit_board_with_stale_alert_fields(user_factory):
             "name": "Alerts Board Updated",
             "description": "Updated",
             "stale_card_alert_hours": "72",
+            "stale_card_repeat_hours": "48",
             "discord_alert_channel_id": "111222333",
             "discord_alert_webhook": "",
             "discord_webhook_cards": "https://discord.com/api/webhooks/cards-test",
@@ -184,6 +187,7 @@ def test_create_and_edit_board_with_stale_alert_fields(user_factory):
     board.refresh_from_db()
     assert board.name == "Alerts Board Updated"
     assert board.stale_card_alert_hours == 72
+    assert board.stale_card_repeat_hours == 48
     assert board.discord_alert_channel_id == 111222333
     assert board.discord_alert_webhook is None
 
@@ -209,6 +213,8 @@ def test_check_stale_cards_task_webhook_dispatch(board_setup):
         assert args[0] == "https://discord.com/api/webhooks/stale-alert"
         assert "Delayed Task 1" in args[1]
         assert "Stale Test Board" in args[1]
+        card.refresh_from_db()
+        assert card.last_stale_alert_at is not None
 
 
 @pytest.mark.django_db
@@ -271,3 +277,89 @@ def test_format_stale_cards_message_english_and_dutch(board_setup):
         assert "Stilstand:" in msg_nl
         assert "Toegewezen: Niet toegewezen" in msg_nl
         assert "Bord bekijken" in msg_nl
+
+
+@pytest.mark.django_db
+def test_stale_cards_throttling_within_repeat_interval(board_setup):
+    """Cards that were alerted recently are excluded from subsequent checks within repeat_hours."""
+    board = board_setup["board"]
+    board.stale_card_alert_hours = 24
+    board.stale_card_repeat_hours = 24
+    board.save(update_fields=["stale_card_alert_hours", "stale_card_repeat_hours"])
+
+    past_48h = timezone.now() - timedelta(hours=48)
+    alerted_2h_ago = timezone.now() - timedelta(hours=2)
+
+    card = Card.objects.create(
+        list=board_setup["in_progress"],
+        title="Throttled Card",
+    )
+    Card.objects.filter(pk=card.pk).update(
+        updated_at=past_48h,
+        last_stale_alert_at=alerted_2h_ago,
+    )
+
+    # 48h inactive, but alerted 2h ago and repeat is 24h -> should be throttled
+    stale_cards = list(board.get_stale_cards())
+    assert card not in stale_cards
+
+
+@pytest.mark.django_db
+def test_stale_cards_repeat_after_interval_passed(board_setup):
+    """Cards are alerted again once stale_card_repeat_hours have elapsed since last_stale_alert_at."""
+    board = board_setup["board"]
+    board.stale_card_alert_hours = 24
+    board.stale_card_repeat_hours = 24
+    board.save(update_fields=["stale_card_alert_hours", "stale_card_repeat_hours"])
+
+    past_72h = timezone.now() - timedelta(hours=72)
+    alerted_25h_ago = timezone.now() - timedelta(hours=25)
+
+    card = Card.objects.create(
+        list=board_setup["in_progress"],
+        title="Repeat Alert Card",
+    )
+    Card.objects.filter(pk=card.pk).update(
+        updated_at=past_72h,
+        last_stale_alert_at=alerted_25h_ago,
+    )
+
+    # 72h inactive, alerted 25h ago, repeat is 24h -> should be included for repeat alert
+    stale_cards = list(board.get_stale_cards())
+    assert card in stale_cards
+
+
+@pytest.mark.django_db
+def test_stale_cards_one_time_alert_policy(board_setup):
+    """When stale_card_repeat_hours is 0, cards are only alerted once until new activity occurs."""
+    board = board_setup["board"]
+    board.stale_card_alert_hours = 24
+    board.stale_card_repeat_hours = 0
+    board.save(update_fields=["stale_card_alert_hours", "stale_card_repeat_hours"])
+
+    past_48h = timezone.now() - timedelta(hours=48)
+
+    card = Card.objects.create(
+        list=board_setup["in_progress"],
+        title="One Time Alert Card",
+    )
+    Card.objects.filter(pk=card.pk).update(updated_at=past_48h)
+
+    # First check: never alerted before -> included
+    assert card in list(board.get_stale_cards())
+
+    # Simulate alert sent
+    Card.objects.filter(pk=card.pk).update(last_stale_alert_at=timezone.now())
+
+    # Second check: already alerted, repeat is 0 -> excluded
+    assert card not in list(board.get_stale_cards())
+
+    # If new activity occurs (e.g. card title/comment updated) and then becomes stale again
+    past_30h = timezone.now() - timedelta(hours=30)
+    old_alert = timezone.now() - timedelta(hours=35)
+    Card.objects.filter(pk=card.pk).update(
+        updated_at=past_30h,
+        last_stale_alert_at=old_alert,
+    )
+    # New activity happened after the old alert (30h ago vs 35h ago) -> included again!
+    assert card in list(board.get_stale_cards())
