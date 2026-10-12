@@ -6,6 +6,11 @@ from django.utils.translation import gettext as _
 
 from .models import Board, Card
 
+try:
+    from allianceauth.services.modules.discord.models import DiscordUser
+except ImportError:
+    DiscordUser = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -192,19 +197,17 @@ async def _create_discord_thread(bot, card_id: int):
 
         # Prepare mentions
         mentions = []
-        try:
-            # Attempt to get Discord UID for the creator
-            from allianceauth.services.modules.discord.models import DiscordUser
-
-            creator_discord = await sync_to_async(
-                DiscordUser.objects.filter(user=card.created_by).first
-            )()
-            if creator_discord:
-                mentions.append(f"<@{creator_discord.uid}>")
-        except Exception as e:
-            logger.warning(
-                f"Could not fetch discord user for {card.created_by.username}: {e}"
-            )
+        if DiscordUser:
+            try:
+                creator_discord = await sync_to_async(
+                    DiscordUser.objects.filter(user=card.created_by).first
+                )()
+                if creator_discord:
+                    mentions.append(f"<@{creator_discord.uid}>")
+            except Exception as e:
+                logger.warning(
+                    f"Could not fetch discord user for {card.created_by.username}: {e}"
+                )
 
         assigned_team_msg = ""
         if card.assigned_team:
@@ -245,10 +248,8 @@ async def _create_discord_thread(bot, card_id: int):
             logger.info(f"Created Discord thread {thread.id} for card {card.id}")
 
             # Auto-invite team members if a team is assigned
-            if card.assigned_team:
+            if card.assigned_team and DiscordUser:
                 try:
-                    from allianceauth.services.modules.discord.models import DiscordUser
-
                     all_team_members = await sync_to_async(list)(
                         card.assigned_team.get_all_members()
                     )
@@ -342,12 +343,11 @@ async def _send_discord_thread_message(
                 except ImportError:
                     discord = None
 
-                from allianceauth.services.modules.discord.models import DiscordUser
-
-                all_team_members = await sync_to_async(list)(team.get_all_members())
-                team_discord_users = await sync_to_async(list)(
-                    DiscordUser.objects.filter(user__in=all_team_members)
-                )
+                if DiscordUser:
+                    all_team_members = await sync_to_async(list)(team.get_all_members())
+                    team_discord_users = await sync_to_async(list)(
+                        DiscordUser.objects.filter(user__in=all_team_members)
+                    )
                 for du in team_discord_users:
                     try:
                         user_target = (

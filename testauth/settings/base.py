@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "allianceauth.admin_status",
     "allianceauth.authentication",
     "allianceauth.services",
+    "allianceauth.services.modules.discord",
     "allianceauth.eveonline",
     "allianceauth.groupmanagement",
     "allianceauth.notifications",
