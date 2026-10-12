@@ -1,6 +1,6 @@
 ---
 id: TASK-51.1
-title: 'Datamodellen: Board, List, Card, Assignees'
+title: Data models: Board, List, Card, Assignees
 status: Done
 assignee: []
 created_date: '2026-09-28 19:14'
@@ -14,9 +14,7 @@ ordinal: 60000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-
-Implement Django models for the Kanban app. The application requires at least: Board, List, Card, Card Assignees. Create the `models.py` file and write pytest fixtures and tests directly.
-
+Implement Django models for the Kanban app: Board, List, Card, Card Assignees with pytest coverage.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

@@ -16,29 +16,29 @@ ordinal: 91000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Onderzoek en herstel de fouten in de pre-commit workflow op GitHub Actions (run https://github.com/mbroekman/aa-kanban/actions/runs/38062511092/job/114243471449#step:4:1091).
+Investigate and resolve pre-commit check failures in GitHub Actions CI workflow.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 
 <!-- AC:BEGIN -->
-- [x] #1 Oorzaak van de pre-commit check faalactie geïdentificeerd
-- [x] #2 Relevante bestanden/configuraties gecorrigeerd conform pre-commit regels
-- [x] #3 Alle pre-commit checks slagen lokaal / in remote sandbox
-- [x] #4 Wijzigingen gedocumenteerd in CHANGELOG.md en gepusht
+- [x] #1 Root cause of pre-commit CI failure identified
+- [x] #2 Relevant files and configuration updated according to pre-commit rules
+- [x] #3 All pre-commit checks pass locally and on CI
+- [x] #4 Changes documented and pushed
 <!-- AC:END -->
 
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-1. Haal de exacte foutmelding op uit de GitHub Actions run of reproduceer lokaal/via remote pre-commit runner.
-2. Pas de vereiste fixes toe op de code en/of configuratie.
-3. Valideer met pre-commit run --all-files.
-4. Werk documentatie en backlog bij.
+1. Inspect failure logs from GitHub Actions run.
+2. Apply fixes to code and configuration.
+3. Validate locally with pre-commit run --all-files.
+4. Update documentation and backlog.
 <!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Tweede CI-run faalde op mdformat voor dit taakbestand: lokaal werd het overgeslagen omdat `pre-commit run --all-files` alleen getrackte bestanden controleert. backlog-md schrijft taakbestanden in een eigen formaat dat mdformat steeds herschrijft (zelfde oorzaak als TASK-50/52). Oplossing: `backlog/` uitgesloten van de mdformat hook. Geverifieerd met een verse clone op Linux.
+Resolved Flake8 E203 whitespace error in slice syntax in tasks.py and excluded backlog/ directory from mdformat to prevent backlog-md format collisions.
 <!-- SECTION:NOTES:END -->

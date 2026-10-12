@@ -17,30 +17,24 @@ ordinal: 90000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-
-Teams (`KanbanTeam`) kunnen momenteel alleen individuele gebruikers gekoppeld krijgen. Breid `KanbanTeam` uit met een ManyToMany relatie naar Django `Group` (Auth Groups), zodat complete groepen aan een team gekoppeld kunnen worden via de frontend settings UI. Zorg dat bij de automatische Discord thread auto-invite (zowel bij het aanmaken van een ticket als bij teamtoewijzing) alle leden van zowel de directe teamleden als de gekoppelde auth groepen worden uitgenodigd.
-
+Teams (`KanbanTeam`) previously only supported direct user assignment. Extend `KanbanTeam` with a ManyToMany relation to Django `Group` (Auth Groups) so entire groups can be assigned in frontend settings. Ensure automatic Discord thread invites collect all members from direct users and linked auth groups.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 
 <!-- AC:BEGIN -->
-
-- [x] #1 `KanbanTeam` model uitgebreid met `groups = ManyToManyField(Group)` en migratie aangemaakt
-- [x] #2 Frontend settings UI uitgebreid zodat Auth Groups geselecteerd en beheerd kunnen worden voor een `KanbanTeam`
-- [x] #3 Auto-invite in `tasks.py` verzamelt zowel directe teamleden als leden via gekoppelde auth groepen
-- [x] #4 Unit tests geschreven en geslaagd
-
+- [x] #1 `KanbanTeam` model expanded with `groups = ManyToManyField(Group)` and migration created
+- [x] #2 Frontend settings UI updated to select and manage Auth Groups for a `KanbanTeam`
+- [x] #3 Auto-invite in `tasks.py` collects both direct team members and members from linked auth groups
+- [x] #4 Unit tests pass
 <!-- AC:END -->
 
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-
-1. Voeg `groups = models.ManyToManyField(Group, blank=True, related_name="kanban_ticket_teams")` toe aan `KanbanTeam` in `models.py`.
-1. Maak migratie `0020_kanbanteam_groups.py` aan.
-1. Werk `views_settings.py`, `urls.py` en `team_users_modal.html` bij met endpoints voor toevoegen/verwijderen van auth groups aan teams.
-1. Werk `tasks.py` bij in `_create_discord_thread` en `_send_discord_thread_message` om alle users (direct + via groups) op te halen.
-1. Schrijf unit tests en valideer via remote test suite.
-
+1. Add `groups = models.ManyToManyField(Group, blank=True, related_name="kanban_ticket_teams")` to `KanbanTeam` in `models.py`.
+2. Generate migration `0020_kanbanteam_groups.py`.
+3. Update `views_settings.py`, `urls.py`, and `team_users_modal.html` with endpoints for adding/removing auth groups to teams.
+4. Update `tasks.py` to retrieve all members (`get_all_members()`).
+5. Write unit tests and validate with test suite.
 <!-- SECTION:PLAN:END -->

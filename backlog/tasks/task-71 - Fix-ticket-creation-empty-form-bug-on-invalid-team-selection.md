@@ -1,10 +1,10 @@
 ---
 id: TASK-71
-title: Fix ticket creation empty form bug (lege dialoog)
+title: Fix ticket creation empty form bug on invalid team selection
 status: Done
 assignee: []
 created_date: '2026-10-02 15:09'
-updated_date: '2026-10-02 15:10'
+updated_date: '2026-10-12 07:12'
 labels: []
 dependencies: []
 ordinal: 87000

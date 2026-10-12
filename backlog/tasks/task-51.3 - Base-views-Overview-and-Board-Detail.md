@@ -1,6 +1,6 @@
 ---
 id: TASK-51.3
-title: 'Basis Views: Overzicht & Board Detail'
+title: Base Views: Overview & Board Detail
 status: Done
 assignee: []
 created_date: '2026-09-28 19:14'
@@ -14,9 +14,7 @@ ordinal: 62000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-
-Create the base views and templates using standard Alliance Auth Bootstrap 3/5 themes.
-
+Create the base views and templates using standard Alliance Auth Bootstrap themes.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

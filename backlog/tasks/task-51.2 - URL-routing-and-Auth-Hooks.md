@@ -14,9 +14,7 @@ ordinal: 61000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-
 Implement URL routing and integrate the app into the Alliance Auth menu system.
-
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

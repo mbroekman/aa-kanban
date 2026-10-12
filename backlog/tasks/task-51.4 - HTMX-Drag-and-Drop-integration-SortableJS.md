@@ -1,6 +1,6 @@
 ---
 id: TASK-51.4
-title: HTMX Drag&Drop integratie (SortableJS)
+title: HTMX Drag & Drop integration (SortableJS)
 status: Done
 assignee: []
 created_date: '2026-09-28 19:14'
@@ -14,9 +14,7 @@ ordinal: 63000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-
-Add interactivity to the Kanban board.
-
+Add drag-and-drop interactivity to Kanban boards using SortableJS and HTMX.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
