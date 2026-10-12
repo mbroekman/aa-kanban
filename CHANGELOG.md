@@ -2,10 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.13.0] - 2026-10-12
 
 ### Added
 
+- **Frontend-Managed Board Management Permission (TASK-84)**: Added `can_manage_boards` flag to `KanbanGroup` (migration `0023_kanbangroup_can_manage_boards`), so officers can grant access to the Settings page and board create/edit/delete entirely from the frontend Settings UI (direct membership or via a linked Auth Group), without needing Django admin access to assign the native `aa_kanban.manage_boards` permission. The native permission still works as a backward-compatible fallback.
 - **Image Support in Card Descriptions & Tickets (TASK-77)**:
   - Added backend endpoint `/kanban/api/upload-image/` with 5MB size limit, MIME type, and magic bytes validation (PNG, JPEG, GIF, WebP).
   - Added `KanbanAttachment` model and migration `0022_kanbanattachment` for tracking uploaded media securely in `MEDIA_ROOT`.
