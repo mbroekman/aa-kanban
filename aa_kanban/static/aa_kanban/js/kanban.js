@@ -202,27 +202,31 @@ document.addEventListener("DOMContentLoaded", function () {
         initTooltips();
     });
 
-    // Card modal lifecycle & dynamic loading via Bootstrap show.bs.modal
+    // Card modal lifecycle & fallback
     const cardModalEl = document.getElementById("cardModal");
     if (cardModalEl) {
         cardModalEl.addEventListener("show.bs.modal", function (event) {
             const triggerEl = event.relatedTarget;
-            if (!triggerEl) {
-                return;
-            }
-            const modalUrl = triggerEl.dataset.modalUrl || triggerEl.getAttribute("data-modal-url") || triggerEl.getAttribute("hx-get");
-            if (modalUrl) {
-                const modalBody = document.getElementById("cardModalBody");
-                if (modalBody) {
-                    modalBody.innerHTML = `
-                        <div class="modal-body text-center py-5">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>`;
-                }
-                if (typeof htmx !== "undefined") {
-                    htmx.ajax("GET", modalUrl, { target: "#cardModalBody", swap: "innerHTML" });
+            if (!triggerEl) return;
+            const cardEl = triggerEl.closest ? triggerEl.closest(".kanban-card") : null;
+            if (!cardEl) return;
+            // Native fallback only if HTMX is unavailable
+            if (typeof htmx === "undefined") {
+                const modalUrl = cardEl.getAttribute("hx-get") || cardEl.dataset.modalUrl;
+                if (modalUrl) {
+                    fetch(modalUrl, { credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } })
+                        .then(function (res) { return res.text(); })
+                        .then(function (html) {
+                            const modalBody = document.getElementById("cardModalBody");
+                            if (modalBody) {
+                                modalBody.innerHTML = html;
+                                initTooltips();
+                                initMarkdownImageUploads();
+                            }
+                        })
+                        .catch(function (err) {
+                            console.error("Failed to load card modal:", err);
+                        });
                 }
             }
         });

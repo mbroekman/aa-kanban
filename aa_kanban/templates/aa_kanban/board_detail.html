@@ -197,10 +197,19 @@
 {% block extra_javascript %}
 {{ block.super }}
 <script src="{% static 'aa_kanban/libs/Sortable.min.js' %}"></script>
-<script src="{% static 'aa_kanban/js/kanban.js' %}"></script>
+<script src="{% static 'aa_kanban/js/kanban.js' %}?v=4"></script>
 <script>
 (function () {
     'use strict';
+    var cm = document.getElementById('cardModal');
+    if (cm) {
+        cm.addEventListener('hidden.bs.modal', function () {
+            var body = document.getElementById('cardModalBody');
+            if (body) {
+                body.innerHTML = '<div class="modal-body text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">{% trans "Loading..." %}</span></div></div>';
+            }
+        });
+    }
 })();
 </script>
 {% endblock %}
