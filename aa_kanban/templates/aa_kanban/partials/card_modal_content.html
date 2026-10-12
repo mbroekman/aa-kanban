@@ -102,20 +102,20 @@
                   hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                   hx-target="#card-description-status"
                   hx-swap="innerHTML">
-                <div class="kanban-markdown-editor-wrapper p-2 mb-2" id="card-editor-dropzone">
-                    <div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom border-secondary border-opacity-25">
+                <div class="kanban-markdown-editor-wrapper mb-2" id="card-editor-dropzone">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
                         <small class="text-muted"><i class="fab fa-markdown me-1"></i>{% trans "Markdown supported" %}</small>
                         <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="btn-attach-card-img" title="{% trans 'Attach image (PNG, JPG, GIF, WebP)' %}">
                             <i class="fas fa-image me-1"></i>{% trans "Attach Image" %}
                         </button>
                     </div>
-                    <textarea class="form-control border-0 bg-transparent shadow-none kanban-markdown-textarea"
+                    <textarea class="form-control kanban-markdown-textarea"
                               id="card-desc-textarea"
                               name="description"
                               rows="4"
                               data-upload-url="{% url 'aa_kanban:upload_image' %}"
                               placeholder="{% trans 'Add a detailed description... Paste (Ctrl+V) or drag & drop images.' %}">{{ card.description }}</textarea>
-                    <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center mt-1">
                         <small class="text-muted" style="font-size: 0.72rem;">
                             <i class="fas fa-info-circle me-1"></i>{% trans "Paste (Ctrl+V), drag & drop, or click Attach Image (max 5MB)." %}
                         </small>

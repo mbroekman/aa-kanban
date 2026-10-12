@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
   - Added safe Markdown rendering engine (`aa_kanban.markdown`) with BeautifulSoup XSS sanitization, responsive image styling, and Bootstrap 5 fullscreen lightbox zoom modal on image click.
   - Added `/kanban/api/preview-markdown/` endpoint and live `[Write]` / `[Preview]` tabs in the ticket submission form and card modal.
 
+### Fixed
+
+- **Card & Ticket Description Input Field Contrast (TASK-82)**: Restored standard Bootstrap 5 `.form-control` appearance on card and ticket description textareas, ensuring high contrast, crisp borders, and distinct input background matching other form fields across all dark and light themes (e.g. Darkly).
+
 ## [0.12.1] - 2026-10-11
 
 ### Fixed
