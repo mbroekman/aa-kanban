@@ -48,23 +48,37 @@
     cursor: grabbing !important;
 }
 
-/* Dark mode specific overrides for buttons and text */
-[data-bs-theme="dark"] .btn-outline-secondary {
-    color: #e9ecef;
-    border-color: #6c757d;
+/* Dark mode specific overrides for buttons and text.
+   Alliance Auth's theme switcher sets html[data-theme="darkly"], not
+   Bootstrap's native [data-bs-theme="dark"], so both must be targeted
+   or Bootswatch's own --bs-btn-color: #444 on .btn-outline-secondary
+   makes buttons like the card description Edit/Preview toggle nearly
+   invisible against the dark background. */
+html[data-theme="darkly"] .btn-outline-secondary,
+[data-bs-theme="dark"] .btn-outline-secondary,
+[data-theme="darkly"] .btn-outline-secondary {
+    color: #e9ecef !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
-[data-bs-theme="dark"] .btn-outline-secondary:hover {
-    color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
+html[data-theme="darkly"] .btn-outline-secondary:hover,
+[data-bs-theme="dark"] .btn-outline-secondary:hover,
+[data-theme="darkly"] .btn-outline-secondary:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.22) !important;
+    border-color: rgba(255, 255, 255, 0.65) !important;
 }
 
-[data-bs-theme="dark"] .text-muted {
+html[data-theme="darkly"] .text-muted,
+[data-bs-theme="dark"] .text-muted,
+[data-theme="darkly"] .text-muted {
     color: #adb5bd !important;
 }
 
-[data-bs-theme="dark"] .hover-bg-light:hover {
+html[data-theme="darkly"] .hover-bg-light:hover,
+[data-bs-theme="dark"] .hover-bg-light:hover,
+[data-theme="darkly"] .hover-bg-light:hover {
     background-color: #343a40 !important;
 }
 

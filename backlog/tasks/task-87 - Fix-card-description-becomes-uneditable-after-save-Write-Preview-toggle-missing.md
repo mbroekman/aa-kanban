@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-10-12 16:57'
-updated_date: '2026-10-12 17:42'
+updated_date: '2026-10-12 18:32'
 labels: []
 dependencies: []
 ordinal: 101000
@@ -29,5 +29,5 @@ After saving a card's description, the user can no longer edit it (likely descri
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Root cause: after saving a description, the server only OOB-swapped the rendered text (#card-desc-rendered), leaving the Edit/Preview toggle buttons and a stale 'Add description' prompt dependent on client-side JS class toggling that could desync from the true server state. Fix: extracted the whole description block (toggle buttons, view box, edit form) into its own partial (card_description_block.html) and re-render it as ONE OOB swap after every save, so the UI is always 100% consistent with the saved state. Simplified kanban.js accordingly (removed the now-unnecessary client-side toggleCardDescMode('view') call after save). Added 2 regression tests. 107 passed, 8 skipped on devauth; live-verified via a second edit on an already-saved card.
+ROOT CAUSE CORRECTION: the OOB full-block re-render (first fix) was a legitimate robustness improvement but NOT the actual cause of the reported symptom. Live browser testing on devauth revealed the true cause: kanban.css's dark-theme override for .btn-outline-secondary targeted [data-bs-theme="dark"], but this Alliance Auth instance sets html[data-theme="darkly"] instead (confirmed via getComputedStyle: button color/border were both #444, i.e. invisible against the dark background). The override never applied, making Edit/Preview/Attach Image buttons present and functional but practically invisible. Fixed the CSS selector to also match html[data-theme="darkly"] (same pattern already used in aa-recruitment's styles.html). Also caught and fixed a second, unrelated bug in my own deploy workflow: editing CSS requires sandbox-sync.ps1 -CollectStatic (not just a restart) because of Django's ManifestStaticFilesStorage hashed filenames -- forgetting it served a stale hashed CSS file despite the restart. Live-verified via Chrome on devauth: Edit/Preview/Attach Image buttons now render with clear contrast (confirmed via getComputedStyle), full edit-after-save cycle works. 107 passed, 8 skipped.
 <!-- SECTION:NOTES:END -->

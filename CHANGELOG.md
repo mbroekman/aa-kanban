@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- **Card Description Uneditable After Save (TASK-87)**: Fixed a regression where, after saving a card's description, the Edit/Preview toggle button group and the Edit button could be left out of sync with the saved state, and a stale "Add description" prompt could linger even though a description already existed. The server now re-renders the entire description block (toggle buttons, rendered view, and edit form) as a single out-of-band swap after every save, so the UI is always structurally consistent with the saved state instead of relying on client-side guesswork.
+- **Card Description Edit/Preview Buttons Nearly Invisible on Darkly Theme (TASK-87)**: The true root cause of reports that the description could not be edited and the Preview toggle had "disappeared": the dark-theme CSS override for `.btn-outline-secondary` targeted Bootstrap's native `[data-bs-theme="dark"]` attribute, but Alliance Auth's theme switcher sets `html[data-theme="darkly"]` instead, so the override never applied. The Edit/Preview/Attach Image buttons were present and functional all along, just rendered nearly invisible (dark-grey text and border on a dark-grey background) by Bootswatch Darkly's defaults. Fixed the selector to also match `html[data-theme="darkly"]`, restoring visible contrast across every `.btn-outline-secondary` button in the app (card/ticket description editors, group and team management, etc.).
+- **Card Description Stale State After Save**: Also hardened the save flow so it no longer relies on client-side guesswork: after saving, the server now re-renders the entire description block (toggle buttons, rendered view, and edit form) as a single out-of-band swap, eliminating a related edge case where a stale "Add description" prompt could linger after a description was first saved.
 
 ## [0.13.0] - 2026-10-12
 
