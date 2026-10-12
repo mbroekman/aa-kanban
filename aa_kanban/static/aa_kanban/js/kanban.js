@@ -417,13 +417,12 @@ document.addEventListener("DOMContentLoaded", function () {
         initMarkdownImageUploads();
     });
 
-    // Reset forms after successful HTMX post (except description edit form)
+    // Reset forms after successful HTMX post (description form is fully
+    // replaced via its own OOB swap, so it never needs a reset here)
     document.body.addEventListener('htmx:afterRequest', function(evt) {
         if (evt.detail.successful) {
             const elt = evt.detail.elt;
-            if (elt && elt.id === 'card-desc-form') {
-                toggleCardDescMode('view');
-            } else if (elt && elt.tagName === 'FORM' && elt.hasAttribute('hx-post')) {
+            if (elt && elt.id !== 'card-desc-form' && elt.tagName === 'FORM' && elt.hasAttribute('hx-post')) {
                 elt.reset();
             }
         }

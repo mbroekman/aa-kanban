@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- **Card Description Uneditable After Save (TASK-87)**: Fixed a regression where, after saving a card's description, the Edit/Preview toggle button group and the Edit button could be left out of sync with the saved state, and a stale "Add description" prompt could linger even though a description already existed. The server now re-renders the entire description block (toggle buttons, rendered view, and edit form) as a single out-of-band swap after every save, so the UI is always structurally consistent with the saved state instead of relying on client-side guesswork.
+
 ## [0.13.0] - 2026-10-12
 
 ### Added

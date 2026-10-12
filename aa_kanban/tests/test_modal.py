@@ -245,3 +245,58 @@ class TestCardAssigneesAndUpdates:
         assert response.status_code == 403
         data["card"].refresh_from_db()
         assert data["card"].title != "Hacked Title"
+
+    def test_update_description_response_leaves_edit_button_enabled(
+        self, user_factory, setup_modal_data
+    ):
+        """Regression (TASK-87): after saving a description, the rendered
+        response must put the whole description block back in "view mode"
+        with a clickable Edit button, not leave stale edit-mode markup."""
+        data = setup_modal_data
+        writer = user_factory("desc_save_writer")
+        writer.kanban_groups.add(data["write_grp"])
+
+        client = Client()
+        client.force_login(writer)
+
+        url = reverse("aa_kanban:update_card", kwargs={"card_id": data["card"].id})
+        response = client.post(url, {"description": "Updated via Edit button."})
+        assert response.status_code == 200
+        html = response.content.decode()
+
+        data["card"].refresh_from_db()
+        assert data["card"].description == "Updated via Edit button."
+
+        # Edit button must be visible (clickable), Preview button hidden again.
+        assert 'id="btn-card-desc-edit"' in html
+        edit_btn_markup = html.split('id="btn-card-desc-edit"')[0].rsplit("<button", 1)[
+            1
+        ]
+        assert "d-none" not in edit_btn_markup
+
+        # The form must be hidden again (back in read/view mode).
+        form_markup = html.split('id="card-desc-form"')[1].split(">", 1)[0]
+        assert "d-none" in form_markup
+
+        # No leftover "Add description" prompt once a description exists.
+        assert 'id="card-desc-empty-prompt"' not in html
+
+    def test_update_description_to_empty_reopens_edit_mode(
+        self, user_factory, setup_modal_data
+    ):
+        """Clearing a description must leave the form open for immediate
+        re-entry, matching the empty-description convention."""
+        data = setup_modal_data
+        writer = user_factory("desc_clear_writer")
+        writer.kanban_groups.add(data["write_grp"])
+
+        client = Client()
+        client.force_login(writer)
+
+        url = reverse("aa_kanban:update_card", kwargs={"card_id": data["card"].id})
+        response = client.post(url, {"description": ""})
+        assert response.status_code == 200
+        html = response.content.decode()
+
+        form_markup = html.split('id="card-desc-form"')[1].split(">", 1)[0]
+        assert "d-none" not in form_markup

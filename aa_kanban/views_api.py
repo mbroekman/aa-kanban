@@ -293,19 +293,22 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
     if "description" in request.POST:
         card.description = request.POST.get("description", "").strip()
         card.save(update_fields=["description", "updated_at"])
-        from aa_kanban.markdown import render_markdown
 
-        rendered_desc = render_markdown(card.description)
-        if not rendered_desc:
-            rendered_desc = (
-                f'<em class="text-muted">{_("No description provided.")}</em>'
-            )
+        from django.template.loader import render_to_string
 
         status_html = (
             '<span class="text-success"><i class="fas fa-check me-1"></i>Saved!</span>'
         )
-        oob_desc = f'<div id="card-desc-rendered" class="kanban-desc-rendered-content text-break" hx-swap-oob="innerHTML">{rendered_desc}</div>'
-        return HttpResponse(status_html + oob_desc)
+        desc_block_html = render_to_string(
+            "aa_kanban/partials/card_description_block.html",
+            {"card": card, "can_write": True},
+            request=request,
+        )
+        oob_desc_block = (
+            '<div id="card-description-block" hx-swap-oob="innerHTML">'
+            f"{desc_block_html}</div>"
+        )
+        return HttpResponse(status_html + oob_desc_block)
 
     if "title" in request.POST:
         new_title = request.POST.get("title", "").strip()
