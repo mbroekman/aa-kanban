@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - **i18n / Stale Card Alerts**: Converted hardcoded Dutch strings in stale card alert notifications to standard English and added Dutch translations in `django.po` so alerts properly respect the configured site language (English by default, Dutch when configured).
 - **Stale Card Alert Throttling & Repeat Interval**: Added `stale_card_repeat_hours` setting to `Board` (default 24h, 0 for one-time alert only) and `last_stale_alert_at` to `Card` to prevent hourly Discord alert spam for inactive cards.
+- **CI / Test Coverage**: Handled missing `discord` module gracefully in `tasks.py` and mocked `discord` in thread auto-invite tests so tests run reliably in clean environments without `aadiscordbot`/`py-cord` preinstalled. Added `py-cord` to test dependencies.
 
 ## [0.12.0] - 2026-10-10
 

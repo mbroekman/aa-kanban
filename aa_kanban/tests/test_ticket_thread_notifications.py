@@ -279,10 +279,16 @@ def test_create_discord_thread_auto_invites_auth_group_members(user_factory):
     mock_du1 = MagicMock(uid=111222)
     mock_du2 = MagicMock(uid=333444)
 
-    with patch(
-        "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
-        return_value=[mock_du1, mock_du2],
-    ) as mock_filter:
+    mock_discord = MagicMock()
+    mock_discord.Object = lambda id: MagicMock(id=id)
+
+    with (
+        patch.dict("sys.modules", {"discord": mock_discord}),
+        patch(
+            "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
+            return_value=[mock_du1, mock_du2],
+        ) as mock_filter,
+    ):
         asyncio.run(_create_discord_thread(mock_bot, card.id))
 
         card.refresh_from_db()
@@ -320,10 +326,16 @@ def test_send_discord_thread_message_auto_invites_auth_group_members(user_factor
     mock_du1 = MagicMock(uid=555111)
     mock_du2 = MagicMock(uid=555222)
 
-    with patch(
-        "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
-        return_value=[mock_du1, mock_du2],
-    ) as mock_filter:
+    mock_discord = MagicMock()
+    mock_discord.Object = lambda id: MagicMock(id=id)
+
+    with (
+        patch.dict("sys.modules", {"discord": mock_discord}),
+        patch(
+            "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
+            return_value=[mock_du1, mock_du2],
+        ) as mock_filter,
+    ):
         asyncio.run(
             _send_discord_thread_message(
                 mock_bot,

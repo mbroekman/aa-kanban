@@ -229,7 +229,10 @@ async def _create_discord_thread(bot, card_id: int):
             )
             message_content += f"**Description:**\n```\n{desc}\n```\n"
 
-        import discord
+        try:
+            import discord
+        except ImportError:
+            discord = None
 
         # Create a thread from a starter message
         try:
@@ -254,7 +257,12 @@ async def _create_discord_thread(bot, card_id: int):
                     )
                     for du in team_discord_users:
                         try:
-                            await thread.add_user(discord.Object(id=du.uid))
+                            user_target = (
+                                discord.Object(id=du.uid)
+                                if discord and hasattr(discord, "Object")
+                                else type("DiscordObject", (), {"id": du.uid})()
+                            )
+                            await thread.add_user(user_target)
                         except Exception as add_err:
                             logger.warning(
                                 f"Failed to auto-invite DiscordUser {du.uid} to thread: {add_err}"
@@ -264,14 +272,19 @@ async def _create_discord_thread(bot, card_id: int):
                         f"Error fetching Discord users for auto-invite: {team_err}"
                     )
 
-        except discord.errors.Forbidden:
-            logger.error(
-                f"Bot lacks permission to create threads in channel {channel_id}"
-            )
-        except discord.errors.HTTPException as e:
-            logger.error(
-                f"Discord HTTP Exception creating thread for card {card.id}: {e}"
-            )
+        except Exception as e:
+            if (
+                discord
+                and hasattr(discord, "errors")
+                and isinstance(
+                    e, (discord.errors.Forbidden, discord.errors.HTTPException)
+                )
+            ):
+                logger.error(f"Discord error creating thread for card {card.id}: {e}")
+            else:
+                logger.exception(
+                    f"Error creating Discord thread for card {card.id}: {e}"
+                )
 
     except Card.DoesNotExist:
         logger.error(f"Card {card_id} does not exist.")
@@ -324,7 +337,11 @@ async def _send_discord_thread_message(
 
             try:
                 team = await sync_to_async(KanbanTeam.objects.get)(pk=team_id)
-                import discord
+                try:
+                    import discord
+                except ImportError:
+                    discord = None
+
                 from allianceauth.services.modules.discord.models import DiscordUser
 
                 all_team_members = await sync_to_async(list)(team.get_all_members())
@@ -333,7 +350,12 @@ async def _send_discord_thread_message(
                 )
                 for du in team_discord_users:
                     try:
-                        await thread.add_user(discord.Object(id=du.uid))
+                        user_target = (
+                            discord.Object(id=du.uid)
+                            if discord and hasattr(discord, "Object")
+                            else type("DiscordObject", (), {"id": du.uid})()
+                        )
+                        await thread.add_user(user_target)
                     except Exception as add_err:
                         logger.warning(
                             f"Failed to auto-invite user {du.uid} to thread: {add_err}"

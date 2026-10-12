@@ -1,6 +1,6 @@
 ---
 id: TASK-51.3
-title: Base Views: Overview & Board Detail
+title: 'Base Views: Overview & Board Detail'
 status: Done
 assignee: []
 created_date: '2026-09-28 19:14'

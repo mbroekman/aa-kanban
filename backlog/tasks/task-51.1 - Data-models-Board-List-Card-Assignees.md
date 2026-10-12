@@ -1,6 +1,6 @@
 ---
 id: TASK-51.1
-title: Data models: Board, List, Card, Assignees
+title: 'Data models: Board, List, Card, Assignees'
 status: Done
 assignee: []
 created_date: '2026-09-28 19:14'
