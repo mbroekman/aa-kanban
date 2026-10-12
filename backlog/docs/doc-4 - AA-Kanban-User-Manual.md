@@ -3,7 +3,7 @@ id: doc-4
 title: AA Kanban User Manual
 type: guide
 created_date: '2026-09-28 06:34'
-updated_date: '2026-09-29 15:23'
+updated_date: '2026-10-12 00:00'
 ---
 
 # AA Kanban User Manual
@@ -36,7 +36,7 @@ ______________________________________________________________________
 
 ### Creating a Board
 
-If you have the `manage_boards` permission, you can create a new board from the main Dashboard:
+If you are a member of a Kanban Group with board management access (see [Access Control](#access-control-kanban-groups)), you can create a new board from the main Dashboard:
 
 1. Click **Create Board**.
 1. Provide a **Name** and **Description**.
@@ -65,7 +65,7 @@ Click the **+ Add Card** button at the bottom of any list to quickly add a new t
 
 Clicking on any card opens the **Card Detail Modal**. Here you can manage:
 
-- **Title & Description**: Describe the task. Supports markdown-like formatting.
+- **Title & Description**: Describe the task using Markdown formatting (bold, lists, links, etc.). Switch between `[Write]` and `[Preview]` tabs to see the rendered result. Add images by pasting them (`Ctrl+V`), dragging-and-dropping a file onto the editor, or using the **Attach Image** button; click any rendered image to open it in a fullscreen lightbox.
 - **Due Date**: Assign a deadline. A calendar icon will appear on the card.
 - **Color**: Assign a background color to the card for visual distinction (e.g., Red for critical bugs).
 - **Assignees**: Assign one or more Alliance Auth users to the task.
@@ -87,7 +87,7 @@ The Ticket System allows regular members (who don't necessarily have access to m
 
 Users with the `create_ticket` permission will see a **Submit Ticket** menu item.
 
-1. Fill out the **Title** and **Description**.
+1. Fill out the **Title** and **Description** (Markdown and images are supported here too, exactly as on cards).
 1. Select an **Assigned Team** if the request is for a specific department.
 1. Add relevant **Labels**.
 1. Submit. The ticket is automatically routed to the designated Ticket Board.
@@ -122,7 +122,7 @@ ______________________________________________________________________
 
 ## 6. Settings & Access Control
 
-The **Settings** menu (accessible to users with `manage_boards` permissions) allows comprehensive management of the application directly from the frontend.
+The **Settings** menu allows comprehensive management of the application directly from the frontend. Access is granted entirely through Kanban Groups (see below) — no Django admin access is required.
 
 ### Ticket Teams
 
@@ -135,11 +135,13 @@ Teams are used to route tickets to specific departments.
 
 ### Access Control (Kanban Groups)
 
-Kanban Groups determine who can view and edit specific boards.
+Kanban Groups determine who can view and edit specific boards, and who can manage the application itself.
 
 - **Create Kanban Groups**: Create groups like *Directors*, *Line Members*, etc.
 - **Link Auth Groups**: Instead of adding users manually, you can link standard Alliance Auth Groups directly to a Kanban Group (e.g., link the *Member* Auth Group to the *Line Members* Kanban Group).
 - **Board Permissions**: On the Board Edit page, assign which Kanban Groups have **View** (Read-Only) or **Write** access.
+- **Board Management Access**: Tick **"Can manage boards & settings"** when creating or editing a Kanban Group to let its members access the Settings menu and create, edit, or delete boards — fully from the frontend, with no Django admin access needed. The group list shows a **Manages Boards** indicator for each group.
+- *(For backward compatibility, the Django `aa_kanban.manage_boards` permission — assignable via Django admin — still grants the same access if already configured.)*
 
 ### Global Labels & Settings
 

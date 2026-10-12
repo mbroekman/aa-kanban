@@ -7,7 +7,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
 from .models import Board, Card, KanbanGroup, List
-from .permissions import board_view_required
+from .permissions import (
+    board_view_required,
+    manage_boards_required,
+    user_can_manage_boards,
+)
 
 
 @login_required
@@ -20,7 +24,7 @@ def index(request: HttpRequest) -> HttpResponse:
         .prefetch_related("view_groups", "write_groups")
         .annotate(list_count=Count("lists", distinct=True))
     )
-    can_manage = request.user.has_perm("aa_kanban.manage_boards")
+    can_manage = user_can_manage_boards(request.user)
     all_groups = (
         KanbanGroup.objects.order_by("name")
         if can_manage
@@ -45,7 +49,7 @@ def index(request: HttpRequest) -> HttpResponse:
 def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpResponse:
     """Render the Kanban board detail page."""
     can_write = board.can_user_write(request.user)
-    can_manage = request.user.has_perm("aa_kanban.manage_boards")
+    can_manage = user_can_manage_boards(request.user)
 
     lists = board.lists.prefetch_related(
         Prefetch(
@@ -80,7 +84,7 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
 
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def create_board(request: HttpRequest) -> HttpResponse:
     """Create a new Kanban board (manage_boards permission required)."""
     all_groups = KanbanGroup.objects.order_by("name")
@@ -183,9 +187,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
     board = get_object_or_404(Board, slug=board_slug)
 
     if not (
-        request.user.has_perm("aa_kanban.manage_boards")
-        or board.created_by_id == request.user.pk
-        or request.user.is_superuser
+        user_can_manage_boards(request.user) or board.created_by_id == request.user.pk
     ):
         from django.core.exceptions import PermissionDenied
 
@@ -292,9 +294,7 @@ def delete_board(request: HttpRequest, board_slug: str) -> HttpResponse:
     board = get_object_or_404(Board, slug=board_slug)
 
     if not (
-        request.user.has_perm("aa_kanban.manage_boards")
-        or board.created_by_id == request.user.pk
-        or request.user.is_superuser
+        user_can_manage_boards(request.user) or board.created_by_id == request.user.pk
     ):
         from django.core.exceptions import PermissionDenied
 

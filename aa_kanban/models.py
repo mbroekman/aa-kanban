@@ -53,6 +53,10 @@ class KanbanGroup(models.Model):
         related_name="kanban_groups",
         help_text=_("Auth groups that belong to this Kanban group."),
     )
+    can_manage_boards = models.BooleanField(
+        default=False,
+        help_text=_("Members of this group can manage Kanban settings and boards."),
+    )
 
     class Meta:
         verbose_name = _("Kanban Group")

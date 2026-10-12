@@ -8,6 +8,7 @@
                 <th>{% trans "Name" %}</th>
                 <th>{% trans "Members" %}</th>
                 <th>{% trans "Auth Groups" %}</th>
+                <th>{% trans "Manages Boards" %}</th>
                 <th class="text-end">{% trans "Actions" %}</th>
             </tr>
         </thead>
@@ -35,6 +36,13 @@
                     {% endif %}
                     {% if not group.groups.count %}
                         <span class="text-muted small">{% trans "None" %}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if group.can_manage_boards %}
+                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>{% trans "Yes" %}</span>
+                    {% else %}
+                        <span class="text-muted small">{% trans "No" %}</span>
                     {% endif %}
                 </td>
                 <td class="text-end text-nowrap">

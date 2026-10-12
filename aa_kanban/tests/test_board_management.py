@@ -124,6 +124,61 @@ class TestCreateBoard:
 
 
 # ---------------------------------------------------------------------------
+# KanbanGroup.can_manage_boards (frontend-managed board management access)
+# ---------------------------------------------------------------------------
+
+
+class TestKanbanGroupCanManageBoards:
+    def test_direct_member_of_can_manage_group_may_create_board(self, user_factory):
+        """A user in a KanbanGroup with can_manage_boards=True may manage boards
+        without the native aa_kanban.manage_boards permission."""
+        client = Client()
+        user = user_factory("km_direct_member")
+        group = Group.objects.create(name="Board Admins", can_manage_boards=True)
+        group.members.add(user)
+        client.force_login(user)
+        resp = client.get(reverse("aa_kanban:create_board"))
+        assert resp.status_code == 200
+
+    def test_member_via_linked_auth_group_may_create_board(self, user_factory):
+        """A user whose Django auth Group is linked to a KanbanGroup with
+        can_manage_boards=True may manage boards."""
+        from django.contrib.auth.models import Group as AuthGroup
+
+        client = Client()
+        user = user_factory("km_authgroup_member")
+        auth_group = AuthGroup.objects.create(name="Officers")
+        user.groups.add(auth_group)
+        kanban_group = Group.objects.create(
+            name="Officer Board Admins", can_manage_boards=True
+        )
+        kanban_group.groups.add(auth_group)
+        client.force_login(user)
+        resp = client.get(reverse("aa_kanban:create_board"))
+        assert resp.status_code == 200
+
+    def test_member_of_non_managing_group_still_denied(self, user_factory):
+        """Membership of a KanbanGroup with can_manage_boards=False grants no
+        board-management access."""
+        client = Client()
+        user = user_factory("km_non_managing_member")
+        group = Group.objects.create(name="Viewers Only", can_manage_boards=False)
+        group.members.add(user)
+        client.force_login(user)
+        resp = client.get(reverse("aa_kanban:create_board"))
+        assert resp.status_code == 403
+
+    def test_can_manage_group_member_may_access_settings(self, user_factory):
+        client = Client()
+        user = user_factory("km_settings_member")
+        group = Group.objects.create(name="Settings Admins", can_manage_boards=True)
+        group.members.add(user)
+        client.force_login(user)
+        resp = client.get(reverse("aa_kanban:settings"))
+        assert resp.status_code == 200
+
+
+# ---------------------------------------------------------------------------
 # edit_board
 # ---------------------------------------------------------------------------
 

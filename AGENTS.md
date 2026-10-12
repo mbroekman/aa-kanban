@@ -33,6 +33,12 @@ ______________________________________________________________________
 - Gebruik **altijd** Bootstrap 5 syntax (`data-bs-toggle`, `data-bs-target`, `data-bs-dismiss`) voor modals en interactieve elementen. Nooit verouderde Bootstrap 3/4 tags.
 - Modals geopend via HTMX dienen een volwaardige Bootstrap 5 modal structuur te hebben en te luisteren naar het globale `closeModal` event.
 
+### Board Management Toegang (Frontend, niet Admin)
+
+- Beheer van boards (settings-pagina, boards aanmaken/bewerken/verwijderen) wordt bepaald door `user_can_manage_boards()` in `permissions.py`, **niet** rechtstreeks door `has_perm("aa_kanban.manage_boards")`.
+- Toekenning hoort primair via `KanbanGroup.can_manage_boards` (frontend Settings-UI, direct lidmaatschap of via gekoppelde Auth Group) te lopen, conform ADR-006 (functionele config in frontend, Django `/admin/` alleen technisch). De native `aa_kanban.manage_boards` permissie blijft als backward-compatible fallback werken.
+- Gebruik voor nieuwe board-beheer views altijd de decorator `@manage_boards_required` (niet `@permission_required("aa_kanban.manage_boards")`).
+
 ### Discord Notificaties & Teams
 
 - `KanbanTeam` ondersteunt gekoppelde Django Auth Groups (`groups`). Gebruik `team.get_all_members()` om zowel directe teamleden als groepsleden op te halen voor notificaties en thread invites.

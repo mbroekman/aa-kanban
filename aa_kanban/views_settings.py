@@ -1,13 +1,14 @@
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .models import KanbanGroup
+from .permissions import manage_boards_required
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def kanban_settings(request: HttpRequest) -> HttpResponse:
     """Render the main settings page with the list of Kanban groups."""
     from .models import Board, KanbanSetting, KanbanTeam, Label
@@ -33,20 +34,23 @@ def kanban_settings(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def create_kanban_group(request: HttpRequest) -> HttpResponse:
     """HTMX endpoint to create a new KanbanGroup."""
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
+        can_manage_boards = request.POST.get("can_manage_boards") == "on"
         if name:
-            KanbanGroup.objects.get_or_create(name=name)
+            KanbanGroup.objects.get_or_create(
+                name=name, defaults={"can_manage_boards": can_manage_boards}
+            )
 
     groups = KanbanGroup.objects.prefetch_related("members", "groups").order_by("name")
     return render(request, "aa_kanban/partials/group_list.html", {"groups": groups})
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def edit_kanban_group(request: HttpRequest, group_id: int) -> HttpResponse:
     """HTMX endpoint to edit a KanbanGroup name."""
     group = get_object_or_404(KanbanGroup, pk=group_id)
@@ -60,7 +64,8 @@ def edit_kanban_group(request: HttpRequest, group_id: int) -> HttpResponse:
         name = request.POST.get("name", "").strip()
         if name:
             group.name = name
-            group.save(update_fields=["name"])
+            group.can_manage_boards = request.POST.get("can_manage_boards") == "on"
+            group.save(update_fields=["name", "can_manage_boards"])
 
         groups = KanbanGroup.objects.prefetch_related("members", "groups").order_by(
             "name"
@@ -75,7 +80,7 @@ def edit_kanban_group(request: HttpRequest, group_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def delete_kanban_group(request: HttpRequest, group_id: int) -> HttpResponse:
     """HTMX endpoint to delete a KanbanGroup."""
     if request.method == "POST":
@@ -87,7 +92,7 @@ def delete_kanban_group(request: HttpRequest, group_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def group_users_modal(request: HttpRequest, group_id: int) -> HttpResponse:
     """HTMX endpoint to render the user management modal for a group."""
     group = get_object_or_404(KanbanGroup, pk=group_id)
@@ -108,7 +113,7 @@ def group_users_modal(request: HttpRequest, group_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def add_user_to_group(request: HttpRequest, group_id: int) -> HttpResponse:
     """HTMX endpoint to add a user to a KanbanGroup."""
     group = get_object_or_404(KanbanGroup, pk=group_id)
@@ -137,7 +142,7 @@ def add_user_to_group(request: HttpRequest, group_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def remove_user_from_group(
     request: HttpRequest, group_id: int, user_id: int
 ) -> HttpResponse:
@@ -166,7 +171,7 @@ def remove_user_from_group(
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def add_authgroup_to_group(request: HttpRequest, group_id: int) -> HttpResponse:
     """HTMX endpoint to add an Auth Group to a KanbanGroup."""
     group = get_object_or_404(KanbanGroup, pk=group_id)
@@ -195,7 +200,7 @@ def add_authgroup_to_group(request: HttpRequest, group_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def remove_authgroup_from_group(
     request: HttpRequest, group_id: int, authgroup_id: int
 ) -> HttpResponse:
@@ -224,7 +229,7 @@ def remove_authgroup_from_group(
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def create_settings_label(request: HttpRequest) -> HttpResponse:
     """HTMX endpoint to create a global label from settings."""
     if request.method == "POST":
@@ -251,7 +256,7 @@ def create_settings_label(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def delete_settings_label(request: HttpRequest, label_id: int) -> HttpResponse:
     """HTMX endpoint to delete a global label from settings."""
     if request.method == "POST":
@@ -269,7 +274,7 @@ def delete_settings_label(request: HttpRequest, label_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def update_global_settings(request: HttpRequest) -> HttpResponse:
     """Update global settings like the designated Ticket Board."""
     if request.method == "POST":
@@ -283,7 +288,7 @@ def update_global_settings(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def create_kanban_team(request: HttpRequest) -> HttpResponse:
     """HTMX endpoint to create a new KanbanTeam."""
     from .models import KanbanTeam
@@ -302,7 +307,7 @@ def create_kanban_team(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def edit_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
     """HTMX endpoint to edit a KanbanTeam."""
     from .models import KanbanTeam
@@ -348,7 +353,7 @@ def edit_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def delete_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
     """HTMX endpoint to delete a KanbanTeam."""
     from .models import KanbanTeam
@@ -362,7 +367,7 @@ def delete_kanban_team(request: HttpRequest, team_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def team_users_modal(request: HttpRequest, team_id: int) -> HttpResponse:
     """HTMX endpoint to render the user and auth group management modal for a team."""
     from .models import KanbanTeam
@@ -385,7 +390,7 @@ def team_users_modal(request: HttpRequest, team_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def add_user_to_team(request: HttpRequest, team_id: int) -> HttpResponse:
     """HTMX endpoint to add a user to a KanbanTeam."""
     from .models import KanbanTeam
@@ -416,7 +421,7 @@ def add_user_to_team(request: HttpRequest, team_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def remove_user_from_team(
     request: HttpRequest, team_id: int, user_id: int
 ) -> HttpResponse:
@@ -447,7 +452,7 @@ def remove_user_from_team(
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def add_authgroup_to_team(request: HttpRequest, team_id: int) -> HttpResponse:
     """HTMX endpoint to add an Auth Group to a KanbanTeam."""
     from .models import KanbanTeam
@@ -478,7 +483,7 @@ def add_authgroup_to_team(request: HttpRequest, team_id: int) -> HttpResponse:
 
 
 @login_required
-@permission_required("aa_kanban.manage_boards", raise_exception=True)
+@manage_boards_required
 def remove_authgroup_from_team(
     request: HttpRequest, team_id: int, authgroup_id: int
 ) -> HttpResponse:

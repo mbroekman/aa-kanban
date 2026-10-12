@@ -55,7 +55,11 @@
                             <label for="groupName" class="form-label">{% trans "Group Name" %}</label>
                             <input type="text" class="form-control" id="groupName" name="name" required placeholder="e.g. Kanban Marketing">
                         </div>
-                        <button type="submit" class="btn btn-primary" onclick="setTimeout(() => { document.getElementById('groupName').value = ''; }, 100)">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="groupCanManageBoards" name="can_manage_boards">
+                            <label class="form-check-label" for="groupCanManageBoards">{% trans "Can manage boards & settings" %}</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary" onclick="setTimeout(() => { document.getElementById('groupName').value = ''; document.getElementById('groupCanManageBoards').checked = false; }, 100)">
                             <i class="fas fa-plus me-1"></i>{% trans "Create" %}
                         </button>
                     </form>
