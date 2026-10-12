@@ -58,7 +58,9 @@ class TestImageUploadEndpoint:
     def test_upload_valid_png(self, kanban_user):
         client = Client()
         client.force_login(kanban_user)
-        uploaded = SimpleUploadedFile("screenshot.png", TINY_PNG, content_type="image/png")
+        uploaded = SimpleUploadedFile(
+            "screenshot.png", TINY_PNG, content_type="image/png"
+        )
 
         url = reverse("aa_kanban:upload_image")
         response = client.post(url, {"image": uploaded})
@@ -90,14 +92,18 @@ class TestImageUploadEndpoint:
         assert resp2.status_code == 200
 
         # WEBP
-        up_webp = SimpleUploadedFile("modern.webp", TINY_WEBP, content_type="image/webp")
+        up_webp = SimpleUploadedFile(
+            "modern.webp", TINY_WEBP, content_type="image/webp"
+        )
         resp3 = client.post(reverse("aa_kanban:upload_image"), {"image": up_webp})
         assert resp3.status_code == 200
 
     def test_upload_by_ticket_user(self, ticket_user):
         client = Client()
         client.force_login(ticket_user)
-        uploaded = SimpleUploadedFile("ticket_shot.png", TINY_PNG, content_type="image/png")
+        uploaded = SimpleUploadedFile(
+            "ticket_shot.png", TINY_PNG, content_type="image/png"
+        )
 
         response = client.post(reverse("aa_kanban:upload_image"), {"image": uploaded})
         assert response.status_code == 200
@@ -129,7 +135,9 @@ class TestImageUploadEndpoint:
     def test_upload_disallowed_extension(self, kanban_user):
         client = Client()
         client.force_login(kanban_user)
-        uploaded = SimpleUploadedFile("script.sh", b"echo hello", content_type="text/plain")
+        uploaded = SimpleUploadedFile(
+            "script.sh", b"echo hello", content_type="text/plain"
+        )
 
         response = client.post(reverse("aa_kanban:upload_image"), {"image": uploaded})
         assert response.status_code == 400
@@ -139,7 +147,9 @@ class TestImageUploadEndpoint:
         client = Client()
         client.force_login(kanban_user)
         # File has .png extension but plain text payload
-        uploaded = SimpleUploadedFile("fake.png", b"Not a PNG image", content_type="image/png")
+        uploaded = SimpleUploadedFile(
+            "fake.png", b"Not a PNG image", content_type="image/png"
+        )
 
         response = client.post(reverse("aa_kanban:upload_image"), {"image": uploaded})
         assert response.status_code == 400
@@ -150,7 +160,9 @@ class TestImageUploadEndpoint:
         client.force_login(kanban_user)
         # Create a payload larger than 5MB
         huge_payload = TINY_PNG + (b"\x00" * (5 * 1024 * 1024 + 100))
-        uploaded = SimpleUploadedFile("huge.png", huge_payload, content_type="image/png")
+        uploaded = SimpleUploadedFile(
+            "huge.png", huge_payload, content_type="image/png"
+        )
 
         response = client.post(reverse("aa_kanban:upload_image"), {"image": uploaded})
         assert response.status_code == 400

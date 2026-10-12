@@ -3,8 +3,9 @@
 import logging
 import re
 import urllib.parse
-from bs4 import BeautifulSoup
+
 import markdown
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +125,9 @@ def render_markdown(text: str) -> str:
                 tag["class"] = sorted(list(classes))
                 tag["loading"] = "lazy"
                 tag["data-image-zoom"] = "true"
-                tag["style"] = "max-height: 400px; cursor: zoom-in; object-fit: contain;"
+                tag["style"] = (
+                    "max-height: 400px; cursor: zoom-in; object-fit: contain;"
+                )
 
             elif tag.name.lower() == "table":
                 tag["class"] = ["table", "table-sm", "table-bordered", "my-2"]
