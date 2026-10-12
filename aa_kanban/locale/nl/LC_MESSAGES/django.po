@@ -373,6 +373,7 @@ msgid "Remove assignee"
 msgstr "Toegewezene verwijderen"
 
 #: templates/aa_kanban/partials/card_assignees.html:21
+#: aa_kanban/tasks.py:431
 msgid "Unassigned"
 msgstr "Niet toegewezen"
 
@@ -1037,9 +1038,6 @@ msgid ""
 msgstr ""
 "⚠️ **Kanban Signalering: Stilstaande Cards op '{board_name}'** ⚠️\n"
 "Er zijn **{count}** card(s) die langer dan **{hours}** uur stil staan:\n"
-
-msgid "Unassigned"
-msgstr "Niet toegewezen"
 
 msgid "• **{title}** (List: `{list_name}`, Inactive: **{duration}**, Assigned: {assignees})"
 msgstr "• **{title}** (Lijst: `{list_name}`, Stilstand: **{duration}**, Toegewezen: {assignees})"
