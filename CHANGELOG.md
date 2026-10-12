@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Assignees Control Private Discord Thread Access (TASK-91)**: Adding a user as an Assignee on a ticket card now automatically invites their linked Discord account into the card's private Discord thread; removing them as an Assignee automatically removes them from the thread too. This gives officers a single recorded place (the card's Assignees list) to grant or revoke access to a ticket's private conversation, instead of managing thread membership by hand in Discord.
+
 ### Changed
 
 - **Ticket Discord Threads Are Now Private (TASK-90)**: Ticket threads were previously created from a message posted publicly in the ticket channel, which the Discord API can only ever turn into a public thread (visible to anyone who can see the channel). Threads are now created directly as private threads (`discord.ChannelType.private_thread`, not invitable by regular members), with the ticket info posted inside the thread itself instead of the public channel. The ticket creator is now explicitly invited to their own thread, in addition to the existing assigned-team auto-invite.

@@ -180,6 +180,59 @@ def test_update_card_team_notifies_thread(ticket_setup):
 
 
 @pytest.mark.django_db
+def test_toggle_assignee_invites_to_thread(ticket_setup, user_factory):
+    """Adding an assignee to a ticket card invites them into its Discord thread."""
+    card = ticket_setup["card"]
+    writer = ticket_setup["writer"]
+    assignee = user_factory("thread_assignee")
+
+    client = Client()
+    client.force_login(writer)
+
+    with patch("aa_kanban.tasks.notify_ticket_thread.delay") as mock_notify:
+        response = client.post(
+            reverse("aa_kanban:toggle_assignee", kwargs={"card_id": card.id}),
+            {"user_id": assignee.id},
+        )
+        assert response.status_code == 200
+        assert card.assignees.filter(pk=assignee.pk).exists()
+
+        assert mock_notify.called
+        args, kwargs = mock_notify.call_args
+        assert args[0] == 555666777
+        assert assignee.username in args[1]
+        assert kwargs.get("invite_user_id") == assignee.pk
+        assert kwargs.get("remove_user_id") is None
+
+
+@pytest.mark.django_db
+def test_toggle_assignee_removes_from_thread(ticket_setup, user_factory):
+    """Removing an assignee from a ticket card removes them from its Discord thread."""
+    card = ticket_setup["card"]
+    writer = ticket_setup["writer"]
+    assignee = user_factory("thread_unassignee")
+    card.assignees.add(assignee)
+
+    client = Client()
+    client.force_login(writer)
+
+    with patch("aa_kanban.tasks.notify_ticket_thread.delay") as mock_notify:
+        response = client.post(
+            reverse("aa_kanban:toggle_assignee", kwargs={"card_id": card.id}),
+            {"user_id": assignee.id},
+        )
+        assert response.status_code == 200
+        assert not card.assignees.filter(pk=assignee.pk).exists()
+
+        assert mock_notify.called
+        args, kwargs = mock_notify.call_args
+        assert args[0] == 555666777
+        assert assignee.username in args[1]
+        assert kwargs.get("remove_user_id") == assignee.pk
+        assert kwargs.get("invite_user_id") is None
+
+
+@pytest.mark.django_db
 def test_services_move_kanban_card_notifies_thread(ticket_setup):
     """services.move_kanban_card notifies thread if card has discord_thread_id."""
     card = ticket_setup["card"]
@@ -206,7 +259,11 @@ def test_notify_ticket_thread_delegates_to_aadiscordbot():
         kwargs = mock_run_task.apply_async.call_args[1]
         assert kwargs["queue"] == "aadiscordbot"
         assert kwargs["kwargs"]["task_args"] == [555666777, "Test Message"]
-        assert kwargs["kwargs"]["task_kwargs"] == {"team_id": 42}
+        assert kwargs["kwargs"]["task_kwargs"] == {
+            "team_id": 42,
+            "invite_user_id": None,
+            "remove_user_id": None,
+        }
 
 
 @pytest.mark.django_db
@@ -415,6 +472,69 @@ def test_send_discord_thread_message_auto_invites_auth_group_members(user_factor
         assert mock_thread.add_user.call_count == 2
         invited_uids = {call.args[0].id for call in mock_thread.add_user.call_args_list}
         assert invited_uids == {555111, 555222}
+
+
+@pytest.mark.django_db(transaction=True)
+def test_send_discord_thread_message_invites_and_removes_single_user(user_factory):
+    """_send_discord_thread_message invites or removes a single user via invite/remove_user_id."""
+    import asyncio
+
+    invitee = user_factory("single_invitee")
+    leaver = user_factory("single_leaver")
+
+    mock_thread = AsyncMock()
+    mock_bot = MagicMock()
+    mock_bot.get_channel.return_value = mock_thread
+
+    mock_du_invitee = MagicMock(uid=909111)
+    mock_du_leaver = MagicMock(uid=909222)
+
+    mock_discord = MagicMock()
+    mock_discord.Object = lambda id: MagicMock(id=id)
+
+    def fake_filter(**kwargs):
+        user_id = kwargs.get("user_id")
+        result = MagicMock()
+        if user_id == invitee.pk:
+            result.first = lambda: mock_du_invitee
+        elif user_id == leaver.pk:
+            result.first = lambda: mock_du_leaver
+        else:
+            result.first = lambda: None
+        return result
+
+    with (
+        patch.dict("sys.modules", {"discord": mock_discord}),
+        patch(
+            "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
+            side_effect=fake_filter,
+        ),
+    ):
+        asyncio.run(
+            _send_discord_thread_message(
+                mock_bot,
+                thread_id=777999,
+                message_content="Assignee added",
+                invite_user_id=invitee.pk,
+            )
+        )
+        mock_thread.add_user.assert_called_once()
+        assert mock_thread.add_user.call_args.args[0].id == 909111
+        mock_thread.remove_user.assert_not_called()
+
+        mock_thread.reset_mock()
+
+        asyncio.run(
+            _send_discord_thread_message(
+                mock_bot,
+                thread_id=777999,
+                message_content="Assignee removed",
+                remove_user_id=leaver.pk,
+            )
+        )
+        mock_thread.remove_user.assert_called_once()
+        assert mock_thread.remove_user.call_args.args[0].id == 909222
+        mock_thread.add_user.assert_not_called()
 
 
 @pytest.mark.django_db

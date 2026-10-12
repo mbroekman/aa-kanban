@@ -242,6 +242,20 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
             send_direct_message_by_user_id.delay(target_user.pk, str(msg))
         except ImportError:
             pass
+
+        if card.discord_thread_id:
+            from aa_kanban.tasks import notify_ticket_thread
+
+            thread_msg = _(
+                "👤 **Unassigned:** {target_username} removed by **{username}**."
+            ).format(
+                target_username=target_user.username, username=request.user.username
+            )
+            notify_ticket_thread.delay(
+                card.discord_thread_id,
+                str(thread_msg),
+                remove_user_id=target_user.pk,
+            )
     else:
         card.assignees.add(target_user)
         try:
@@ -253,6 +267,20 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
             send_direct_message_by_user_id.delay(target_user.pk, str(msg))
         except ImportError:
             pass
+
+        if card.discord_thread_id:
+            from aa_kanban.tasks import notify_ticket_thread
+
+            thread_msg = _(
+                "👤 **Assigned:** {target_username} added by **{username}**."
+            ).format(
+                target_username=target_user.username, username=request.user.username
+            )
+            notify_ticket_thread.delay(
+                card.discord_thread_id,
+                str(thread_msg),
+                invite_user_id=target_user.pk,
+            )
 
     available_users = list(
         User.objects.filter(is_active=True)

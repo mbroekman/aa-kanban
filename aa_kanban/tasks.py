@@ -338,8 +338,15 @@ async def _send_discord_thread_message(
     thread_id: int,
     message_content: str,
     team_id: int | None = None,
+    invite_user_id: int | None = None,
+    remove_user_id: int | None = None,
 ):
-    """Send an update message to a Discord ticket thread, optionally auto-inviting new team members."""
+    """Send an update message to a Discord ticket thread.
+
+    Optionally auto-invites a team's members (team_id), invites a single
+    user (invite_user_id), or removes a single user (remove_user_id) -
+    used to keep thread access in sync with a card's Assignees.
+    """
     try:
         thread = bot.get_channel(thread_id)
         if not thread:
@@ -386,13 +393,53 @@ async def _send_discord_thread_message(
                     f"Error auto-inviting team members to thread: {team_err}"
                 )
 
+        if (invite_user_id or remove_user_id) and DiscordUser:
+            try:
+                import discord
+            except ImportError:
+                discord = None
+
+            if invite_user_id:
+                try:
+                    du = await sync_to_async(
+                        DiscordUser.objects.filter(user_id=invite_user_id).first
+                    )()
+                    if du:
+                        user_target = (
+                            discord.Object(id=du.uid)
+                            if discord and hasattr(discord, "Object")
+                            else type("DiscordObject", (), {"id": du.uid})()
+                        )
+                        await thread.add_user(user_target)
+                except Exception as invite_err:
+                    logger.warning(f"Failed to invite assignee: {invite_err}")
+
+            if remove_user_id:
+                try:
+                    du = await sync_to_async(
+                        DiscordUser.objects.filter(user_id=remove_user_id).first
+                    )()
+                    if du:
+                        user_target = (
+                            discord.Object(id=du.uid)
+                            if discord and hasattr(discord, "Object")
+                            else type("DiscordObject", (), {"id": du.uid})()
+                        )
+                        await thread.remove_user(user_target)
+                except Exception as remove_err:
+                    logger.warning(f"Failed to remove assignee: {remove_err}")
+
     except Exception as e:
         logger.exception(f"Error in _send_discord_thread_message: {e}")
 
 
 @shared_task
 def notify_ticket_thread(
-    thread_id: int, message_content: str, team_id: int | None = None
+    thread_id: int,
+    message_content: str,
+    team_id: int | None = None,
+    invite_user_id: int | None = None,
+    remove_user_id: int | None = None,
 ):
     """Celery task to post an update message to a card's Discord thread."""
     if not thread_id:
@@ -405,7 +452,11 @@ def notify_ticket_thread(
             args=["aa_kanban.tasks._send_discord_thread_message"],
             kwargs={
                 "task_args": [thread_id, str(message_content)],
-                "task_kwargs": {"team_id": team_id},
+                "task_kwargs": {
+                    "team_id": team_id,
+                    "invite_user_id": invite_user_id,
+                    "remove_user_id": remove_user_id,
+                },
             },
             queue="aadiscordbot",
         )
