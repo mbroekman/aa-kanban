@@ -1,9 +1,10 @@
 ---
 id: TASK-85
 title: Release v0.13.0
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-12 15:23'
+updated_date: '2026-10-12 16:44'
 labels: []
 dependencies: []
 ordinal: 99000
@@ -24,3 +25,9 @@ Minor release bundling TASK-77 (Markdown + image support in card/ticket descript
 - [ ] #5 GitHub Release published
 - [ ] #6 Package published to PyPI
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Release published: GitHub release v0.13.0 (https://github.com/mbroekman/aa-kanban/releases/tag/v0.13.0), PyPI publish workflow succeeded, aa-kanban 0.13.0 confirmed live on PyPI. gh CLI installed via winget and authenticated via device flow (user completed browser confirmation) to enable this; git http.sslBackend set to schannel locally to fix a pre-existing TLS verification issue blocking push (Git's bundled OpenSSL CA bundle vs. Windows cert store).
+<!-- SECTION:NOTES:END -->
