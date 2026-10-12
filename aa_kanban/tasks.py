@@ -197,6 +197,7 @@ async def _create_discord_thread(bot, card_id: int):
 
         # Prepare mentions
         mentions = []
+        creator_discord = None
         if DiscordUser:
             try:
                 creator_discord = await sync_to_async(
@@ -237,15 +238,35 @@ async def _create_discord_thread(bot, card_id: int):
         except ImportError:
             discord = None
 
-        # Create a thread from a starter message
+        # Create a private thread directly on the channel (a thread created
+        # from a message can only ever be public), then post the starter
+        # message inside it so the ticket stays visible only to invited members.
         try:
-            starter_message = await channel.send(content=message_content)
-            thread = await starter_message.create_thread(name=thread_name)
+            thread = await channel.create_thread(
+                name=thread_name,
+                type=discord.ChannelType.private_thread if discord else None,
+                invitable=False,
+            )
+            await thread.send(content=message_content)
 
             # Save the thread ID on the card
             card.discord_thread_id = thread.id
             await sync_to_async(card.save)(update_fields=["discord_thread_id"])
             logger.info(f"Created Discord thread {thread.id} for card {card.id}")
+
+            # Invite the ticket creator so they can see their own private thread
+            if creator_discord:
+                try:
+                    creator_target = (
+                        discord.Object(id=creator_discord.uid)
+                        if discord and hasattr(discord, "Object")
+                        else type("DiscordObject", (), {"id": creator_discord.uid})()
+                    )
+                    await thread.add_user(creator_target)
+                except Exception as creator_err:
+                    logger.warning(
+                        f"Failed to invite creator {creator_discord.uid} to thread: {creator_err}"
+                    )
 
             # Auto-invite team members if a team is assigned
             if card.assigned_team and DiscordUser:

@@ -269,10 +269,8 @@ def test_create_discord_thread_auto_invites_auth_group_members(user_factory):
     # Mock Discord bot
     mock_thread = AsyncMock()
     mock_thread.id = 888999
-    mock_msg = AsyncMock()
-    mock_msg.create_thread = AsyncMock(return_value=mock_thread)
     mock_channel = AsyncMock()
-    mock_channel.send = AsyncMock(return_value=mock_msg)
+    mock_channel.create_thread = AsyncMock(return_value=mock_thread)
     mock_bot = MagicMock()
     mock_bot.get_channel.return_value = mock_channel
 
@@ -281,6 +279,7 @@ def test_create_discord_thread_auto_invites_auth_group_members(user_factory):
 
     mock_discord = MagicMock()
     mock_discord.Object = lambda id: MagicMock(id=id)
+    mock_discord.ChannelType = MagicMock(private_thread="private_thread")
 
     with (
         patch.dict("sys.modules", {"discord": mock_discord}),
@@ -294,6 +293,15 @@ def test_create_discord_thread_auto_invites_auth_group_members(user_factory):
         card.refresh_from_db()
         assert card.discord_thread_id == 888999
 
+        # Thread must be created as private, directly on the channel (not
+        # from a public starter message, which can only ever be public).
+        mock_channel.create_thread.assert_called_once()
+        create_kwargs = mock_channel.create_thread.call_args.kwargs
+        assert create_kwargs["type"] == "private_thread"
+        assert create_kwargs["invitable"] is False
+        mock_channel.send.assert_not_called()
+        mock_thread.send.assert_called_once()
+
         assert mock_filter.called
         users_passed = set(mock_filter.call_args[1]["user__in"])
         assert users_passed == {u1, u2}
@@ -302,6 +310,60 @@ def test_create_discord_thread_auto_invites_auth_group_members(user_factory):
         assert mock_thread.add_user.call_count == 2
         invited_uids = {call.args[0].id for call in mock_thread.add_user.call_args_list}
         assert invited_uids == {111222, 333444}
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_discord_thread_invites_ticket_creator(user_factory):
+    """_create_discord_thread creates a private thread and invites the creator."""
+    import asyncio
+
+    creator = user_factory("ticket_creator")
+
+    board = Board.objects.create(
+        name="Creator Invite Board",
+        slug="creator-invite-board",
+        discord_ticket_channel_id=555666777,
+        created_by=creator,
+    )
+    lst = board.lists.get(name="To Do")
+    card = Card.objects.create(
+        list=lst,
+        title="Creator Invite Ticket",
+        created_by=creator,
+    )
+
+    mock_thread = AsyncMock()
+    mock_thread.id = 111000
+    mock_channel = AsyncMock()
+    mock_channel.create_thread = AsyncMock(return_value=mock_thread)
+    mock_bot = MagicMock()
+    mock_bot.get_channel.return_value = mock_channel
+
+    mock_creator_du = MagicMock(uid=424242)
+    mock_queryset = MagicMock()
+    mock_queryset.first = lambda: mock_creator_du
+
+    mock_discord = MagicMock()
+    mock_discord.Object = lambda id: MagicMock(id=id)
+    mock_discord.ChannelType = MagicMock(private_thread="private_thread")
+
+    with (
+        patch.dict("sys.modules", {"discord": mock_discord}),
+        patch(
+            "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
+            return_value=mock_queryset,
+        ),
+    ):
+        asyncio.run(_create_discord_thread(mock_bot, card.id))
+
+        card.refresh_from_db()
+        assert card.discord_thread_id == 111000
+
+        create_kwargs = mock_channel.create_thread.call_args.kwargs
+        assert create_kwargs["type"] == "private_thread"
+
+        mock_thread.add_user.assert_called_once()
+        assert mock_thread.add_user.call_args.args[0].id == 424242
 
 
 @pytest.mark.django_db(transaction=True)

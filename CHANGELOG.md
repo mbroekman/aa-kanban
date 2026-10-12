@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Ticket Discord Threads Are Now Private (TASK-90)**: Ticket threads were previously created from a message posted publicly in the ticket channel, which the Discord API can only ever turn into a public thread (visible to anyone who can see the channel). Threads are now created directly as private threads (`discord.ChannelType.private_thread`, not invitable by regular members), with the ticket info posted inside the thread itself instead of the public channel. The ticket creator is now explicitly invited to their own thread, in addition to the existing assigned-team auto-invite.
+
 ### Fixed
 
 - **Card Description Edit/Preview Buttons Nearly Invisible on Darkly Theme (TASK-87)**: The true root cause of reports that the description could not be edited and the Preview toggle had "disappeared": the dark-theme CSS override for `.btn-outline-secondary` targeted Bootstrap's native `[data-bs-theme="dark"]` attribute, but Alliance Auth's theme switcher sets `html[data-theme="darkly"]` instead, so the override never applied. The Edit/Preview/Attach Image buttons were present and functional all along, just rendered nearly invisible (dark-grey text and border on a dark-grey background) by Bootswatch Darkly's defaults. Fixed the selector to also match `html[data-theme="darkly"]`, restoring visible contrast across every `.btn-outline-secondary` button in the app (card/ticket description editors, group and team management, etc.).
