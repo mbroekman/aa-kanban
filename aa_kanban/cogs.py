@@ -104,5 +104,5 @@ class KanbanTicketCog(commands.Cog):
             )
 
 
-async def setup(bot):
-    await bot.add_cog(KanbanTicketCog(bot))
+def setup(bot):
+    bot.add_cog(KanbanTicketCog(bot))

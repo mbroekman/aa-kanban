@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Discord Cog Never Actually Registered (TASK-93)**: `aa_kanban/cogs.py`'s `setup(bot)` entry point was declared `async def` and internally `await`ed `bot.add_cog(...)`, but py-cord's extension loader calls `setup()` synchronously (without awaiting it) — so the coroutine was created and immediately discarded (visible only as a `RuntimeWarning: coroutine 'setup' was never awaited` in the bot's logs), and `KanbanTicketCog` (Discord message -> ticket comment sync, "Upload to Ticket" context command) was never actually registered with the bot. Changed `setup` to a plain synchronous function calling `bot.add_cog(...)` directly, matching py-cord's actual (synchronous) `add_cog` signature.
+
 ### Added
 
 - **Assignees Control Private Discord Thread Access (TASK-91)**: Adding a user as an Assignee on a ticket card now automatically invites their linked Discord account into the card's private Discord thread; removing them as an Assignee automatically removes them from the thread too. This gives officers a single recorded place (the card's Assignees list) to grant or revoke access to a ticket's private conversation, instead of managing thread membership by hand in Discord.
