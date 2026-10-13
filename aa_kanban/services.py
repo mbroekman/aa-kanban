@@ -9,6 +9,7 @@ like discord webhook notifications or permission checks.
 from typing import List as TypingList
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from .models import Board, Card, KanbanSetting
 
@@ -102,7 +103,8 @@ def move_kanban_card(card_id: int, target_column_name: str) -> Card:
     old_list_name = card.list.name
     if card.list_id != target_list.id:
         card.list = target_list
-        card.save(update_fields=["list", "updated_at"])
+        card.moved_to_list_at = timezone.now()
+        card.save(update_fields=["list", "moved_to_list_at", "updated_at"])
 
         if card.discord_thread_id:
             from django.utils.translation import gettext as _

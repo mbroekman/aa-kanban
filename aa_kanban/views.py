@@ -54,9 +54,9 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
     lists = board.lists.prefetch_related(
         Prefetch(
             "cards",
-            queryset=Card.objects.select_related("created_by").prefetch_related(
-                "assignees", "labels"
-            ),
+            queryset=Card.objects.filter(is_archived=False)
+            .select_related("created_by")
+            .prefetch_related("assignees", "labels"),
         )
     )
 
@@ -80,6 +80,32 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
         "all_groups": all_groups,
     }
     return render(request, "aa_kanban/board_detail.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+@board_view_required
+def archived_cards(request: HttpRequest, board_slug: str, board: Board) -> HttpResponse:
+    """Render an overview of a board's auto-archived cards."""
+    cards = (
+        Card.objects.filter(list__board=board, is_archived=True)
+        .select_related("list", "created_by")
+        .prefetch_related("assignees", "labels")
+        .order_by("-archived_at")
+    )
+
+    from django.conf import settings
+
+    app_name = getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
+
+    context = {
+        "title": _("Archived Cards - {board_name}").format(board_name=board.name),
+        "app_name": app_name,
+        "board": board,
+        "cards": cards,
+        "can_write": board.can_user_write(request.user),
+    }
+    return render(request, "aa_kanban/archived_cards.html", context)
 
 
 @login_required
@@ -133,6 +159,10 @@ def create_board(request: HttpRequest) -> HttpResponse:
             else 24
         )
         is_ticket_board = request.POST.get("is_ticket_board") == "on"
+        archive_after_days_str = request.POST.get("archive_after_days", "0").strip()
+        archive_after_days = (
+            int(archive_after_days_str) if archive_after_days_str.isdigit() else 0
+        )
 
         if not name:
             context = {
@@ -152,6 +182,7 @@ def create_board(request: HttpRequest) -> HttpResponse:
             stale_card_alert_hours=stale_card_alert_hours,
             stale_card_repeat_hours=stale_card_repeat_hours,
             is_ticket_board=is_ticket_board,
+            archive_after_days=archive_after_days,
             created_by=request.user,  # type: ignore[misc]
         )
         if view_group_ids:
@@ -239,6 +270,10 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
             else 24
         )
         is_ticket_board = request.POST.get("is_ticket_board") == "on"
+        archive_after_days_str = request.POST.get("archive_after_days", "0").strip()
+        archive_after_days = (
+            int(archive_after_days_str) if archive_after_days_str.isdigit() else 0
+        )
 
         if not name:
             context = {
@@ -258,6 +293,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         board.stale_card_alert_hours = stale_card_alert_hours
         board.stale_card_repeat_hours = stale_card_repeat_hours
         board.is_ticket_board = is_ticket_board
+        board.archive_after_days = archive_after_days
         board.save(
             update_fields=[
                 "name",
@@ -269,6 +305,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
                 "stale_card_alert_hours",
                 "stale_card_repeat_hours",
                 "is_ticket_board",
+                "archive_after_days",
                 "updated_at",
             ]
         )

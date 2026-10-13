@@ -57,6 +57,12 @@
                 <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>{% trans "Read-Only" %}</span>
             {% endif %}
 
+            <a href="{% url 'aa_kanban:archived_cards' board.slug %}"
+               class="btn btn-sm btn-outline-secondary"
+               title="{% trans 'View Archived Cards' %}">
+                <i class="fas fa-box-archive"></i>
+            </a>
+
             {% if can_write or can_manage %}
 
                 <button type="button"

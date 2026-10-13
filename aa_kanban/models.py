@@ -195,6 +195,12 @@ class Board(models.Model):
         default=False,
         help_text=_("Allow members to submit tickets to this board."),
     )
+    archive_after_days = models.PositiveIntegerField(
+        default=0,
+        help_text=_(
+            "Days a card may sit in the last list before auto-archiving (0 to disable)."
+        ),
+    )
 
     view_groups = models.ManyToManyField(
         KanbanGroup,
@@ -465,6 +471,13 @@ class Card(models.Model):
         blank=True,
         help_text=_("Timestamp when the last stale card alert was sent for this card."),
     )
+    moved_to_list_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_("When the card most recently entered its current list."),
+    )
+    is_archived = models.BooleanField(default=False)
+    archived_at = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

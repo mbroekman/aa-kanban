@@ -168,6 +168,33 @@ def check_stale_cards():
             )
 
 
+@shared_task
+def archive_done_cards():
+    """Archive cards that have sat in a board's last list past archive_after_days."""
+    from datetime import timedelta
+
+    from django.db.models.functions import Coalesce
+    from django.utils import timezone
+
+    boards = Board.objects.filter(archive_after_days__gt=0)
+    for board in boards:
+        last_list = board.lists.order_by("order", "id").last()
+        if not last_list:
+            continue
+
+        cutoff = timezone.now() - timedelta(days=board.archive_after_days)
+        stale_done_cards = last_list.cards.filter(is_archived=False).annotate(
+            effective_entry=Coalesce("moved_to_list_at", "created_at")
+        ).filter(effective_entry__lte=cutoff)
+
+        count = stale_done_cards.update(is_archived=True, archived_at=timezone.now())
+        if count:
+            logger.info(
+                f"Archived {count} card(s) on board '{board.name}' past the "
+                f"{board.archive_after_days}-day limit."
+            )
+
+
 async def _create_discord_thread(bot, card_id: int):
     try:
         # Load card and settings asynchronously

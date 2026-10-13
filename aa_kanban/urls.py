@@ -13,6 +13,11 @@ urlpatterns = [
     path("tickets/create/", views.create_ticket, name="create_ticket"),
     path("tickets/success/", views.ticket_success, name="ticket_success"),
     path("board/<slug:board_slug>/", views.board_detail, name="board_detail"),
+    path(
+        "board/<slug:board_slug>/archived/",
+        views.archived_cards,
+        name="archived_cards",
+    ),
     # Board management (frontend)
     path("boards/create/", views.create_board, name="create_board"),
     path("boards/<slug:board_slug>/edit/", views.edit_board, name="edit_board"),

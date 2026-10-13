@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Per-Board Auto-Archiving of Finished Cards (TASK-95)**: Boards can now set an "Auto-Archive After (days)" setting (0 to disable). Cards that have sat in the board's last list longer than this period are automatically archived by a new daily task: they disappear from the normal board view, and are only reachable via a new "Archived Cards" overview (linked from the board header), which also shows full card details.
 - **Prompt to Close Discord Thread on Ticket Completion (TASK-94)**: Moving a ticket card into the last column of its board now asks whether to close the ticket's Discord thread. Confirming posts a closing message and archives+locks the thread via the bot; declining leaves it open and does not ask again until the card is moved out and back into the last column.
 - **Assignees Control Private Discord Thread Access (TASK-91)**: Adding a user as an Assignee on a ticket card now automatically invites their linked Discord account into the card's private Discord thread; removing them as an Assignee automatically removes them from the thread too. This gives officers a single recorded place (the card's Assignees list) to grant or revoke access to a ticket's private conversation, instead of managing thread membership by hand in Discord.
 

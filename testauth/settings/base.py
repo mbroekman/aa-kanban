@@ -84,6 +84,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "aa_kanban.tasks.check_stale_cards",
         "schedule": crontab(minute="0", hour="*"),
     },
+    "aa_kanban_archive_done_cards": {
+        "task": "aa_kanban.tasks.archive_done_cards",
+        "schedule": crontab(minute="0", hour="3"),
+    },
 }
 
 

@@ -17,6 +17,10 @@ Alliance Auth plugin for native Kanban boards.
 - **Discord Integrations**: Receive notifications via Webhooks when boards are created or cards are moved. Ticket threads are automatically generated in configured channels, and Discord DM notifications are sent directly to users when they are assigned to cards (requires the `aadiscordbot` app).
 - **Multilingual Support**: Fully supports English and Dutch language interfaces.
 
+## Documentation
+
+For a comprehensive guide covering all features, workflows, and frontend administration with screenshots, please see the [User & Administration Manual](docs/user_manual.md).
+
 ## Installation
 
 ```bash
@@ -76,5 +80,14 @@ To enable automatic hourly alerts for stale/inactive cards on boards that have `
 CELERYBEAT_SCHEDULE["aa_kanban_check_stale_cards"] = {
     "task": "aa_kanban.tasks.check_stale_cards",
     "schedule": crontab(minute="0", hour="*"),
+}
+```
+
+To enable daily auto-archiving of cards that have sat in a board's last list past its configured `archive_after_days`, add:
+
+```python
+CELERYBEAT_SCHEDULE["aa_kanban_archive_done_cards"] = {
+    "task": "aa_kanban.tasks.archive_done_cards",
+    "schedule": crontab(minute="0", hour="3"),
 }
 ```

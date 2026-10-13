@@ -14,6 +14,7 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from .models import Board, Card, Comment, Label, List
@@ -79,7 +80,11 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
             if c.pk == card.pk:
                 c.list = target_list
                 c.order = idx
-                c.save(update_fields=["list", "order", "updated_at"])
+                update_fields = ["list", "order", "updated_at"]
+                if source_list.id != target_list.id:
+                    c.moved_to_list_at = timezone.now()
+                    update_fields.append("moved_to_list_at")
+                c.save(update_fields=update_fields)
             elif c.order != idx:
                 c.order = idx
                 c.save(update_fields=["order"])
