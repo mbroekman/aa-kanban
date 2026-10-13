@@ -3,7 +3,7 @@ id: doc-4
 title: AA Kanban User Manual
 type: guide
 created_date: '2026-09-28 06:34'
-updated_date: '2026-10-12 20:45'
+updated_date: '2026-10-13 19:05'
 ---
 
 # AA Kanban - Complete User & Administration Manual
@@ -93,6 +93,15 @@ Clicking on any board opens the interactive workspace.
 - Grab any card with your cursor (or touch device) and drag it to any list.
 - Reordering within the same list updates priority ordering (`order` field).
 - Moving between lists automatically updates the card status and triggers any configured webhooks or Discord thread notifications.
+- **Moving a Ticket to the Last Column**: If the card has an active Discord thread, you'll be asked whether to close it (see [Closing Threads on Completion](#8-discord-bot--thread-integration)). Confirming posts a closing message and archives + locks the thread; declining leaves it open and you won't be asked again until the card leaves and re-enters the last column.
+
+### Auto-Archiving & the Archived Cards Overview
+To keep long-running boards tidy, each board can automatically archive cards that have been sitting in its last column for too long:
+
+- **Auto-Archive After (days)**: Set in the board's settings (create/edit board modal, "Board Maintenance" section). A value of `0` disables auto-archiving entirely (the default).
+- A daily background task checks every board with this setting enabled and archives any card in the last column that has been there longer than the configured number of days.
+- Archived cards **disappear from the normal board view** — they no longer count toward column limits or clutter the workspace.
+- **Archived Cards Overview**: Click the archive icon (<i class="fas fa-box-archive"></i>) in the board header to open a dedicated overview of all archived cards for that board, with full card details (description, labels, assignees, comments) still available — nothing is deleted.
 
 ---
 
@@ -165,9 +174,20 @@ The Ticket Portal allows general alliance members to submit structured requests 
 AA Kanban features seamless integration with `aadiscordbot` and Discord webhooks:
 
 ### Automated Discord Ticket Threads
-- When a ticket is submitted, the system automatically spawns a dedicated Discord Thread in the channel assigned to the destination board.
+- When a ticket is submitted, the system automatically spawns a dedicated **private** Discord Thread in the channel assigned to the destination board — only invited members can see or join it, unlike a regular public thread.
 - **Automatic Team Member Invites**: All users belonging to the assigned `KanbanTeam` (including members of linked Alliance Auth groups) are automatically invited to the Discord thread.
+- **Ticket Creator Invited**: The member who submitted the ticket is automatically invited to their own thread, in addition to the assigned team.
 - **Role Mentions**: If the team has a configured `discord_role_id`, the role is mentioned in the thread creation notice.
+
+### Dynamic Thread Access via Assignees
+- Adding a pilot as an **Assignee** on a ticket card automatically invites their linked Discord account into the card's private thread.
+- Removing a pilot as an Assignee automatically removes them from the thread again.
+- This makes the card's Assignees list the single, auditable place to grant or revoke access to a ticket's private Discord conversation — no manual thread member management needed.
+
+### Closing Threads on Completion
+- When a ticket card is moved into the **last column** of its board, you're prompted to close the associated Discord thread.
+- Confirming posts a closing message in the thread and archives + locks it on Discord.
+- Declining leaves the thread open; you won't be prompted again unless the card is moved out of the last column and back into it.
 
 ### Bidirectional Comment Synchronization
 - Comments posted in the web UI are echoed to the Discord thread.
@@ -258,4 +278,4 @@ python manage.py collectstatic --noinput
 
 ---
 
-*Manual maintained for AA Kanban v0.13.0+.*
+*Manual maintained for AA Kanban v0.14.0+.*
