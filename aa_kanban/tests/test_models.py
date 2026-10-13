@@ -179,6 +179,20 @@ class TestLabelAndCommentModels:
         assert str(comment) == f"Comment by {author} on {card.title}"
         assert comment in card.comments.all()
 
+    def test_comment_author_nullable_for_unlinked_discord_users(self, board_factory):
+        """A comment synced from an unlinked Discord user has no author (TASK-96)."""
+        board = board_factory(name="Discord Sync Board")
+        lst = List.objects.create(board=board, name="Backlog")
+        card = Card.objects.create(list=lst, title="Ticket")
+
+        comment = Comment.objects.create(
+            card=card, author=None, text="**[Discord: SomePilot]**\nHello"
+        )
+
+        assert comment.author is None
+        assert str(comment) == f"Comment by None on {card.title}"
+        assert comment in card.comments.all()
+
 
 @pytest.mark.django_db
 class TestKanbanTeamModel:

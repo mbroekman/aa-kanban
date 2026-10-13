@@ -509,6 +509,11 @@ class Comment(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name="kanban_comments",
+        null=True,
+        blank=True,
+        help_text=_(
+            "Null when posted by a Discord user with no linked Alliance Auth account."
+        ),
     )
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

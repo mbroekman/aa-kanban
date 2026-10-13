@@ -45,7 +45,7 @@ class KanbanTicketCog(commands.Cog):
 
             # Create the comment
             await sync_to_async(Comment.objects.create)(
-                card=card, created_by=user, content=content
+                card=card, author=user, text=content
             )
             logger.debug(
                 f"Synced message from {message.author} in thread {message.channel.id} to Card {card.id}"
@@ -86,7 +86,7 @@ class KanbanTicketCog(commands.Cog):
             content = f"**[Uploaded from Discord - {message.author.display_name}]:**\n{message.content}"
 
             await sync_to_async(Comment.objects.create)(
-                card=card, created_by=user, content=content
+                card=card, author=user, text=content
             )
             await ctx.respond(
                 f"Message from {message.author.display_name} successfully uploaded as a comment to ticket #{card.id}.",

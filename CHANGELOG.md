@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Discord-to-Kanban Comment Sync Never Actually Worked (TASK-96)**: `aa_kanban/cogs.py`'s `sync_ticket_comment` (automatic thread-message sync) and `upload_to_ticket` (the "Upload to Ticket" context command) both called `Comment.objects.create(card=card, created_by=user, content=content)`, but the `Comment` model's actual fields are `author` and `text` — every call raised a `TypeError`, silently swallowed by a broad exception handler, so no Discord message was ever synced back to a card as a comment. Fixed the keyword arguments, and made `Comment.author` nullable (migration `0025`) since the code intentionally supports Discord users with no linked Alliance Auth account; `card_comments.html` now shows a Discord icon instead of a blank username for those comments. This bug predates TASK-93's `setup()` fix and was unreachable (the cog was never registered) until that fix shipped in v0.14.0.
+
 ## [0.14.0] - 2026-10-13
 
 ### Fixed
