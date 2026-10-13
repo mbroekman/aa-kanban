@@ -93,6 +93,7 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
                     c.order = idx
                     c.save(update_fields=["order"])
 
+    prompt_close_thread = False
     if source_list.id != target_list.id:
         if card.discord_thread_id:
             from aa_kanban.tasks import notify_ticket_thread
@@ -105,6 +106,10 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
                 username=request.user.username,
             )
             notify_ticket_thread.delay(card.discord_thread_id, str(thread_msg))
+
+            last_list = board.lists.order_by("order", "id").last()
+            if last_list and target_list.id == last_list.id:
+                prompt_close_thread = True
 
         if board.discord_webhook_cards:
             from django.shortcuts import redirect
@@ -130,8 +135,30 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
             "card_id": card.id,
             "target_list_id": target_list.id,
             "new_position": card.order,
+            "prompt_close_thread": prompt_close_thread,
         }
     )
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def close_card_thread(request: HttpRequest, card_id: int) -> HttpResponse:
+    """Archive and lock a card's Discord thread."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    card = get_object_or_404(Card.objects.select_related("list__board"), pk=card_id)
+    if not card.list.board.can_user_write(request.user):
+        raise PermissionDenied("Write permission required to close this thread.")
+
+    if not card.discord_thread_id:
+        return HttpResponseBadRequest(_("This card has no Discord thread."))
+
+    from aa_kanban.tasks import close_ticket_thread
+
+    close_ticket_thread.delay(card.discord_thread_id)
+
+    return JsonResponse({"status": "success", "card_id": card.id})
 
 
 @login_required

@@ -79,8 +79,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                     return response.json();
                 })
-                .then(function () {
+                .then(function (data) {
                     updateListCounts();
+                    if (data && data.prompt_close_thread) {
+                        showCloseThreadConfirm(data.card_id);
+                    }
                 })
                 .catch(function (error) {
                     console.error("Failed to move card:", error);
@@ -281,6 +284,46 @@ document.addEventListener("DOMContentLoaded", function () {
             if (editBtn) editBtn.classList.remove("d-none");
             if (viewBtn) viewBtn.classList.add("d-none");
         }
+    };
+
+    // Prompt to close a ticket's Discord thread when moved to the last column
+    window.showCloseThreadConfirm = function (cardId) {
+        const modalEl = document.getElementById("closeThreadModal");
+        if (!modalEl || typeof bootstrap === "undefined") return;
+
+        const confirmBtn = document.getElementById("btn-confirm-close-thread");
+        confirmBtn.dataset.cardId = cardId;
+
+        if (!confirmBtn.dataset.bound) {
+            confirmBtn.dataset.bound = "true";
+            confirmBtn.addEventListener("click", function () {
+                const targetCardId = confirmBtn.dataset.cardId;
+                fetch(`/kanban/cards/${targetCardId}/close-thread/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCsrfToken(),
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error(`Server returned HTTP ${response.status}`);
+                    }
+                    showToast("Kanban", "Discord thread closed.", "success");
+                })
+                .catch(function (error) {
+                    console.error("Failed to close thread:", error);
+                    showToast("Kanban Error", "Failed to close the Discord thread.", "danger");
+                })
+                .finally(function () {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.hide();
+                });
+            });
+        }
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
     };
 
     // Markdown Image Upload Initialization (Paste, Drag & Drop, File Picker)

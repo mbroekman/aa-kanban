@@ -45,6 +45,11 @@ urlpatterns = [
     ),
     # Existing card endpoints
     path("cards/<int:card_id>/move/", views_api.move_card, name="move_card"),
+    path(
+        "cards/<int:card_id>/close-thread/",
+        views_api.close_card_thread,
+        name="close_card_thread",
+    ),
     path("cards/<int:card_id>/modal/", views_api.card_modal, name="card_modal"),
     path(
         "cards/<int:card_id>/comments/add/",

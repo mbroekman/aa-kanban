@@ -462,3 +462,45 @@ def notify_ticket_thread(
         )
     except ImportError:
         logger.warning("aadiscordbot is not installed or available.")
+
+
+async def _close_discord_thread(bot, thread_id: int):
+    """Post a closing message, then archive and lock a Discord ticket thread."""
+    try:
+        thread = bot.get_channel(thread_id)
+        if not thread:
+            try:
+                thread = await bot.fetch_channel(thread_id)
+            except Exception as e:
+                logger.error(
+                    f"Discord thread with ID {thread_id} not found by bot: {e}"
+                )
+                return
+
+        await thread.send(
+            content=_(
+                "🔒 This ticket has been marked as done and this thread is now closed."
+            )
+        )
+        await thread.edit(archived=True, locked=True)
+        logger.info(f"Closed Discord thread {thread_id}")
+    except Exception as e:
+        logger.exception(f"Error closing Discord thread {thread_id}: {e}")
+
+
+@shared_task
+def close_ticket_thread(thread_id: int):
+    """Celery task to archive and lock a card's Discord thread."""
+    if not thread_id:
+        return
+
+    try:
+        from aadiscordbot.tasks import run_task_function
+
+        run_task_function.apply_async(
+            args=["aa_kanban.tasks._close_discord_thread"],
+            kwargs={"task_args": [thread_id], "task_kwargs": {}},
+            queue="aadiscordbot",
+        )
+    except ImportError:
+        logger.warning("aadiscordbot is not installed or available.")

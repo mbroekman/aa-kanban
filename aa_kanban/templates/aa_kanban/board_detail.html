@@ -192,6 +192,27 @@
         </div>
     </div>
 </div>
+
+{# Modal voor bevestiging thread sluiten bij verplaatsen naar laatste kolom #}
+<div class="modal fade" id="closeThreadModal" tabindex="-1" aria-labelledby="closeThreadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="closeThreadModalLabel"><i class="fas fa-lock me-2"></i>{% trans "Close Discord Thread?" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+            </div>
+            <div class="modal-body">
+                {% trans "This ticket was moved to the last column. Do you want to close its Discord thread?" %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Not now" %}</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-close-thread">
+                    <i class="fas fa-lock me-1"></i>{% trans "Close Thread" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_javascript %}
