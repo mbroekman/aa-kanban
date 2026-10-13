@@ -3,152 +3,259 @@ id: doc-4
 title: AA Kanban User Manual
 type: guide
 created_date: '2026-09-28 06:34'
-updated_date: '2026-10-12 00:00'
+updated_date: '2026-10-12 20:45'
 ---
 
-# AA Kanban User Manual
+# AA Kanban - Complete User & Administration Manual
 
-Welcome to **AA Kanban**, a native, fully integrated task and project management solution for Alliance Auth. This guide explains all functionalities, views, and settings available to users, moderators, and administrators.
+Welcome to the comprehensive user and administrator guide for **AA Kanban**, a native, fully integrated task and project management application built specifically for [Alliance Auth](https://allianceauth.readthedocs.io/).
+
+---
 
 ## Table of Contents
 
-1. [Overview](#1-overview)
-1. [Boards & Lists](#2-boards--lists)
-1. [Cards & Tasks](#3-cards--tasks)
-1. [Ticket System (Member Submissions)](#4-ticket-system-member-submissions)
-1. [Discord Integration](#5-discord-integration)
-1. [Settings & Access Control](#6-settings--access-control)
+1. [Overview & Architecture](#1-overview--architecture)
+2. [User Roles & Permissions](#2-user-roles--permissions)
+3. [Dashboard & Board Overview](#3-dashboard--board-overview)
+4. [Interactive Kanban Boards](#4-interactive-kanban-boards)
+5. [Card & Task Management](#5-card--task-management)
+6. [Rich Markdown & Image Attachments](#6-rich-markdown--image-attachments)
+7. [Ticket Submission System](#7-ticket-submission-system)
+8. [Discord Bot & Thread Integration](#8-discord-bot--thread-integration)
+9. [Frontend Administration & Settings](#9-frontend-administration--settings)
+10. [Technical Configuration & Celery Setup](#10-technical-configuration--celery-setup)
+11. [Troubleshooting & FAQ](#11-troubleshooting--faq)
 
-______________________________________________________________________
+---
 
-## 1. Overview
+## 1. Overview & Architecture
 
-AA Kanban is designed to keep your team organized using a visual "Kanban" approach. Tasks are represented by **Cards** which live inside **Lists** (columns). These lists are grouped into **Boards**.
+**AA Kanban** provides an intuitive, visual workflow engine inspired by modern Agile Kanban boards (Trello, Jira) while embedding deeply into the Alliance Auth ecosystem:
 
-- **Dashboard / Summary View**: See an overview of all your tasks across all boards you have access to.
-- **Drag & Drop**: Effortlessly move tasks between columns as work progresses.
-- **Multilingual Support**: Fully supports English and Dutch language interfaces based on your browser settings.
-- **Real-time Access**: Integrated directly into Alliance Auth, using your existing permissions and authentication.
+- **Native Bootstrap 5 UI**: Fully styled for Alliance Auth's default themes, including both light (Flatly) and dark (Darkly) modes with high-contrast UI elements.
+- **Instant HTMX & SortableJS Interactions**: Cards move effortlessly across columns via drag-and-drop with zero full-page reloads.
+- **Decoupled Frontend Administration**: All daily operational tasks (managing boards, columns, groups, teams, and labels) take place directly in the frontend user interface. No Django staff or `/admin/` access is required for officers or moderators.
+- **Multilingual Support**: Complete English and Dutch localization across all views, modals, and system alerts.
+- **Deep Discord Ecosystem Sync**: Built-in support for Discord threads, automatic team invitations, bidirectional comment synchronization, DM alerts, and stale card monitoring.
 
-______________________________________________________________________
+---
 
-## 2. Boards & Lists
+## 2. User Roles & Permissions
 
-### Creating a Board
+Access control in AA Kanban is structured into clear tiers:
 
-If you are a member of a Kanban Group with board management access (see [Access Control](#access-control-kanban-groups)), you can create a new board from the main Dashboard:
+| Role | Required Permission / Condition | Capabilities |
+| :--- | :--- | :--- |
+| **Standard User (Viewer)** | `aa_kanban.basic_access` | View boards where granted Read access; inspect cards and comments. |
+| **Board Operator (Editor)** | `basic_access` + Board Write Access | Create cards, drag-and-drop tasks, edit descriptions, add labels, assign users, post comments. |
+| **Ticket Submitter** | `aa_kanban.create_ticket` (or `basic_access`) | Submit requests and bug reports through the dedicated Ticket Portal. |
+| **Board Manager / Admin** | `can_manage_boards=True` on user's KanbanGroup (or `aa_kanban.manage_boards`) | Create and delete boards, access `/kanban/settings/`, manage Kanban Groups, configure Ticket Teams, set global labels. |
+| **Superuser / Technical Admin** | Django Superuser / Staff | Manage Django backend settings, configure Discord bot credentials, and set global webhooks. |
 
-1. Click **Create Board**.
-1. Provide a **Name** and **Description**.
-1. Upon creation, standard columns are automatically generated: *Backlog*, *To Do*, *In Progress*, *Review/Testing*, and *Done*.
+---
 
-### Managing Lists (Columns)
+## 3. Dashboard & Board Overview
 
-Inside a board, you can organize your workflow by managing the lists:
+Navigating to `/kanban/` presents the **Dashboard**, the central launching point for all project boards.
 
-- **Add List**: Click "Add List" on the far right of the board.
-- **Edit List**: Click the three dots (`...`) next to a list title to rename it.
-- **Move List**: Use the Left/Right arrows in the list menu to reorder columns.
-- **Delete List**: Remove a list entirely (note: this deletes all cards within the list).
+![AA Kanban Dashboard](images/01_dashboard.png)
 
-______________________________________________________________________
+### Features on the Dashboard
+1. **Board Directory**: Visual cards for every board you have permission to view or manage. Each card displays:
+   - Board title and descriptive summary.
+   - Real-time card count and active list counter.
+   - Quick "Open Board" button.
+2. **Create Board Button**: Available to any user belonging to a Kanban Group with `can_manage_boards=True`.
+   - Clicking **Create Board** opens a quick modal requiring a unique Board Name and optional Description.
+   - Upon creation, standard industry columns are automatically initialized:
+     - `Backlog`
+     - `To Do`
+     - `In Progress`
+     - `Review/Testing`
+     - `Done`
+3. **Responsive Navigation Bar**: Quick links to **Dashboard**, **Submit Ticket** (for member requests), and **Settings** (for managers).
 
-## 3. Cards & Tasks
+---
 
-Cards represent individual tasks, ideas, or tickets.
+## 4. Interactive Kanban Boards
 
-### Creating a Card
+Clicking on any board opens the interactive workspace.
 
-Click the **+ Add Card** button at the bottom of any list to quickly add a new task.
+![Interactive Kanban Board View](images/02_board_view.png)
 
-### Editing & Managing a Card
+### Managing Columns (Lists)
+- **Work-In-Progress (WIP) Limits**: Each column can be assigned a WIP limit. If the number of cards in a column exceeds this threshold, the counter badge clearly flags the bottleneck.
+- **Column Reordering**: Move columns left or right using the column action menu.
+- **Adding Columns**: Click **Add List** on the right side of the board to introduce custom workflow stages (e.g., *Blocked*, *QA*, *Deployed*).
+- **Column Header Counters**: Dynamically display the number of cards currently residing in each column, updating instantaneously upon card movements.
 
-Clicking on any card opens the **Card Detail Modal**. Here you can manage:
+### Drag & Drop Workflow
+- Grab any card with your cursor (or touch device) and drag it to any list.
+- Reordering within the same list updates priority ordering (`order` field).
+- Moving between lists automatically updates the card status and triggers any configured webhooks or Discord thread notifications.
 
-- **Title & Description**: Describe the task using Markdown formatting (bold, lists, links, etc.). Switch between `[Write]` and `[Preview]` tabs to see the rendered result. Add images by pasting them (`Ctrl+V`), dragging-and-dropping a file onto the editor, or using the **Attach Image** button; click any rendered image to open it in a fullscreen lightbox.
-- **Due Date**: Assign a deadline. A calendar icon will appear on the card.
-- **Color**: Assign a background color to the card for visual distinction (e.g., Red for critical bugs).
-- **Assignees**: Assign one or more Alliance Auth users to the task.
-- **Labels**: Tag the card with specific labels (e.g., *Frontend*, *Urgent*).
-- **Comments**: Discuss the task with your team. Comments are logged with a timestamp.
-- **Assigned Team**: Route the card to a specific department or group (e.g., *IT Support*, *HR*).
+---
 
-### Moving Cards
+## 5. Card & Task Management
 
-Simply **drag and drop** a card from one list to another to update its status.
+Cards represent individual work items, bugs, feature requests, or operational tasks.
 
-______________________________________________________________________
+![Card Detail Modal](images/03_card_detail_modal.png)
 
-## 4. Ticket System (Member Submissions)
+### The Card Detail Modal
+Clicking on any card opens the comprehensive Card Detail Modal:
 
-The Ticket System allows regular members (who don't necessarily have access to manage boards) to submit requests, reports, or tasks directly to the relevant teams.
+1. **Title**: Click to edit the card title inline.
+2. **Description with Safe Markdown**: Formatted task specifications with headings, bullet lists, code blocks, tables, and embedded images.
+3. **Due Date**: Attach optional deadline timestamps to visually highlight upcoming deliverables.
+4. **Color Coding**: Choose from 7 curated card accent colors (Default, Blue, Green, Red, Yellow, Purple, Dark) for visual triage.
+5. **Assignees**: Assign one or more Alliance Auth pilots. Assigned users receive direct notifications.
+6. **Labels**: Apply colored tags to categorize tasks across teams.
+7. **Assigned Team**: Route the task to a specific department (e.g., *IT Support*, *HR*, *Logistics*).
+8. **Comments & Discussion**: Post threaded discussion updates with timestamps and author details.
 
-### Submitting a Ticket
+---
 
-Users with the `create_ticket` permission will see a **Submit Ticket** menu item.
+## 6. Rich Markdown & Image Attachments
 
-1. Fill out the **Title** and **Description** (Markdown and images are supported here too, exactly as on cards).
-1. Select an **Assigned Team** if the request is for a specific department.
-1. Add relevant **Labels**.
-1. Submit. The ticket is automatically routed to the designated Ticket Board.
+AA Kanban features a powerful, secure Markdown editor and image upload pipeline.
 
-### Ticket Routing & Board Designation
+### Supported Markdown Formatting
+- **Headers**: `# H1`, `## H2`, `### H3`
+- **Text Styling**: `**bold**`, `*italic*`, `~~strikethrough~~`, `` `inline code` ``
+- **Lists**: Ordered (`1. `, `2. `) and Unordered (`- `, `* `)
+- **Code Blocks**: Fenced code blocks with language syntax
+- **Tables**: GFM table syntax (`| Column 1 | Column 2 |`)
 
-Administrators can designate any board as a "Ticket Board" via its Board Settings. When a user submits a ticket, they must select a target **Assigned Team**. The system automatically routes the ticket to the board associated with that team. All member-submitted tickets will appear in the first column (*Backlog*) of the destination board.
+### Uploading & Attaching Images
+Images can be added to descriptions in three convenient ways:
+1. **Clipboard Paste (`Ctrl+V`)**: Take a screenshot (e.g., using Windows Snipping Tool `Win+Shift+S`) and press `Ctrl+V` directly in the editor textarea.
+2. **Drag & Drop**: Drag an image file from your file manager directly onto the editor dropzone box.
+3. **Attach Image Button**: Click the **Attach Image** button located right above the textarea to open a file selector.
 
-______________________________________________________________________
+### Security & Sanitization
+- **File Validation**: Uploaded files are strictly validated against maximum size (5 MB), file extension (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`), and initial magic bytes.
+- **XSS Protection**: Markdown is sanitized using BeautifulSoup against an explicit tag and attribute whitelist (`ALLOW_TAGS`, `ALLOW_ATTRS`). Dangerous protocols like `javascript:` are completely eliminated.
+- **Fullscreen Lightbox**: Rendered images are automatically styled with rounded borders and responsive sizing. Clicking any image opens it in a fullscreen Lightbox modal with zoom capability.
 
-## 5. Discord Integration
+---
 
-AA Kanban comes with deep Discord integration, utilizing `aadiscordbot`.
+## 7. Ticket Submission System
 
-### Ticket Threads & Syncing
+The Ticket Portal allows general alliance members to submit structured requests without needing full board editing permissions.
 
-When a user submits a new Ticket, the system automatically creates a **Discord Thread** in the Ticket Channel designated for the receiving board. Additionally, any members belonging to the designated **Assigned Team** are automatically invited and added to the Discord thread.
+![Ticket Submission Form](images/04_ticket_submission.png)
 
-- **Syncing**: The `KanbanTicketCog` monitors the thread. Any message sent in the Discord thread is automatically synced as a **Comment** on the Kanban Card in the web UI.
-- **Uploading Messages**: Using Discord Context Menus (Right Click on a message -> Apps -> Upload to Ticket), you can directly push important Discord messages from other channels into an active Kanban ticket as a comment!
+### How Member Tickets Work
+1. Members with `create_ticket` or `basic_access` click **Submit Ticket** in the main menu (`/kanban/tickets/create/`).
+2. **Form Fields**:
+   - **Title**: A clear summary of the request.
+   - **Assigned Team**: Select the responsible department (e.g. *Infrastructure*, *Fleet Operations*, *Recruitment*).
+   - **Labels**: Tag the ticket with relevant categories.
+   - **Description**: Provide full context using Markdown and image uploads, with live `[Write]` and `[Preview]` tabs.
+3. **Automatic Routing**:
+   - The ticket is automatically routed to the designated Ticket Board configured for the selected Team.
+   - It lands directly in the board's entry column (usually *Backlog*).
+   - If configured, a dedicated **Discord Thread** is instantly created.
 
-### DM Notifications
+---
 
-- Users receive a Direct Message (DM) from the Auth Bot when they are **Assigned to** or **Removed from** a card.
+## 8. Discord Bot & Thread Integration
 
-### Webhook Notifications
+AA Kanban features seamless integration with `aadiscordbot` and Discord webhooks:
 
-- **Global Notifications**: Sends a webhook message to a channel whenever a completely new Board is created.
-- **Board Notifications**: Sends a webhook message when a card is moved across lists (e.g., moved to *Done*).
+### Automated Discord Ticket Threads
+- When a ticket is submitted, the system automatically spawns a dedicated Discord Thread in the channel assigned to the destination board.
+- **Automatic Team Member Invites**: All users belonging to the assigned `KanbanTeam` (including members of linked Alliance Auth groups) are automatically invited to the Discord thread.
+- **Role Mentions**: If the team has a configured `discord_role_id`, the role is mentioned in the thread creation notice.
 
-______________________________________________________________________
+### Bidirectional Comment Synchronization
+- Comments posted in the web UI are echoed to the Discord thread.
+- Messages sent in the Discord thread are captured by the `KanbanTicketCog` and automatically logged as comments on the card in Alliance Auth.
+- **Discord Context Menu**: Right-clicking any Discord message (`Apps -> Upload to Ticket`) allows users to push existing chat discussions straight into an active Kanban card.
 
-## 6. Settings & Access Control
+### Discord Webhooks & Stale Card Alerts
+- **Board Creation Webhook**: Broadcasts an announcement when a new board is launched.
+- **Card Move Webhook**: Sends real-time notifications when tasks change status.
+- **Stale Card Monitoring**: A periodic Celery task checks for cards that haven't been updated within a board's configured `stale_card_alert_hours`. If a card is inactive, an alert is sent to Discord, respecting the configured repeat cooldown (`stale_card_repeat_hours`).
 
-The **Settings** menu allows comprehensive management of the application directly from the frontend. Access is granted entirely through Kanban Groups (see below) — no Django admin access is required.
+---
 
-### Ticket Teams
+## 9. Frontend Administration & Settings
 
-Teams are used to route tickets to specific departments.
+All business and organizational configuration is managed through the **Settings** panel (`/kanban/settings/`).
 
-- **Create Teams**: Define teams like *Recon*, *HR*, or *IT*.
-- **Target Ticket Board**: Assign a specific board to the team. Any tickets submitted for this team will automatically be routed to that board.
-- **Discord Role ID**: Link a team to a Discord Role. When a ticket is assigned to this team, the associated Discord Role is pinged in the Ticket Thread.
-- **Manage Members**: Add individual Alliance Auth users to teams. Members of a team are automatically added to the Discord thread when a ticket is assigned to that team.
+### Tab 1: Kanban Groups & Permissions
 
-### Access Control (Kanban Groups)
+![Settings - Kanban Groups](images/05_settings_groups.png)
 
-Kanban Groups determine who can view and edit specific boards, and who can manage the application itself.
+- **Access Management**: Create Kanban Groups (e.g. *Directors*, *Fleet Commanders*, *General Membership*) and grant them **View** or **Write** access per board.
+- **Auth Group Linking**: Link standard Alliance Auth groups directly to a Kanban Group so permissions synchronize automatically with member corp/alliance status.
+- **Board Management Permission (`can_manage_boards`)**: Check the **"Can manage boards & settings"** checkbox to allow group members to create boards and administer settings without requiring Django staff permissions.
 
-- **Create Kanban Groups**: Create groups like *Directors*, *Line Members*, etc.
-- **Link Auth Groups**: Instead of adding users manually, you can link standard Alliance Auth Groups directly to a Kanban Group (e.g., link the *Member* Auth Group to the *Line Members* Kanban Group).
-- **Board Permissions**: On the Board Edit page, assign which Kanban Groups have **View** (Read-Only) or **Write** access.
-- **Board Management Access**: Tick **"Can manage boards & settings"** when creating or editing a Kanban Group to let its members access the Settings menu and create, edit, or delete boards — fully from the frontend, with no Django admin access needed. The group list shows a **Manages Boards** indicator for each group.
-- *(For backward compatibility, the Django `aa_kanban.manage_boards` permission — assignable via Django admin — still grants the same access if already configured.)*
+### Tab 2: Ticket Teams & Routing
 
-### Global Labels & Settings
+![Settings - Ticket Teams](images/06_settings_teams.png)
 
-- **Global Labels**: Create colored labels that can be used across all boards.
+- **Define Teams**: Establish organizational departments (e.g., *IT*, *Recruitment*, *Logistics*).
+- **Target Board**: Map each team to its designated Ticket Board for automatic routing.
+- **Discord Role ID**: Connect a Discord Role ID for notifications.
+- **Team Membership**: Add individual users or link Auth Groups to grant team ownership and auto-invite rights.
 
-*(Note: Technical configurations such as Webhook URLs are securely managed within the standard Django Admin panel under `Boards` and `Kanban Settings`.)*
+### Tab 3: Global Labels
 
-______________________________________________________________________
+![Settings - Global Labels](images/07_settings_labels.png)
 
-*End of Manual*
+- **Label Creation & Editing**: Create and edit shared tags used across all boards. Click the Edit button on any label to modify its name, color, and ticket form availability in the Edit Label modal.
+- **Color Palette**: Choose distinct, accessible colors with high contrast for both light and dark themes.
+
+---
+
+## 10. Technical Configuration & Celery Setup
+
+### Django Settings (`local.py`)
+Ensure `aa_kanban` is included in your `INSTALLED_APPS` and media settings are configured:
+
+```python
+INSTALLED_APPS += [
+    "aa_kanban",
+]
+
+# Media settings for image attachments
+MEDIA_ROOT = "/home/allianceserver/myauth/media/"
+MEDIA_URL = "/media/"
+```
+
+### Celery Beat Schedule
+To enable automated stale card alerting, add the periodic task to `CELERYBEAT_SCHEDULE`:
+
+```python
+CELERYBEAT_SCHEDULE["aa_kanban.check_stale_cards"] = {
+    "task": "aa_kanban.tasks.check_stale_cards",
+    "schedule": crontab(minute=0),  # Runs hourly
+}
+```
+
+### Static Files Collection
+When deploying updates to CSS or JavaScript assets:
+
+```bash
+python manage.py collectstatic --noinput
+```
+
+---
+
+## 11. Troubleshooting & FAQ
+
+### Q: Why do inactive buttons appear dark or hard to read?
+**A**: Alliance Auth uses Bootswatch themes. In Darkly, button outlines require explicit theme overrides. AA Kanban includes comprehensive CSS rules targeting both `html[data-theme="darkly"]` and `[data-bs-theme="dark"]`. If buttons look unstyled, ensure you ran `collectstatic`.
+
+### Q: Why did an image upload fail?
+**A**: Verify that the file size is below 5 MB and that the image format is PNG, JPEG, GIF, or WebP. Corrupted files failing magic bytes inspection will be rejected automatically for security.
+
+### Q: Are member tickets visible to all users?
+**A**: No. Tickets are placed on the configured board for the assigned team. Only users belonging to Kanban Groups with View or Write access to that specific board can inspect and manage the resulting cards.
+
+---
+
+*Manual maintained for AA Kanban v0.13.0+.*

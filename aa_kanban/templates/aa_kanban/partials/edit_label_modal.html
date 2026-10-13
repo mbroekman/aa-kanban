@@ -1,0 +1,52 @@
+{% load i18n %}
+<div class="modal-header bg-light">
+    <h5 class="modal-title" id="labelModalLabel">
+        <i class="fas fa-edit me-2 text-primary"></i>{% trans "Edit Label:" %} {{ label.name }}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+</div>
+<form hx-post="{% url 'aa_kanban:edit_settings_label' label.id %}"
+      hx-target="#label-list-container"
+      hx-swap="innerHTML">
+    {% csrf_token %}
+    <div class="modal-body">
+        <div class="mb-3">
+            <label for="editLabelName" class="form-label fw-bold">{% trans "Label Name" %}</label>
+            <input type="text"
+                   class="form-control"
+                   id="editLabelName"
+                   name="name"
+                   value="{{ label.name }}"
+                   maxlength="50"
+                   required>
+        </div>
+        <div class="mb-3">
+            <label for="editLabelColor" class="form-label fw-bold">{% trans "Color" %}</label>
+            <select name="color" id="editLabelColor" class="form-select" required>
+                <option value="primary" class="text-primary" {% if label.color == "primary" %}selected{% endif %}>Primary (Blue)</option>
+                <option value="secondary" class="text-secondary" {% if label.color == "secondary" %}selected{% endif %}>Secondary (Grey)</option>
+                <option value="success" class="text-success" {% if label.color == "success" %}selected{% endif %}>Success (Green)</option>
+                <option value="danger" class="text-danger" {% if label.color == "danger" %}selected{% endif %}>Danger (Red)</option>
+                <option value="warning" class="text-warning" {% if label.color == "warning" %}selected{% endif %}>Warning (Yellow)</option>
+                <option value="info" class="text-info" {% if label.color == "info" %}selected{% endif %}>Info (Light Blue)</option>
+                <option value="dark" class="text-body" {% if label.color == "dark" %}selected{% endif %}>Dark (Black)</option>
+            </select>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="is_ticket_label"
+                   id="editIsTicketLabel"
+                   {% if label.is_ticket_label %}checked{% endif %}>
+            <label class="form-check-label" for="editIsTicketLabel">
+                {% trans "Can be selected on Ticket form" %}
+            </label>
+        </div>
+    </div>
+    <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>{% trans "Save changes" %}
+        </button>
+    </div>
+</form>

@@ -9,14 +9,25 @@
                         <span class="badge bg-light text-dark border ms-2" title="{% trans 'Ticket Label' %}"><i class="fas fa-ticket-alt"></i></span>
                     {% endif %}
                 </div>
-                <button type="button" class="btn btn-sm text-danger border-0 p-0"
-                        hx-post="{% url 'aa_kanban:delete_settings_label' label.id %}"
-                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                        hx-target="#label-list-container"
-                        hx-confirm="{% trans 'Delete this label permanently? It will be removed from all cards.' %}"
-                        title="{% trans 'Delete label' %}">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+                <div class="text-nowrap">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary me-1"
+                            data-bs-toggle="modal"
+                            data-bs-target="#labelModal"
+                            hx-get="{% url 'aa_kanban:edit_settings_label' label.id %}"
+                            hx-target="#labelModalBody"
+                            title="{% trans 'Edit Label' %}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger"
+                            hx-post="{% url 'aa_kanban:delete_settings_label' label.id %}"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                            hx-target="#label-list-container"
+                            hx-confirm="{% trans 'Delete this label permanently? It will be removed from all cards.' %}"
+                            title="{% trans 'Delete Label' %}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
             </li>
         {% endfor %}
     </ul>

@@ -257,6 +257,41 @@ def create_settings_label(request: HttpRequest) -> HttpResponse:
 
 @login_required
 @manage_boards_required
+def edit_settings_label(request: HttpRequest, label_id: int) -> HttpResponse:
+    """HTMX endpoint to edit a global label name, color, and ticket setting."""
+    from .models import Label
+
+    label = get_object_or_404(Label, pk=label_id)
+
+    if request.method == "GET":
+        return render(
+            request, "aa_kanban/partials/edit_label_modal.html", {"label": label}
+        )
+
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        color = request.POST.get("color", "primary").strip()
+        is_ticket_label = request.POST.get("is_ticket_label") == "on"
+
+        if name:
+            if not Label.objects.filter(name=name).exclude(pk=label.pk).exists():
+                label.name = name
+            label.color = color
+            label.is_ticket_label = is_ticket_label
+            label.save(update_fields=["name", "color", "is_ticket_label"])
+
+        labels = Label.objects.order_by("name")
+        response = render(
+            request, "aa_kanban/partials/settings_label_list.html", {"labels": labels}
+        )
+        response["HX-Trigger"] = "closeModal"
+        return response
+
+    return HttpResponse(status=405)
+
+
+@login_required
+@manage_boards_required
 def delete_settings_label(request: HttpRequest, label_id: int) -> HttpResponse:
     """HTMX endpoint to delete a global label from settings."""
     if request.method == "POST":

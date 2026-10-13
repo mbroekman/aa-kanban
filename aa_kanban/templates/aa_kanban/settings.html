@@ -213,4 +213,17 @@
         </div>
     </div>
 </div>
+
+{# Modal container for Label Management #}
+<div class="modal fade" id="labelModal" tabindex="-1" aria-labelledby="labelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="labelModalBody">
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">{% trans "Loading..." %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

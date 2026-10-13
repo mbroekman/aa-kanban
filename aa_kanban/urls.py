@@ -146,6 +146,11 @@ urlpatterns = [
         name="create_settings_label",
     ),
     path(
+        "settings/labels/<int:label_id>/edit/",
+        views_settings.edit_settings_label,
+        name="edit_settings_label",
+    ),
+    path(
         "settings/labels/<int:label_id>/delete/",
         views_settings.delete_settings_label,
         name="delete_settings_label",

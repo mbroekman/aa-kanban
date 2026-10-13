@@ -5,9 +5,8 @@ from allianceauth.tests.auth_utils import AuthUtils
 from django.test import Client
 from django.urls import reverse
 
-from aa_kanban.models import Board, Card
+from aa_kanban.models import Board, Card, List
 from aa_kanban.models import KanbanGroup as Group
-from aa_kanban.models import List
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -416,3 +415,71 @@ class TestCreateCard:
         orders = [c.order for c in cards]
         assert orders == sorted(orders)
         assert len(set(orders)) == len(orders)
+
+
+class TestSettingsLabelManagement:
+    """Tests for editing and managing global labels via frontend settings."""
+
+    def test_edit_settings_label_get_and_post(self, board_data):
+        from aa_kanban.models import Label
+
+        label = Label.objects.create(name="Bug", color="danger", is_ticket_label=False)
+        client = Client()
+        client.force_login(board_data["manager"])
+
+        edit_url = reverse(
+            "aa_kanban:edit_settings_label", kwargs={"label_id": label.id}
+        )
+        resp_get = client.get(edit_url)
+        assert resp_get.status_code == 200
+        assert "Edit Label:" in resp_get.content.decode()
+        assert label.name in resp_get.content.decode()
+
+        resp_post = client.post(
+            edit_url,
+            {
+                "name": "Critical Bug",
+                "color": "warning",
+                "is_ticket_label": "on",
+            },
+        )
+        assert resp_post.status_code == 200
+        assert resp_post.headers.get("HX-Trigger") == "closeModal"
+
+        label.refresh_from_db()
+        assert label.name == "Critical Bug"
+        assert label.color == "warning"
+        assert label.is_ticket_label is True
+
+    def test_edit_settings_label_permission_denied_for_plain_user(self, board_data):
+        from aa_kanban.models import Label
+
+        label = Label.objects.create(name="Feature", color="primary")
+        client = Client()
+        client.force_login(board_data["plain_user"])
+
+        edit_url = reverse(
+            "aa_kanban:edit_settings_label", kwargs={"label_id": label.id}
+        )
+        assert client.get(edit_url).status_code == 403
+        assert client.post(edit_url, {"name": "New Feature"}).status_code == 403
+
+    def test_edit_settings_label_allowed_via_kanban_group(self, user_factory):
+        from aa_kanban.models import KanbanGroup, Label
+
+        group_user = user_factory("group_mgr_user")
+        kg = KanbanGroup.objects.create(name="Board Admins", can_manage_boards=True)
+        kg.members.add(group_user)
+
+        label = Label.objects.create(name="Docs", color="info")
+        client = Client()
+        client.force_login(group_user)
+
+        edit_url = reverse(
+            "aa_kanban:edit_settings_label", kwargs={"label_id": label.id}
+        )
+        resp = client.post(edit_url, {"name": "Documentation", "color": "success"})
+        assert resp.status_code == 200
+        label.refresh_from_db()
+        assert label.name == "Documentation"
+        assert label.color == "success"
