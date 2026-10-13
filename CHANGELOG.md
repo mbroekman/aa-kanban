@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-13
+
 ### Fixed
 
 - **Discord Cog Never Actually Registered (TASK-93)**: `aa_kanban/cogs.py`'s `setup(bot)` entry point was declared `async def` and internally `await`ed `bot.add_cog(...)`, but py-cord's extension loader calls `setup()` synchronously (without awaiting it) — so the coroutine was created and immediately discarded (visible only as a `RuntimeWarning: coroutine 'setup' was never awaited` in the bot's logs), and `KanbanTicketCog` (Discord message -> ticket comment sync, "Upload to Ticket" context command) was never actually registered with the bot. Changed `setup` to a plain synchronous function calling `bot.add_cog(...)` directly, matching py-cord's actual (synchronous) `add_cog` signature.
