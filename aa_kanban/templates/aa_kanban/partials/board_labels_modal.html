@@ -2,7 +2,7 @@
 
 <div class="modal-header border-bottom-0 pb-0">
     <h5 class="modal-title fw-bold mb-1" id="labelsModalLabel">{% trans "Manage Labels" %}</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
 </div>
 
 <div class="modal-body pt-3">
@@ -48,13 +48,13 @@
 
         <div class="mb-3">
             <select name="color" class="form-select form-select-sm" required>
-                <option value="primary" class="text-primary">Primary (Blue)</option>
-                <option value="secondary" class="text-secondary">Secondary (Grey)</option>
-                <option value="success" class="text-success">Success (Green)</option>
-                <option value="danger" class="text-danger">Danger (Red)</option>
-                <option value="warning" class="text-warning">Warning (Yellow)</option>
-                <option value="info" class="text-info">Info (Light Blue)</option>
-                <option value="dark" class="text-body">Dark (Black)</option>
+                <option value="primary" class="text-primary">{% trans "Primary (Blue)" %}</option>
+                <option value="secondary" class="text-secondary">{% trans "Secondary (Grey)" %}</option>
+                <option value="success" class="text-success">{% trans "Success (Green)" %}</option>
+                <option value="danger" class="text-danger">{% trans "Danger (Red)" %}</option>
+                <option value="warning" class="text-warning">{% trans "Warning (Yellow)" %}</option>
+                <option value="info" class="text-info">{% trans "Info (Light Blue)" %}</option>
+                <option value="dark" class="text-body">{% trans "Dark (Black)" %}</option>
             </select>
         </div>
 

@@ -414,15 +414,15 @@ class Card(models.Model):
     """Task card within a Kanban List."""
 
     COLOR_CHOICES = [
-        ("", "Default"),
-        ("primary", "Blue"),
-        ("secondary", "Grey"),
-        ("success", "Green"),
-        ("danger", "Red"),
-        ("warning", "Yellow"),
-        ("info", "Cyan"),
-        ("light", "Light"),
-        ("dark", "Dark"),
+        ("", _("Default")),
+        ("primary", _("Blue")),
+        ("secondary", _("Grey")),
+        ("success", _("Green")),
+        ("danger", _("Red")),
+        ("warning", _("Yellow")),
+        ("info", _("Cyan")),
+        ("light", _("Light")),
+        ("dark", _("Dark")),
     ]
 
     list = models.ForeignKey(

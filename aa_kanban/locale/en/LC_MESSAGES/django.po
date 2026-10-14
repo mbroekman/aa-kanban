@@ -894,7 +894,7 @@ msgstr ""
 msgid ""
 "Card moved: **{card_title}** was moved from `{source_list_name}` to "
 "`{target_list_name}`.\n"
-"[Bekijk Bord]({url})"
+"[View Board]({url})"
 msgstr ""
 
 #: views_api.py:170
@@ -938,11 +938,11 @@ msgstr ""
 #: views_api.py:471
 #, python-brace-format
 msgid ""
-"**Nieuwe Card Aangemaakt!**\n"
-"Titel: `{card_title}`\n"
-"Aangemaakt door: `{username}`\n"
-"Lijst: `{list_name}`\n"
-"[Bekijk Bord]({url})"
+"**New Card Created!**\n"
+"Title: `{card_title}`\n"
+"Created by: `{username}`\n"
+"List: `{list_name}`\n"
+"[View Board]({url})"
 msgstr ""
 
 #: views_api.py:498
@@ -952,3 +952,108 @@ msgstr ""
 #: views_api.py:503
 msgid "label_id must be an integer."
 msgstr ""
+
+msgid ""
+"**New Kanban Board Created!**\n"
+"Name: `{board_name}`\n"
+"Created by: `{username}`"
+msgstr ""
+
+#, python-format
+msgid "Permanently delete column '%(name)s' and all its cards?"
+msgstr ""
+
+msgid "Close Discord Thread?"
+msgstr ""
+
+msgid "This ticket was moved to the last column. Do you want to close its Discord thread?"
+msgstr ""
+
+msgid "Not now"
+msgstr ""
+
+msgid "Close Thread"
+msgstr ""
+
+msgid "🔒 This ticket has been marked as done and this thread is now closed."
+msgstr ""
+
+msgid "Archived Cards"
+msgstr ""
+
+msgid "Cards automatically archived after sitting in the last column too long."
+msgstr ""
+
+msgid "Back to Board"
+msgstr ""
+
+msgid "Back to board"
+msgstr ""
+
+msgid "Archived"
+msgstr ""
+
+msgid "No archived cards on this board yet."
+msgstr ""
+
+msgid "Board Maintenance"
+msgstr ""
+
+msgid "Auto-Archive After (days)"
+msgstr ""
+
+msgid "Automatically archive cards that have sat in the last column for this many days (0 to disable). Archived cards disappear from the board and are only visible in the Archived Cards overview."
+msgstr ""
+
+msgid "Edit Label:"
+msgstr ""
+
+msgid "Primary (Blue)"
+msgstr ""
+
+msgid "Secondary (Grey)"
+msgstr ""
+
+msgid "Success (Green)"
+msgstr ""
+
+msgid "Danger (Red)"
+msgstr ""
+
+msgid "Warning (Yellow)"
+msgstr ""
+
+msgid "Info (Light Blue)"
+msgstr ""
+
+msgid "Dark (Black)"
+msgstr ""
+
+msgid "Cyan"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Blue"
+msgstr ""
+
+msgid "Grey"
+msgstr ""
+
+msgid "Green"
+msgstr ""
+
+msgid "Red"
+msgstr ""
+
+msgid "Yellow"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "Dark"
+msgstr ""
+
+

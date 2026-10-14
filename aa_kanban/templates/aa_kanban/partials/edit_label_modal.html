@@ -23,13 +23,13 @@
         <div class="mb-3">
             <label for="editLabelColor" class="form-label fw-bold">{% trans "Color" %}</label>
             <select name="color" id="editLabelColor" class="form-select" required>
-                <option value="primary" class="text-primary" {% if label.color == "primary" %}selected{% endif %}>Primary (Blue)</option>
-                <option value="secondary" class="text-secondary" {% if label.color == "secondary" %}selected{% endif %}>Secondary (Grey)</option>
-                <option value="success" class="text-success" {% if label.color == "success" %}selected{% endif %}>Success (Green)</option>
-                <option value="danger" class="text-danger" {% if label.color == "danger" %}selected{% endif %}>Danger (Red)</option>
-                <option value="warning" class="text-warning" {% if label.color == "warning" %}selected{% endif %}>Warning (Yellow)</option>
-                <option value="info" class="text-info" {% if label.color == "info" %}selected{% endif %}>Info (Light Blue)</option>
-                <option value="dark" class="text-body" {% if label.color == "dark" %}selected{% endif %}>Dark (Black)</option>
+                <option value="primary" class="text-primary" {% if label.color == "primary" %}selected{% endif %}>{% trans "Primary (Blue)" %}</option>
+                <option value="secondary" class="text-secondary" {% if label.color == "secondary" %}selected{% endif %}>{% trans "Secondary (Grey)" %}</option>
+                <option value="success" class="text-success" {% if label.color == "success" %}selected{% endif %}>{% trans "Success (Green)" %}</option>
+                <option value="danger" class="text-danger" {% if label.color == "danger" %}selected{% endif %}>{% trans "Danger (Red)" %}</option>
+                <option value="warning" class="text-warning" {% if label.color == "warning" %}selected{% endif %}>{% trans "Warning (Yellow)" %}</option>
+                <option value="info" class="text-info" {% if label.color == "info" %}selected{% endif %}>{% trans "Info (Light Blue)" %}</option>
+                <option value="dark" class="text-body" {% if label.color == "dark" %}selected{% endif %}>{% trans "Dark (Black)" %}</option>
             </select>
         </div>
         <div class="form-check">

@@ -38,9 +38,13 @@ def create_kanban_board(
     # Trigger Discord Webhook Notification if configured
     settings = KanbanSetting.get_settings()
     if settings.board_creation_webhook:
+        from django.utils.translation import gettext as _
+
         from aa_kanban.utils import send_discord_webhook
 
-        message = f"**New Kanban Board Created!**\nName: `{board.name}`\nCreated by: `{creator.username}`"
+        message = _(
+            "**New Kanban Board Created!**\nName: `{board_name}`\nCreated by: `{username}`"
+        ).format(board_name=board.name, username=creator.username)
         send_discord_webhook(settings.board_creation_webhook, message)
 
     return board

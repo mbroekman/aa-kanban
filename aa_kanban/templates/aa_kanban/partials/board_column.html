@@ -14,7 +14,7 @@
             <button type="button"
                     class="btn btn-sm btn-outline-danger border-0 delete-list-btn"
                     hx-post="{% url 'aa_kanban:delete_list' list.id %}"
-                    hx-confirm="{% blocktrans with name=list.name %}Kolom '{{ name }}' en alle kaarten permanent verwijderen?{% endblocktrans %}"
+                    hx-confirm="{% blocktrans with name=list.name %}Permanently delete column '{{ name }}' and all its cards?{% endblocktrans %}"
                     hx-target="closest .kanban-column"
                     hx-swap="outerHTML"
                     title="{% trans 'Delete column' %}">

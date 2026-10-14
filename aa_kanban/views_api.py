@@ -125,7 +125,7 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
                 redirect("aa_kanban:board_detail", board_slug=board.slug).url
             )
             msg = _(
-                "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[Bekijk Bord]({url})"
+                "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[View Board]({url})"
             ).format(
                 card_title=card.title,
                 source_list_name=source_list.name,
@@ -226,7 +226,9 @@ def add_comment(request: HttpRequest, card_id: int) -> HttpResponse:
         return HttpResponseBadRequest(_("Comment text cannot be empty."))
 
     Comment.objects.create(
-        card=card, author=request.user, text=comment_text  # type: ignore[misc]
+        card=card,
+        author=request.user,
+        text=comment_text,  # type: ignore[misc]
     )
 
     comments = card.comments.select_related("author").order_by("created_at")
@@ -570,7 +572,7 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
             redirect("aa_kanban:board_detail", board_slug=kanban_list.board.slug).url
         )
         msg = _(
-            "**Nieuwe Card Aangemaakt!**\nTitel: `{card_title}`\nAangemaakt door: `{username}`\nLijst: `{list_name}`\n[Bekijk Bord]({url})"
+            "**New Card Created!**\nTitle: `{card_title}`\nCreated by: `{username}`\nList: `{list_name}`\n[View Board]({url})"
         ).format(
             card_title=card.title,
             username=request.user.username,

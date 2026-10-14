@@ -895,8 +895,11 @@ msgstr "Doellijst heeft zijn WIP-limiet bereikt."
 msgid ""
 "Card moved: **{card_title}** was moved from `{source_list_name}` to "
 "`{target_list_name}`.\n"
-"[Bekijk Bord]({url})"
+"[View Board]({url})"
 msgstr ""
+"Card verplaatst: **{card_title}** is verplaatst van `{source_list_name}` naar "
+"`{target_list_name}`.\n"
+"[Bekijk Bord]({url})"
 
 #: views_api.py:170
 msgid "Comment text cannot be empty."
@@ -915,14 +918,14 @@ msgstr "user_id moet een integer zijn."
 msgid ""
 "You have been removed from the card: **{card_title}** on board **{board_name}"
 "**."
-msgstr ""
+msgstr "Je bent verwijderd van de kaart: **{card_title}** op bord **{board_name}**."
 
 #: views_api.py:224
 #, python-brace-format
 msgid ""
 "You have been assigned to the card: **{card_title}** on board **{board_name}"
 "**."
-msgstr ""
+msgstr "Je bent toegewezen aan de kaart: **{card_title}** op bord **{board_name}**."
 
 #: views_api.py:292
 msgid "No valid fields to update."
@@ -939,12 +942,17 @@ msgstr "Kaarttitel mag niet leeg zijn."
 #: views_api.py:471
 #, python-brace-format
 msgid ""
+"**New Card Created!**\n"
+"Title: `{card_title}`\n"
+"Created by: `{username}`\n"
+"List: `{list_name}`\n"
+"[View Board]({url})"
+msgstr ""
 "**Nieuwe Card Aangemaakt!**\n"
 "Titel: `{card_title}`\n"
 "Aangemaakt door: `{username}`\n"
 "Lijst: `{list_name}`\n"
 "[Bekijk Bord]({url})"
-msgstr ""
 
 #: views_api.py:498
 msgid "Missing label_id."
@@ -1011,9 +1019,6 @@ msgstr "Discord Kanaal ID voor signaleringen van stilstaande kaarten. Valt terug
 msgid "Discord Webhook URL for stale card alerts. If blank, falls back to card movement webhook."
 msgstr "Discord Webhook URL voor signaleringen van stilstaande kaarten. Valt terug op de card movement webhook indien leeg."
 
-msgid "Niet toegewezen"
-msgstr "Niet toegewezen"
-
 msgid "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}` by **{username}**."
 msgstr "🔄 **Status Update:** Card verplaatst van `{source_list_name}` naar `{target_list_name}` door **{username}**."
 
@@ -1067,6 +1072,114 @@ msgstr "Uren tussen herinneringssignalen voor een nog steeds inactieve kaart (0 
 
 msgid "Timestamp when the last stale card alert was sent for this card."
 msgstr "Tijdstip waarop de laatste signalering voor deze kaart is verzonden."
+
+msgid ""
+"**New Kanban Board Created!**\n"
+"Name: `{board_name}`\n"
+"Created by: `{username}`"
+msgstr ""
+"**Nieuw Kanban Bord Aangemaakt!**\n"
+"Naam: `{board_name}`\n"
+"Aangemaakt door: `{username}`"
+
+#, python-format
+msgid "Permanently delete column '%(name)s' and all its cards?"
+msgstr "Kolom '%(name)s' en alle kaarten permanent verwijderen?"
+
+msgid "Close Discord Thread?"
+msgstr "Discord-thread sluiten?"
+
+msgid "This ticket was moved to the last column. Do you want to close its Discord thread?"
+msgstr "Dit ticket is naar de laatste kolom verplaatst. Wil je de bijbehorende Discord-thread sluiten?"
+
+msgid "Not now"
+msgstr "Niet nu"
+
+msgid "Close Thread"
+msgstr "Thread sluiten"
+
+msgid "🔒 This ticket has been marked as done and this thread is now closed."
+msgstr "🔒 Dit ticket is gemarkeerd als voltooid en deze thread is nu gesloten."
+
+msgid "Archived Cards"
+msgstr "Gearchiveerde Cards"
+
+msgid "Cards automatically archived after sitting in the last column too long."
+msgstr "Cards die automatisch zijn gearchiveerd na te lang stilstaan in de laatste kolom."
+
+msgid "Back to Board"
+msgstr "Terug naar bord"
+
+msgid "Back to board"
+msgstr "Terug naar bord"
+
+msgid "Archived"
+msgstr "Gearchiveerd"
+
+msgid "No archived cards on this board yet."
+msgstr "Nog geen gearchiveerde cards op dit bord."
+
+msgid "Board Maintenance"
+msgstr "Bord Onderhoud"
+
+msgid "Auto-Archive After (days)"
+msgstr "Automatisch archiveren na (dagen)"
+
+msgid "Automatically archive cards that have sat in the last column for this many days (0 to disable). Archived cards disappear from the board and are only visible in the Archived Cards overview."
+msgstr "Automatisch cards archiveren die dit aantal dagen in de laatste kolom hebben gestaan (0 om uit te schakelen). Gearchiveerde kaarten verdwijnen van het bord en zijn alleen zichtbaar in het overzicht Gearchiveerde Cards."
+
+msgid "Edit Label:"
+msgstr "Label bewerken:"
+
+msgid "Primary (Blue)"
+msgstr "Primair (Blauw)"
+
+msgid "Secondary (Grey)"
+msgstr "Secundair (Grijs)"
+
+msgid "Success (Green)"
+msgstr "Succes (Groen)"
+
+msgid "Danger (Red)"
+msgstr "Gevaar (Rood)"
+
+msgid "Warning (Yellow)"
+msgstr "Waarschuwing (Geel)"
+
+msgid "Info (Light Blue)"
+msgstr "Info (Lichtblauw)"
+
+msgid "Dark (Black)"
+msgstr "Donker (Zwart)"
+
+msgid "Cyan"
+msgstr "Cyaan"
+
+msgid "Default"
+msgstr "Standaard"
+
+msgid "Blue"
+msgstr "Blauw"
+
+msgid "Grey"
+msgstr "Grijs"
+
+msgid "Green"
+msgstr "Groen"
+
+msgid "Red"
+msgstr "Rood"
+
+msgid "Yellow"
+msgstr "Geel"
+
+msgid "Light"
+msgstr "Licht"
+
+msgid "Dark"
+msgstr "Donker"
+
+
 
 
 

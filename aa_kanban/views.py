@@ -196,7 +196,9 @@ def create_board(request: HttpRequest) -> HttpResponse:
 
         kanban_settings = KanbanSetting.get_settings()
         if kanban_settings.board_creation_webhook:
-            message = f"**New Kanban Board Created!**\nName: `{board.name}`\nCreated by: `{request.user.username}`"
+            message = _(
+                "**New Kanban Board Created!**\nName: `{board_name}`\nCreated by: `{username}`"
+            ).format(board_name=board.name, username=request.user.username)
             send_discord_webhook(kanban_settings.board_creation_webhook, message)
 
         url = redirect("aa_kanban:board_detail", board_slug=board.slug).url
