@@ -545,6 +545,115 @@ def test_create_discord_thread_invites_ticket_creator(user_factory):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_create_discord_thread_includes_full_description_and_labels(user_factory):
+    """_create_discord_thread includes complete description and labels without truncation."""
+    import asyncio
+
+    creator = user_factory("ticket_creator_desc")
+
+    board = Board.objects.create(
+        name="Description Board",
+        slug="desc-board",
+        discord_ticket_channel_id=555666888,
+        created_by=creator,
+    )
+    lst = board.lists.get(name="To Do")
+    label = Label.objects.create(name="Bug Report", color="danger", is_ticket_label=True)
+
+    long_desc = (
+        "Line 1: Detailed error logs.\n" + ("A" * 600) + "\n![screenshot.png](/media/kanban/test.png)\nFinal Line."
+    )
+    card = Card.objects.create(
+        list=lst,
+        title="Bug Ticket with Long Text",
+        description=long_desc,
+        created_by=creator,
+    )
+    card.labels.add(label)
+
+    mock_thread = AsyncMock()
+    mock_thread.id = 222333
+    mock_channel = AsyncMock()
+    mock_channel.create_thread = AsyncMock(return_value=mock_thread)
+    mock_bot = MagicMock()
+    mock_bot.get_channel.return_value = mock_channel
+
+    mock_discord = MagicMock()
+    mock_discord.Object = lambda id: MagicMock(id=id)
+    mock_discord.ChannelType = MagicMock(private_thread="private_thread")
+
+    with (
+        patch.dict("sys.modules", {"discord": mock_discord}),
+        patch(
+            "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
+            return_value=MagicMock(first=lambda: None),
+        ),
+        patch("django.conf.settings.SITE_URL", "https://auth.example.com"),
+    ):
+        asyncio.run(_create_discord_thread(mock_bot, card.id))
+
+        mock_thread.send.assert_called_once()
+        sent_content = mock_thread.send.call_args.kwargs["content"]
+
+        assert "Line 1: Detailed error logs." in sent_content
+        assert ("A" * 600) in sent_content
+        assert "Final Line." in sent_content
+        assert "..." not in sent_content  # No 500-char truncation
+        assert "**Type:** Bug Report" in sent_content
+        assert "[screenshot.png](https://auth.example.com/media/kanban/test.png)" in sent_content
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_discord_thread_splits_long_description(user_factory):
+    """_create_discord_thread splits descriptions exceeding Discord limit into chunks."""
+    import asyncio
+
+    creator = user_factory("ticket_creator_huge")
+
+    board = Board.objects.create(
+        name="Huge Board",
+        slug="huge-board",
+        discord_ticket_channel_id=555666999,
+        created_by=creator,
+    )
+    lst = board.lists.get(name="To Do")
+
+    # 3500 chars description
+    huge_desc = ("Chunk1 " * 300) + "\n" + ("Chunk2 " * 300)
+    card = Card.objects.create(
+        list=lst,
+        title="Huge Description Ticket",
+        description=huge_desc,
+        created_by=creator,
+    )
+
+    mock_thread = AsyncMock()
+    mock_thread.id = 333444
+    mock_channel = AsyncMock()
+    mock_channel.create_thread = AsyncMock(return_value=mock_thread)
+    mock_bot = MagicMock()
+    mock_bot.get_channel.return_value = mock_channel
+
+    mock_discord = MagicMock()
+    mock_discord.Object = lambda id: MagicMock(id=id)
+    mock_discord.ChannelType = MagicMock(private_thread="private_thread")
+
+    with (
+        patch.dict("sys.modules", {"discord": mock_discord}),
+        patch(
+            "allianceauth.services.modules.discord.models.DiscordUser.objects.filter",
+            return_value=MagicMock(first=lambda: None),
+        ),
+    ):
+        asyncio.run(_create_discord_thread(mock_bot, card.id))
+
+        assert mock_thread.send.call_count >= 2
+        all_sent = "".join(call.kwargs["content"] for call in mock_thread.send.call_args_list)
+        assert ("Chunk1 " * 300) in all_sent
+        assert ("Chunk2 " * 300) in all_sent
+
+
+@pytest.mark.django_db(transaction=True)
 def test_send_discord_thread_message_auto_invites_auth_group_members(user_factory):
     """_send_discord_thread_message auto-invites both direct and group members when team_id is provided."""
     import asyncio

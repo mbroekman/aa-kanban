@@ -16,7 +16,8 @@ class TestBilingualTranslations:
         # 1. English
         with translation.override("en"):
             msg_en = _(
-                "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[View Board]({url})"
+                "Card moved: **{card_title}** was moved from `{source_list_name}` to "
+                "`{target_list_name}`.\n[View Board]({url})"
             ).format(
                 card_title="Task Alpha",
                 source_list_name="To Do",
@@ -32,7 +33,8 @@ class TestBilingualTranslations:
         # 2. Dutch
         with translation.override("nl"):
             msg_nl = _(
-                "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[View Board]({url})"
+                "Card moved: **{card_title}** was moved from `{source_list_name}` to "
+                "`{target_list_name}`.\n[View Board]({url})"
             ).format(
                 card_title="Task Alpha",
                 source_list_name="To Do",
@@ -50,7 +52,11 @@ class TestBilingualTranslations:
         # 1. English
         with translation.override("en"):
             msg_en = _(
-                "**New Card Created!**\nTitle: `{card_title}`\nCreated by: `{username}`\nList: `{list_name}`\n[View Board]({url})"
+                "**New Card Created!**\n"
+                "Title: `{card_title}`\n"
+                "Created by: `{username}`\n"
+                "List: `{list_name}`\n"
+                "[View Board]({url})"
             ).format(
                 card_title="New Feature",
                 username="pilot1",
@@ -64,7 +70,11 @@ class TestBilingualTranslations:
         # 2. Dutch
         with translation.override("nl"):
             msg_nl = _(
-                "**New Card Created!**\nTitle: `{card_title}`\nCreated by: `{username}`\nList: `{list_name}`\n[View Board]({url})"
+                "**New Card Created!**\n"
+                "Title: `{card_title}`\n"
+                "Created by: `{username}`\n"
+                "List: `{list_name}`\n"
+                "[View Board]({url})"
             ).format(
                 card_title="New Feature",
                 username="pilot1",

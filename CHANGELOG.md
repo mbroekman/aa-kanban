@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Include Complete Ticket Description & Labels in Discord Thread (TASK-100)**: Ticket creation previously truncated ticket descriptions at 500 characters and enclosed them in code blocks (```` ```\n...\n``` ````), which broke native Discord markdown formatting and blocked embedded image unfurling. Now includes the entire description formatted for Discord (converting relative image media URLs to absolute URLs with clickable links), includes card labels/types, and safely splits long messages across sequential thread posts if exceeding Discord's 2000-character payload limit.
+
 ## [0.14.1] - 2026-10-14
 
 ### Added

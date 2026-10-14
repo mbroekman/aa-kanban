@@ -125,7 +125,8 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
                 redirect("aa_kanban:board_detail", board_slug=board.slug).url
             )
             msg = _(
-                "Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n[View Board]({url})"
+                "Card moved: **{card_title}** was moved from `{source_list_name}` to "
+                "`{target_list_name}`.\n[View Board]({url})"
             ).format(
                 card_title=card.title,
                 source_list_name=source_list.name,
@@ -615,7 +616,11 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
             redirect("aa_kanban:board_detail", board_slug=kanban_list.board.slug).url
         )
         msg = _(
-            "**New Card Created!**\nTitle: `{card_title}`\nCreated by: `{username}`\nList: `{list_name}`\n[View Board]({url})"
+            "**New Card Created!**\n"
+            "Title: `{card_title}`\n"
+            "Created by: `{username}`\n"
+            "List: `{list_name}`\n"
+            "[View Board]({url})"
         ).format(
             card_title=card.title,
             username=request.user.username,

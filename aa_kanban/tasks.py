@@ -1,4 +1,5 @@
 import logging
+import re
 
 from asgiref.sync import sync_to_async
 from celery import shared_task
@@ -14,6 +15,51 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def _format_description_for_discord(description: str, site_url: str = "") -> str:
+    """Format markdown description for Discord, making relative URLs absolute."""
+    if not description:
+        return ""
+
+    text = description
+    if site_url:
+        text = re.sub(
+            r'\]\((/(?:media|static)/[^)]+)\)',
+            rf']({site_url}\1)',
+            text,
+        )
+
+    text = re.sub(
+        r'!\[([^\]]*)\]\((https?://[^)]+)\)',
+        r'[\1](\2)',
+        text,
+    )
+    return text
+
+
+def _split_discord_message(content: str, max_length: int = 1900) -> list[str]:
+    """Split content into chunks that fit within Discord's message length limit."""
+    if len(content) <= max_length:
+        return [content]
+
+    chunks = []
+    lines = content.splitlines(keepends=True)
+    current_chunk = ""
+    for line in lines:
+        if len(current_chunk) + len(line) <= max_length:
+            current_chunk += line
+        else:
+            if current_chunk:
+                chunks.append(current_chunk)
+                current_chunk = ""
+            while len(line) > max_length:
+                chunks.append(line[:max_length])
+                line = line[max_length:]
+            current_chunk = line
+    if current_chunk:
+        chunks.append(current_chunk)
+    return chunks
+
+
 async def _send_stale_cards_discord(bot, channel_id: int, message_content: str):
     """Async task run inside aadiscordbot to send stale card alerts to a Discord channel."""
     try:
@@ -27,16 +73,8 @@ async def _send_stale_cards_discord(bot, channel_id: int, message_content: str):
                 )
                 return
 
-        # Discord message limit is 2000 chars
-        if len(message_content) <= 1900:
-            await channel.send(content=message_content)
-        else:
-            chunks = []
-            for i in range(0, len(message_content), 1800):
-                end_idx = i + 1800
-                chunks.append(message_content[i:end_idx])
-            for chunk in chunks:
-                await channel.send(content=chunk)
+        for chunk in _split_discord_message(message_content, max_length=1900):
+            await channel.send(content=chunk)
 
         logger.info(f"Sent stale cards notification to Discord channel {channel_id}")
     except Exception as e:
@@ -201,7 +239,7 @@ async def _create_discord_thread(bot, card_id: int):
         card = await sync_to_async(
             Card.objects.select_related(
                 "assigned_team", "created_by", "list__board"
-            ).get
+            ).prefetch_related("labels").get
         )(pk=card_id)
 
         # Prioritize the board's specific ticket channel
@@ -252,13 +290,21 @@ async def _create_discord_thread(bot, card_id: int):
         message_content += _("**Reporter:** {username} {mentions}\n").format(
             username=card.created_by.username, mentions=" ".join(mentions)
         )
+        labels = list(card.labels.all())
+        if labels:
+            label_names = ", ".join(lbl.name for lbl in labels)
+            message_content += _("**Type:** {labels}\n").format(labels=label_names)
         if assigned_team_msg:
             message_content += f"{assigned_team_msg}\n"
+
+        from django.conf import settings
+
+        site_url = getattr(settings, "SITE_URL", "").rstrip("/")
         if card.description:
-            desc = card.description[:500] + (
-                "..." if len(card.description) > 500 else ""
+            formatted_desc = _format_description_for_discord(
+                card.description, site_url=site_url
             )
-            message_content += f"**Description:**\n```\n{desc}\n```\n"
+            message_content += f"\n**Description:**\n{formatted_desc}\n"
 
         try:
             import discord
@@ -274,7 +320,8 @@ async def _create_discord_thread(bot, card_id: int):
                 type=discord.ChannelType.private_thread if discord else None,
                 invitable=False,
             )
-            await thread.send(content=message_content)
+            for chunk in _split_discord_message(message_content):
+                await thread.send(content=chunk)
 
             # Save the thread ID on the card
             card.discord_thread_id = thread.id
