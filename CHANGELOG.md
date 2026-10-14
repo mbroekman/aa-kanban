@@ -4,10 +4,6 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Fixed
-
-- **Include Complete Ticket Description & Labels in Discord Thread (TASK-100)**: Ticket creation previously truncated ticket descriptions at 500 characters and enclosed them in code blocks (```` ```\n...\n``` ````), which broke native Discord markdown formatting and blocked embedded image unfurling. Now includes the entire description formatted for Discord (converting relative image media URLs to absolute URLs with clickable links), includes card labels/types, and safely splits long messages across sequential thread posts if exceeding Discord's 2000-character payload limit.
-
 ## [0.14.1] - 2026-10-14
 
 ### Added
@@ -16,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Include Complete Ticket Description & Labels in Discord Thread (TASK-100)**: Ticket creation previously truncated ticket descriptions at 500 characters and enclosed them in code blocks (```` ```\n...\n``` ````), which broke native Discord markdown formatting and blocked embedded image unfurling. Now includes the entire description formatted for Discord (converting relative image media URLs to absolute URLs with clickable links), includes card labels/types, and safely splits long messages across sequential thread posts if exceeding Discord's 2000-character payload limit.
 - **Newly Added Columns Immediately Ready for Drag-and-Drop (TASK-98)**: Adding a column dynamically via HTMX previously required reloading or re-entering the board before cards could be moved into it because SortableJS was only bound once on initial `DOMContentLoaded`. Extracted Sortable initialization with idempotency checks and wired it to `htmx:afterSwap` and `htmx:load`, aligned `board_column.html` partial markup with `column_header.html`, and updated card counters and empty placeholders optimistically on drag completion.
 - **Full Multilingual (i18n) Audit & Dutch String Normalization (TASK-97)**: Replaced hardcoded Dutch strings in webhook notifications (`[Bekijk Bord]` -> `[View Board]`, `**Nieuwe Card Aangemaakt!**` -> `**New Card Created!**`, `**New Kanban Board Created!**`), template blocktrans tags (`Permanently delete column`), and form labels with standard gettext wrapped English base strings. Fully updated Dutch translation files (`django.po` and compiled `django.mo`) for all recent features (TASK-92, TASK-94, TASK-95, colors, and archived cards) and added bilingual unit test coverage.
 - **Discord-to-Kanban Comment Sync Never Actually Worked (TASK-96)**: `aa_kanban/cogs.py`'s `sync_ticket_comment` (automatic thread-message sync) and `upload_to_ticket` (the "Upload to Ticket" context command) both called `Comment.objects.create(card=card, created_by=user, content=content)`, but the `Comment` model's actual fields are `author` and `text` — every call raised a `TypeError`, silently swallowed by a broad exception handler, so no Discord message was ever synced back to a card as a comment. Fixed the keyword arguments, and made `Comment.author` nullable (migration `0025`) since the code intentionally supports Discord users with no linked Alliance Auth account; `card_comments.html` now shows a Discord icon instead of a blank username for those comments. This bug predates TASK-93's `setup()` fix and was unreachable (the cog was never registered) until that fix shipped in v0.14.0.
