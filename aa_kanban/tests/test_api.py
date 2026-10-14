@@ -8,8 +8,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from django.test import Client
 from django.urls import reverse
 
-from aa_kanban.models import Board, Card, List
-from aa_kanban.models import KanbanGroup as Group
+from aa_kanban.models import Board, Card, KanbanGroup as Group, List
 
 
 @pytest.fixture
@@ -409,7 +408,9 @@ class TestMoveListAPI:
         client = Client()
         client.force_login(writer)
 
-        board = Board.objects.create(name="Reorder Board 1", slug="reorder-board-1", created_by=writer)
+        board = Board.objects.create(
+            name="Reorder Board 1", slug="reorder-board-1", created_by=writer
+        )
         board.write_groups.add(data["write_grp"])
         board.lists.all().delete()
 
@@ -443,7 +444,9 @@ class TestMoveListAPI:
         client = Client()
         client.force_login(writer)
 
-        board = Board.objects.create(name="Reorder Board 2", slug="reorder-board-2", created_by=writer)
+        board = Board.objects.create(
+            name="Reorder Board 2", slug="reorder-board-2", created_by=writer
+        )
         board.write_groups.add(data["write_grp"])
         board.lists.all().delete()
 
@@ -474,7 +477,9 @@ class TestMoveListAPI:
         client = Client()
         client.force_login(writer)
 
-        board = Board.objects.create(name="Reorder Board 3", slug="reorder-board-3", created_by=writer)
+        board = Board.objects.create(
+            name="Reorder Board 3", slug="reorder-board-3", created_by=writer
+        )
         board.write_groups.add(data["write_grp"])
         board.lists.all().delete()
 

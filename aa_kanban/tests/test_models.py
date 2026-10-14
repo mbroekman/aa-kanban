@@ -3,8 +3,7 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser, User
 
-from aa_kanban.models import Board, Card, Comment, Label, List
-from aa_kanban.models import KanbanGroup as Group
+from aa_kanban.models import Board, Card, Comment, KanbanGroup as Group, Label, List
 
 
 @pytest.fixture

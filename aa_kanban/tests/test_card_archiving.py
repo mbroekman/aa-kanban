@@ -80,9 +80,7 @@ def test_move_card_sets_moved_to_list_at(board_setup):
 @pytest.mark.django_db
 def test_move_card_same_list_reorder_does_not_touch_moved_to_list_at(board_setup):
     """Reordering within the same list does not update moved_to_list_at."""
-    card1 = Card.objects.create(
-        list=board_setup["in_progress"], title="A", order=0
-    )
+    card1 = Card.objects.create(list=board_setup["in_progress"], title="A", order=0)
     Card.objects.create(list=board_setup["in_progress"], title="B", order=1)
 
     original_time = timezone.now() - timedelta(days=3)

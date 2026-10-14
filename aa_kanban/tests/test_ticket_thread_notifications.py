@@ -558,10 +558,14 @@ def test_create_discord_thread_includes_full_description_and_labels(user_factory
         created_by=creator,
     )
     lst = board.lists.get(name="To Do")
-    label = Label.objects.create(name="Bug Report", color="danger", is_ticket_label=True)
+    label = Label.objects.create(
+        name="Bug Report", color="danger", is_ticket_label=True
+    )
 
     long_desc = (
-        "Line 1: Detailed error logs.\n" + ("A" * 600) + "\n![screenshot.png](/media/kanban/test.png)\nFinal Line."
+        "Line 1: Detailed error logs.\n"
+        + ("A" * 600)
+        + "\n![screenshot.png](/media/kanban/test.png)\nFinal Line."
     )
     card = Card.objects.create(
         list=lst,
@@ -600,7 +604,10 @@ def test_create_discord_thread_includes_full_description_and_labels(user_factory
         assert "Final Line." in sent_content
         assert "..." not in sent_content  # No 500-char truncation
         assert "**Type:** Bug Report" in sent_content
-        assert "[screenshot.png](https://auth.example.com/media/kanban/test.png)" in sent_content
+        assert (
+            "[screenshot.png](https://auth.example.com/media/kanban/test.png)"
+            in sent_content
+        )
 
 
 @pytest.mark.django_db(transaction=True)
@@ -648,7 +655,9 @@ def test_create_discord_thread_splits_long_description(user_factory):
         asyncio.run(_create_discord_thread(mock_bot, card.id))
 
         assert mock_thread.send.call_count >= 2
-        all_sent = "".join(call.kwargs["content"] for call in mock_thread.send.call_args_list)
+        all_sent = "".join(
+            call.kwargs["content"] for call in mock_thread.send.call_args_list
+        )
         assert ("Chunk1 " * 300) in all_sent
         assert ("Chunk2 " * 300) in all_sent
 

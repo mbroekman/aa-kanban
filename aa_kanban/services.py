@@ -150,9 +150,7 @@ def reorder_kanban_list(list_id: int, new_position: int) -> List:
     board = kanban_list.board
 
     with transaction.atomic():
-        all_lists = list(
-            board.lists.exclude(pk=kanban_list.pk).order_by("order", "id")
-        )
+        all_lists = list(board.lists.exclude(pk=kanban_list.pk).order_by("order", "id"))
         clamped_pos = max(0, min(new_position, len(all_lists)))
         all_lists.insert(clamped_pos, kanban_list)
 

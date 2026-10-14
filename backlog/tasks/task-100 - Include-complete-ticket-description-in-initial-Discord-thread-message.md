@@ -25,4 +25,3 @@ Ensure all ticket text/description from a newly created ticket is included in th
 - Added `_split_discord_message` helper to safely chunk messages that exceed Discord's 2000-character limit across multiple thread posts without 400 Bad Request errors.
 - Added card label inclusion in the thread message header (`**Type:** <labels>`).
 - Added comprehensive unit tests in `aa_kanban/tests/test_ticket_thread_notifications.py` covering full descriptions, labels, and 2000+ character auto-splitting. All 148 tests passing.
-

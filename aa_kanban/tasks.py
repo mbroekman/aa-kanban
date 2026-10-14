@@ -23,14 +23,14 @@ def _format_description_for_discord(description: str, site_url: str = "") -> str
     text = description
     if site_url:
         text = re.sub(
-            r'\]\((/(?:media|static)/[^)]+)\)',
-            rf']({site_url}\1)',
+            r"\]\((/(?:media|static)/[^)]+)\)",
+            rf"]({site_url}\1)",
             text,
         )
 
     text = re.sub(
-        r'!\[([^\]]*)\]\((https?://[^)]+)\)',
-        r'[\1](\2)',
+        r"!\[([^\]]*)\]\((https?://[^)]+)\)",
+        r"[\1](\2)",
         text,
     )
     return text
@@ -221,9 +221,11 @@ def archive_done_cards():
             continue
 
         cutoff = timezone.now() - timedelta(days=board.archive_after_days)
-        stale_done_cards = last_list.cards.filter(is_archived=False).annotate(
-            effective_entry=Coalesce("moved_to_list_at", "created_at")
-        ).filter(effective_entry__lte=cutoff)
+        stale_done_cards = (
+            last_list.cards.filter(is_archived=False)
+            .annotate(effective_entry=Coalesce("moved_to_list_at", "created_at"))
+            .filter(effective_entry__lte=cutoff)
+        )
 
         count = stale_done_cards.update(is_archived=True, archived_at=timezone.now())
         if count:
@@ -237,9 +239,9 @@ async def _create_discord_thread(bot, card_id: int):
     try:
         # Load card and settings asynchronously
         card = await sync_to_async(
-            Card.objects.select_related(
-                "assigned_team", "created_by", "list__board"
-            ).prefetch_related("labels").get
+            Card.objects.select_related("assigned_team", "created_by", "list__board")
+            .prefetch_related("labels")
+            .get
         )(pk=card_id)
 
         # Prioritize the board's specific ticket channel
