@@ -25,7 +25,7 @@ Welcome to the comprehensive user and administrator guide for **AA Kanban**, a n
 **AA Kanban** provides an intuitive, visual workflow engine inspired by modern Agile Kanban boards (Trello, Jira) while embedding deeply into the Alliance Auth ecosystem:
 
 - **Native Bootstrap 5 UI**: Fully styled for Alliance Auth's default themes, including both light (Flatly) and dark (Darkly) modes with high-contrast UI elements.
-- **Instant HTMX & SortableJS Interactions**: Cards move effortlessly across columns via drag-and-drop with zero full-page reloads.
+- **Instant HTMX & SortableJS Interactions**: Cards and columns move effortlessly via drag-and-drop with zero full-page reloads.
 - **Decoupled Frontend Administration**: All daily operational tasks (managing boards, columns, groups, teams, and labels) take place directly in the frontend user interface. No Django staff or `/admin/` access is required for officers or moderators.
 - **Multilingual Support**: Complete English and Dutch localization across all views, modals, and system alerts.
 - **Deep Discord Ecosystem Sync**: Built-in support for Discord threads, automatic team invitations, bidirectional comment synchronization, DM alerts, and stale card monitoring.
@@ -77,8 +77,8 @@ Clicking on any board opens the interactive workspace.
 
 ### Managing Columns (Lists)
 - **Work-In-Progress (WIP) Limits**: Each column can be assigned a WIP limit. If the number of cards in a column exceeds this threshold, the counter badge clearly flags the bottleneck.
-- **Column Reordering**: Move columns left or right using the column action menu.
-- **Adding Columns**: Click **Add List** on the right side of the board to introduce custom workflow stages (e.g., *Blocked*, *QA*, *Deployed*).
+- **Drag-and-Drop Column Reordering**: Move columns horizontally across the board via drag-and-drop using either the header grab cursor or the visual grip handle (`⋮⋮`). Positions update instantaneously and persist automatically in the database.
+- **Adding Columns**: Click **+ Add Column** on the right side of the board to introduce custom workflow stages (e.g., *Blocked*, *QA*, *Deployed*). Newly added columns are immediately ready for cards and can be reordered right away without leaving or refreshing the page.
 - **Column Header Counters**: Dynamically display the number of cards currently residing in each column, updating instantaneously upon card movements.
 
 ### Drag & Drop Workflow

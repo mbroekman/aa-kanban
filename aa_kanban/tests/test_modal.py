@@ -5,9 +5,8 @@ from allianceauth.tests.auth_utils import AuthUtils
 from django.test import Client
 from django.urls import reverse
 
-from aa_kanban.models import Board, Card, Comment
+from aa_kanban.models import Board, Card, Comment, List
 from aa_kanban.models import KanbanGroup as Group
-from aa_kanban.models import List
 
 
 @pytest.fixture
