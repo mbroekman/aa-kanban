@@ -1,27 +1,7 @@
 {% load i18n %}
 {# Partial: volledige nieuwe kolom — HTMX response van create_list #}
-<div class="kanban-column card shadow-sm border-0" data-list-id="{{ list.id }}">
-    <div class="card-header border-bottom-0 py-3 d-flex justify-content-between align-items-center"
-         id="column-header-{{ list.id }}">
-        <h5 class="h6 mb-0 fw-bold column-name"
-            data-rename-url="{% url 'aa_kanban:edit_list' list.id %}"
-            title="{% trans 'Click to rename' %}"
-            style="cursor: pointer;">
-            {{ list.name }}
-        </h5>
-        <div class="d-flex align-items-center gap-1">
-            <span class="badge bg-secondary rounded-pill card-count-badge">0</span>
-            <button type="button"
-                    class="btn btn-sm btn-outline-danger border-0 delete-list-btn"
-                    hx-post="{% url 'aa_kanban:delete_list' list.id %}"
-                    hx-confirm="{% blocktrans with name=list.name %}Permanently delete column '{{ name }}' and all its cards?{% endblocktrans %}"
-                    hx-target="closest .kanban-column"
-                    hx-swap="outerHTML"
-                    title="{% trans 'Delete column' %}">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
-    </div>
+<div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}" data-wip-limit="{{ list.wip_limit|default:0 }}">
+    {% include 'aa_kanban/partials/column_header.html' with list=list can_write=can_write %}
 
     <div class="card-body p-2 kanban-cards" id="list-cards-{{ list.id }}" data-list-id="{{ list.id }}">
         <div class="text-center py-4 text-muted small empty-placeholder">

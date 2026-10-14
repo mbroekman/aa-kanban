@@ -6,100 +6,120 @@ document.addEventListener("DOMContentLoaded", function () {
     // that render a board (.kanban-board-container). Markdown image uploads
     // and the rest of this script run unconditionally below, since they're
     // also used on standalone pages like the ticket submission form.
-    const boardContainer = document.querySelector(".kanban-board-container");
-    const canWrite = boardContainer && boardContainer.dataset.canWrite === "true";
-    if (boardContainer && canWrite) {
-        const cardContainers = document.querySelectorAll(".kanban-cards");
-    cardContainers.forEach(function (container) {
+    function initSortable(rootNode) {
+        const boardContainer = document.querySelector(".kanban-board-container");
+        const canWrite = boardContainer && boardContainer.dataset.canWrite === "true";
+        if (!boardContainer || !canWrite) {
+            return;
+        }
         if (typeof Sortable === "undefined") {
             console.error("SortableJS is not loaded.");
             return;
         }
 
-        new Sortable(container, {
-            group: "kanban-cards",
-            animation: 150,
-            ghostClass: "kanban-card-ghost",
-            chosenClass: "kanban-card-chosen",
-            dragClass: "kanban-card-dragging",
-            handle: ".kanban-card",
-            onMove: function (evt) {
-                const targetColumnEl = evt.to.closest('.kanban-column');
-                if (!targetColumnEl) return true;
+        const scope = (rootNode && rootNode.querySelectorAll) ? rootNode : boardContainer;
+        let cardContainers = [];
+        if (scope.classList && scope.classList.contains("kanban-cards")) {
+            cardContainers = [scope];
+        } else {
+            cardContainers = scope.querySelectorAll(".kanban-cards");
+        }
 
-                if (evt.from === evt.to) {
+        cardContainers.forEach(function (container) {
+            if (Sortable.get(container) || container.dataset.sortableBound === "true") {
+                return;
+            }
+            container.dataset.sortableBound = "true";
+
+            new Sortable(container, {
+                group: "kanban-cards",
+                animation: 150,
+                ghostClass: "kanban-card-ghost",
+                chosenClass: "kanban-card-chosen",
+                dragClass: "kanban-card-dragging",
+                handle: ".kanban-card",
+                onMove: function (evt) {
+                    const targetColumnEl = evt.to.closest('.kanban-column');
+                    if (!targetColumnEl) return true;
+
+                    if (evt.from === evt.to) {
+                        return true;
+                    }
+
+                    const headerEl = targetColumnEl.querySelector('.card-header');
+                    const wipLimit = headerEl ? parseInt(headerEl.dataset.wipLimit || '0', 10) : parseInt(targetColumnEl.dataset.wipLimit || '0', 10);
+
+                    if (wipLimit > 0) {
+                        const currentCards = evt.to.querySelectorAll('.kanban-card:not(.kanban-card-ghost)').length;
+                        if (currentCards >= wipLimit) {
+                            return false; // Prevent move visually
+                        }
+                    }
                     return true;
-                }
+                },
+                onEnd: function (evt) {
+                    const cardEl = evt.item;
+                    const cardId = cardEl.dataset.cardId;
+                    const targetListEl = evt.to;
+                    const targetListId = targetListEl.dataset.listId;
+                    const newIndex = evt.newIndex;
 
-                const headerEl = targetColumnEl.querySelector('.card-header');
-                const wipLimit = headerEl ? parseInt(headerEl.dataset.wipLimit || '0', 10) : parseInt(targetColumnEl.dataset.wipLimit || '0', 10);
-
-                if (wipLimit > 0) {
-                    const currentCards = evt.to.querySelectorAll('.kanban-card:not(.kanban-card-ghost)').length;
-                    if (currentCards >= wipLimit) {
-                        return false; // Prevent move visually
+                    if (!cardId || !targetListId) {
+                        return;
                     }
-                }
-                return true;
-            },
-            onEnd: function (evt) {
-                const cardEl = evt.item;
-                const cardId = cardEl.dataset.cardId;
-                const targetListEl = evt.to;
-                const targetListId = targetListEl.dataset.listId;
-                const newIndex = evt.newIndex;
 
-                if (!cardId || !targetListId) {
-                    return;
-                }
-
-                // If same list and same index, no API call needed
-                if (evt.from === evt.to && evt.oldIndex === evt.newIndex) {
-                    return;
-                }
-
-                const moveUrl = cardEl.dataset.moveUrl || `/kanban/cards/${cardId}/move/`;
-                const csrfToken = getCsrfToken();
-
-                const formData = new FormData();
-                formData.append("target_list_id", targetListId);
-                formData.append("new_position", newIndex);
-
-                fetch(moveUrl, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRFToken": csrfToken,
-                        "X-Requested-With": "XMLHttpRequest",
-                    },
-                    body: formData,
-                })
-                .then(function (response) {
-                    if (!response.ok) {
-                        throw new Error(`Server returned HTTP ${response.status}`);
+                    // If same list and same index, no API call needed
+                    if (evt.from === evt.to && evt.oldIndex === evt.newIndex) {
+                        return;
                     }
-                    return response.json();
-                })
-                .then(function (data) {
+
                     updateListCounts();
-                    if (data && data.prompt_close_thread) {
-                        showCloseThreadConfirm(data.card_id);
-                    }
-                })
-                .catch(function (error) {
-                    console.error("Failed to move card:", error);
-                    showToast("Kanban Error", "Failed to move card. The board state has been reverted.", "danger");
 
-                    // Revert card back to original position in DOM
-                    if (evt.from && evt.item) {
-                        const originalNextSibling = evt.from.children[evt.oldIndex] || null;
-                        evt.from.insertBefore(evt.item, originalNextSibling);
+                    const moveUrl = cardEl.dataset.moveUrl || `/kanban/cards/${cardId}/move/`;
+                    const csrfToken = getCsrfToken();
+
+                    const formData = new FormData();
+                    formData.append("target_list_id", targetListId);
+                    formData.append("new_position", newIndex);
+
+                    fetch(moveUrl, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": csrfToken,
+                            "X-Requested-With": "XMLHttpRequest",
+                        },
+                        body: formData,
+                    })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error(`Server returned HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(function (data) {
                         updateListCounts();
-                    }
-                });
-            },
+                        if (data && data.prompt_close_thread) {
+                            showCloseThreadConfirm(data.card_id);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.error("Failed to move card:", error);
+                        showToast("Kanban Error", "Failed to move card. The board state has been reverted.", "danger");
+
+                        // Revert card back to original position in DOM
+                        if (evt.from && evt.item) {
+                            const originalNextSibling = evt.from.children[evt.oldIndex] || null;
+                            evt.from.insertBefore(evt.item, originalNextSibling);
+                            updateListCounts();
+                        }
+                    });
+                },
+            });
         });
-    });
     }
+
+    window.initKanbanSortable = initSortable;
+    initSortable();
 
     function updateListCounts() {
         document.querySelectorAll(".kanban-column").forEach(function (col) {
@@ -455,9 +475,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize after HTMX swaps
     document.body.addEventListener('htmx:afterSwap', function(evt) {
+        initSortable();
         initTooltips();
         updateListCounts();
         initMarkdownImageUploads();
+    });
+
+    // Also listen to htmx:load when dynamic content is inserted
+    document.body.addEventListener('htmx:load', function(evt) {
+        initSortable(evt.detail && evt.detail.elt ? evt.detail.elt : document);
+        initTooltips();
+        updateListCounts();
     });
 
     // Reset forms after successful HTMX post (description form is fully
