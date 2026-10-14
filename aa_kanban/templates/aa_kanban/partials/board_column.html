@@ -1,6 +1,6 @@
 {% load i18n %}
 {# Partial: volledige nieuwe kolom — HTMX response van create_list #}
-<div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}" data-wip-limit="{{ list.wip_limit|default:0 }}">
+<div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}" data-wip-limit="{{ list.wip_limit|default:0 }}" data-move-url="{% url 'aa_kanban:move_list' list.id %}">
     {% include 'aa_kanban/partials/column_header.html' with list=list can_write=can_write %}
 
     <div class="card-body p-2 kanban-cards" id="list-cards-{{ list.id }}" data-list-id="{{ list.id }}">

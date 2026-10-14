@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Drag-and-Drop Column Reordering (TASK-99)**: Users with board write permissions can now reorder columns on any Kanban board via drag-and-drop. Added a visual grip handle (`.column-drag-handle`) and header-wide dragging with SortableJS, an atomic backend reordering endpoint (`POST /kanban/lists/<id>/move/` via `reorder_kanban_list`), and automatic state reversion on network failure.
+
 ### Fixed
 
 - **Newly Added Columns Immediately Ready for Drag-and-Drop (TASK-98)**: Adding a column dynamically via HTMX previously required reloading or re-entering the board before cards could be moved into it because SortableJS was only bound once on initial `DOMContentLoaded`. Extracted Sortable initialization with idempotency checks and wired it to `htmx:afterSwap` and `htmx:load`, aligned `board_column.html` partial markup with `column_header.html`, and updated card counters and empty placeholders optimistically on drag completion.

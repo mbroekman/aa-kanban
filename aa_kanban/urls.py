@@ -42,6 +42,11 @@ urlpatterns = [
         views_api.delete_list,
         name="delete_list",
     ),
+    path(
+        "lists/<int:list_id>/move/",
+        views_api.move_list,
+        name="move_list",
+    ),
     # Card management via HTMX
     path(
         "lists/<int:list_id>/cards/create/",

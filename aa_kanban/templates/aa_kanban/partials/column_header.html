@@ -4,6 +4,11 @@
      id="column-header-{{ list.id }}"
      data-wip-limit="{{ list.wip_limit|default:0 }}">
     <div class="d-flex align-items-center gap-2">
+        {% if can_write %}
+            <span class="column-drag-handle text-muted me-1" title="{% trans 'Drag to reorder column' %}">
+                <i class="fas fa-grip-vertical"></i>
+            </span>
+        {% endif %}
         <h5 class="h6 mb-0 fw-bold column-name"
             {% if list.description %}title="{{ list.description }}" data-bs-toggle="tooltip"{% endif %}>
             {{ list.name }}

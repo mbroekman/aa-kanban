@@ -118,8 +118,112 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function initColumnSortable() {
+        const boardContainer = document.querySelector(".kanban-board-container");
+        const canWrite = boardContainer && boardContainer.dataset.canWrite === "true";
+        if (!boardContainer || !canWrite) {
+            return;
+        }
+        if (typeof Sortable === "undefined") {
+            return;
+        }
+        if (Sortable.get(boardContainer) || boardContainer.dataset.columnSortableBound === "true") {
+            return;
+        }
+        boardContainer.dataset.columnSortableBound = "true";
+
+        let columnsBeforeDrag = [];
+
+        new Sortable(boardContainer, {
+            group: "kanban-columns",
+            draggable: ".kanban-column",
+            handle: ".card-header",
+            filter: "button, button *, input, a, a *, .btn, .btn *, .delete-list-btn, #add-column-placeholder",
+            preventOnFilter: false,
+            animation: 150,
+            ghostClass: "kanban-column-ghost",
+            chosenClass: "kanban-column-chosen",
+            dragClass: "kanban-column-dragging",
+            onStart: function () {
+                columnsBeforeDrag = Array.from(boardContainer.querySelectorAll(".kanban-column"));
+            },
+            onMove: function (evt) {
+                if (evt.related && evt.related.id === "add-column-placeholder") {
+                    return false;
+                }
+                return true;
+            },
+            onEnd: function (evt) {
+                const columnEl = evt.item;
+                const listId = columnEl.dataset.listId;
+
+                // Ensure add-column-placeholder stays at the very end
+                const placeholder = boardContainer.querySelector("#add-column-placeholder");
+                if (placeholder && placeholder.parentNode === boardContainer) {
+                    boardContainer.appendChild(placeholder);
+                }
+
+                if (!listId) {
+                    return;
+                }
+
+                const columns = Array.from(boardContainer.querySelectorAll(".kanban-column"));
+                const newIndex = columns.indexOf(columnEl);
+
+                if (newIndex === -1) {
+                    return;
+                }
+
+                if (evt.oldDraggableIndex !== undefined && evt.newDraggableIndex !== undefined) {
+                    if (evt.oldDraggableIndex === evt.newDraggableIndex) {
+                        return;
+                    }
+                } else if (evt.oldIndex === evt.newIndex) {
+                    return;
+                }
+
+                const moveUrl = columnEl.dataset.moveUrl || `/kanban/lists/${listId}/move/`;
+                const csrfToken = getCsrfToken();
+                const formData = new FormData();
+                formData.append("new_position", newIndex);
+
+                fetch(moveUrl, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    body: formData,
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error(`Server returned HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .catch(function (error) {
+                    console.error("Failed to move column:", error);
+                    showToast("Kanban Error", "Failed to move column. The board state has been reverted.", "danger");
+
+                    // Revert all columns to original order
+                    if (columnsBeforeDrag && columnsBeforeDrag.length > 0) {
+                        columnsBeforeDrag.forEach(function (col) {
+                            if (placeholder) {
+                                boardContainer.insertBefore(col, placeholder);
+                            } else {
+                                boardContainer.appendChild(col);
+                            }
+                        });
+                    }
+                });
+            },
+        });
+    }
+
     window.initKanbanSortable = initSortable;
+    window.initKanbanColumnSortable = initColumnSortable;
     initSortable();
+    initColumnSortable();
 
     function updateListCounts() {
         document.querySelectorAll(".kanban-column").forEach(function (col) {
@@ -476,6 +580,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize after HTMX swaps
     document.body.addEventListener('htmx:afterSwap', function(evt) {
         initSortable();
+        initColumnSortable();
         initTooltips();
         updateListCounts();
         initMarkdownImageUploads();
@@ -484,6 +589,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Also listen to htmx:load when dynamic content is inserted
     document.body.addEventListener('htmx:load', function(evt) {
         initSortable(evt.detail && evt.detail.elt ? evt.detail.elt : document);
+        initColumnSortable();
         initTooltips();
         updateListCounts();
     });

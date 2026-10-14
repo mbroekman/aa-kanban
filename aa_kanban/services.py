@@ -11,7 +11,7 @@ from typing import List as TypingList
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .models import Board, Card, KanbanSetting
+from .models import Board, Card, KanbanSetting, List
 
 
 def create_kanban_board(
@@ -138,3 +138,31 @@ def move_kanban_card(card_id: int, target_column_name: str) -> Card:
             send_discord_webhook(board.discord_webhook_cards, msg)
 
     return card
+
+
+def reorder_kanban_list(list_id: int, new_position: int) -> List:
+    """
+    Move a list/column to a new position within its board, updating orders atomically.
+    """
+    from django.db import transaction
+
+    kanban_list = List.objects.select_related("board").get(pk=list_id)
+    board = kanban_list.board
+
+    with transaction.atomic():
+        all_lists = list(
+            board.lists.exclude(pk=kanban_list.pk).order_by("order", "id")
+        )
+        clamped_pos = max(0, min(new_position, len(all_lists)))
+        all_lists.insert(clamped_pos, kanban_list)
+
+        for idx, lst in enumerate(all_lists):
+            if lst.pk == kanban_list.pk:
+                if lst.order != idx:
+                    lst.order = idx
+                    lst.save(update_fields=["order", "updated_at"])
+            elif lst.order != idx:
+                lst.order = idx
+                lst.save(update_fields=["order"])
+
+    return kanban_list

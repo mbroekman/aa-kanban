@@ -8,9 +8,8 @@ from allianceauth.tests.auth_utils import AuthUtils
 from django.test import Client
 from django.urls import reverse
 
-from aa_kanban.models import Board, Card
+from aa_kanban.models import Board, Card, List
 from aa_kanban.models import KanbanGroup as Group
-from aa_kanban.models import List
 
 
 @pytest.fixture
@@ -338,3 +337,161 @@ class TestToggleAssignee:
                 target_user.id,
                 "You have been removed from the card: **Card 0** on board **Board One**.",
             )
+
+
+@pytest.mark.django_db
+class TestMoveListAPI:
+    def test_move_list_unauthenticated(self, setup_api_data):
+        data = setup_api_data
+        client = Client()
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": data["list_a"].id})
+        response = client.post(url, {"new_position": 1})
+        assert response.status_code == 302
+
+    def test_move_list_no_basic_access(self, setup_api_data):
+        data = setup_api_data
+        unauth_user = AuthUtils.create_user("no_basic_access_list_user")
+        AuthUtils.add_main_character(unauth_user, "NoAccessCharList", 998877)
+        client = Client()
+        client.force_login(unauth_user)
+
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": data["list_a"].id})
+        response = client.post(url, {"new_position": 1})
+        assert response.status_code == 403
+
+    def test_move_list_read_only_user_denied(self, user_factory, setup_api_data):
+        data = setup_api_data
+        viewer = user_factory("list_board_viewer")
+        viewer.kanban_groups.add(data["view_grp"])
+
+        client = Client()
+        client.force_login(viewer)
+
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": data["list_a"].id})
+        response = client.post(url, {"new_position": 1})
+        assert response.status_code == 403
+
+    def test_move_list_method_not_allowed(self, user_factory, setup_api_data):
+        data = setup_api_data
+        writer = user_factory("list_writer_get")
+        writer.kanban_groups.add(data["write_grp"])
+
+        client = Client()
+        client.force_login(writer)
+
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": data["list_a"].id})
+        response = client.get(url)
+        assert response.status_code == 405
+
+    def test_move_list_missing_or_invalid_position(self, user_factory, setup_api_data):
+        data = setup_api_data
+        writer = user_factory("list_writer_bad")
+        writer.kanban_groups.add(data["write_grp"])
+
+        client = Client()
+        client.force_login(writer)
+
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": data["list_a"].id})
+
+        # Missing position
+        response = client.post(url, {})
+        assert response.status_code == 400
+
+        # Non-integer position
+        response = client.post(url, {"new_position": "not-an-int"})
+        assert response.status_code == 400
+
+    def test_move_list_reorder_success(self, user_factory, setup_api_data):
+        data = setup_api_data
+        writer = user_factory("list_writer_ok")
+        writer.kanban_groups.add(data["write_grp"])
+
+        client = Client()
+        client.force_login(writer)
+
+        board = Board.objects.create(name="Reorder Board 1", slug="reorder-board-1", created_by=writer)
+        board.write_groups.add(data["write_grp"])
+        board.lists.all().delete()
+
+        col1 = List.objects.create(board=board, name="Col 1", order=0)
+        col2 = List.objects.create(board=board, name="Col 2", order=1)
+        col3 = List.objects.create(board=board, name="Col 3", order=2)
+
+        # Move col3 from index 2 to index 0
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": col3.id})
+        response = client.post(url, {"new_position": 0})
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["status"] == "ok"
+        assert payload["list_id"] == col3.id
+        assert payload["new_position"] == 0
+
+        # Verify database orders: col3=0, col1=1, col2=2
+        col3.refresh_from_db()
+        col1.refresh_from_db()
+        col2.refresh_from_db()
+
+        assert col3.order == 0
+        assert col1.order == 1
+        assert col2.order == 2
+
+    def test_move_list_clamps_out_of_bounds(self, user_factory, setup_api_data):
+        data = setup_api_data
+        writer = user_factory("list_writer_clamp")
+        writer.kanban_groups.add(data["write_grp"])
+
+        client = Client()
+        client.force_login(writer)
+
+        board = Board.objects.create(name="Reorder Board 2", slug="reorder-board-2", created_by=writer)
+        board.write_groups.add(data["write_grp"])
+        board.lists.all().delete()
+
+        col1 = List.objects.create(board=board, name="Col 1", order=0)
+        col2 = List.objects.create(board=board, name="Col 2", order=1)
+        col3 = List.objects.create(board=board, name="Col 3", order=2)
+
+        # Move col1 (pos 0) way past the end (e.g. 99)
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": col1.id})
+        response = client.post(url, {"new_position": 99})
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["new_position"] == 2
+
+        col1.refresh_from_db()
+        col2.refresh_from_db()
+        col3.refresh_from_db()
+
+        assert col2.order == 0
+        assert col3.order == 1
+        assert col1.order == 2
+
+    def test_move_list_json_payload(self, user_factory, setup_api_data):
+        data = setup_api_data
+        writer = user_factory("list_writer_json")
+        writer.kanban_groups.add(data["write_grp"])
+
+        client = Client()
+        client.force_login(writer)
+
+        board = Board.objects.create(name="Reorder Board 3", slug="reorder-board-3", created_by=writer)
+        board.write_groups.add(data["write_grp"])
+        board.lists.all().delete()
+
+        col1 = List.objects.create(board=board, name="Col 1", order=0)
+        col2 = List.objects.create(board=board, name="Col 2", order=1)
+
+        url = reverse("aa_kanban:move_list", kwargs={"list_id": col1.id})
+        response = client.post(
+            url,
+            data=json.dumps({"new_position": 1}),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert response.json()["status"] == "ok"
+        assert response.json()["new_position"] == 1
+
+        col1.refresh_from_db()
+        col2.refresh_from_db()
+        assert col2.order == 0
+        assert col1.order == 1

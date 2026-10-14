@@ -5,7 +5,7 @@
 {% block page_title %}{{ board.name }} - {{ app_name }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}?v=5">
+<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}?v=6">
 <style>
     .kanban-board-container {
         display: flex;
@@ -83,7 +83,7 @@
     <!-- Kanban Board Columns -->
     <div class="kanban-board-container" id="kanban-board" data-can-write="{{ can_write|yesno:'true,false' }}">
         {% for list in lists %}
-            <div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}" data-wip-limit="{{ list.wip_limit|default:0 }}">
+            <div class="kanban-column card shadow rounded-3 border" data-list-id="{{ list.id }}" data-wip-limit="{{ list.wip_limit|default:0 }}" data-move-url="{% url 'aa_kanban:move_list' list.id %}">
                 {% include 'aa_kanban/partials/column_header.html' with list=list can_write=can_write %}
 
                 <div class="card-body p-2 kanban-cards" id="list-cards-{{ list.id }}" data-list-id="{{ list.id }}">
@@ -224,7 +224,7 @@
 {% block extra_javascript %}
 {{ block.super }}
 <script src="{% static 'aa_kanban/libs/Sortable.min.js' %}"></script>
-<script src="{% static 'aa_kanban/js/kanban.js' %}?v=5"></script>
+<script src="{% static 'aa_kanban/js/kanban.js' %}?v=6"></script>
 <script>
 (function () {
     'use strict';

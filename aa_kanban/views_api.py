@@ -539,6 +539,49 @@ def delete_list(request: HttpRequest, list_id: int) -> HttpResponse:
 
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
+def move_list(request: HttpRequest, list_id: int) -> HttpResponse:
+    """Move a list/column to a new position within its board."""
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    kanban_list = get_object_or_404(List.objects.select_related("board"), pk=list_id)
+    if not kanban_list.board.can_user_write(request.user):
+        raise PermissionDenied("Write permission required for this board.")
+
+    if request.content_type == "application/json":
+        try:
+            body_data = json.loads(request.body)
+            new_position_raw = body_data.get("new_position")
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return HttpResponseBadRequest(_("Invalid JSON body."))
+    else:
+        new_position_raw = request.POST.get("new_position")
+
+    if new_position_raw is None:
+        return HttpResponseBadRequest(_("Missing new_position."))
+
+    try:
+        new_position = int(new_position_raw)
+    except (ValueError, TypeError):
+        return HttpResponseBadRequest(_("new_position must be an integer."))
+
+    from .services import reorder_kanban_list
+
+    updated_list = reorder_kanban_list(
+        list_id=kanban_list.id, new_position=new_position
+    )
+
+    return JsonResponse(
+        {
+            "status": "ok",
+            "list_id": updated_list.id,
+            "new_position": updated_list.order,
+        }
+    )
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
 def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
     """Create a new card in a list and return the card partial."""
     if request.method != "POST":
