@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.14.2] - 2026-10-15
+
 ### Added
 
-- **App Name and Version Badge in AA Header (TASK-101)**: The top navigation header brand (`header_nav_brand`) now displays the configured app name (`AA_KANBAN_APP_NAME`, matching the sidebar menu) together with a version badge (e.g. `v0.14.1`), following the `aa-industry` design pattern, instead of the generic Alliance Auth site name.
+- **App Name and Version Badge in AA Header (TASK-101)**: The top navigation header brand (`header_nav_brand`) now displays the configured app name (`AA_KANBAN_APP_NAME`, matching the sidebar menu) together with a version badge (e.g. `v0.14.2`), following the `aa-industry` design pattern, instead of the generic Alliance Auth site name.
 
 ## [0.14.1] - 2026-10-14
 
