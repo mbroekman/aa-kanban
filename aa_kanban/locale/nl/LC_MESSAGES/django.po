@@ -1155,9 +1155,6 @@ msgstr "Donker (Zwart)"
 msgid "Cyan"
 msgstr "Cyaan"
 
-msgid "Default"
-msgstr "Standaard"
-
 msgid "Blue"
 msgstr "Blauw"
 

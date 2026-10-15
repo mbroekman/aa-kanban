@@ -1032,9 +1032,6 @@ msgstr ""
 msgid "Cyan"
 msgstr ""
 
-msgid "Default"
-msgstr ""
-
 msgid "Blue"
 msgstr ""
 
