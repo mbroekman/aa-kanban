@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Plugin Version Badge in Sidebar Menu (TASK-101)**: The Kanban entry in the Alliance Auth sidebar now shows the installed aa-kanban version (e.g. `v0.14.1`) as a small muted pill, so admins can see which version is deployed at a glance. Implemented via a dedicated BS5 menu item template (`aa_kanban/menu/menu-item-bs5.html`); the menu text and hook class are unchanged, so AA's menu sync creates no duplicate entries and custom names/folder placement keep working.
+- **App Name and Version Badge in AA Header (TASK-101)**: The top navigation header brand (`header_nav_brand`) now displays the configured app name (`AA_KANBAN_APP_NAME`, matching the sidebar menu) together with a version badge (e.g. `v0.14.1`), following the `aa-industry` design pattern, instead of the generic Alliance Auth site name.
 
 ## [0.14.1] - 2026-10-14
 

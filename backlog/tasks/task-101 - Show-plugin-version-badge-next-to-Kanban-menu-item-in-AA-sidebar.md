@@ -1,10 +1,10 @@
 ---
 id: TASK-101
-title: Show plugin version badge next to Kanban menu item in AA sidebar
+title: Show app name and version badge in AA header (header_nav_brand)
 status: Done
 assignee: []
 created_date: '2026-10-15 09:40'
-updated_date: '2026-10-15 09:43'
+updated_date: '2026-10-15 10:45'
 labels:
   - feature
 dependencies: []
@@ -14,19 +14,19 @@ ordinal: 115000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Display the installed aa-kanban version (aa_kanban.__version__) as a small muted badge next to the 'Kanban' entry in the Alliance Auth sidebar menu, so admins/users can see which version is deployed at a glance.
+Follow the aa-industry pattern: fill the header_nav_brand block in aa_kanban/base.html with the configured app name (AA_KANBAN_APP_NAME, same as the sidebar menu) plus a version badge (aa_kanban.__version__), instead of the generic site name. Initial sidebar-badge implementation (6df3e21) was not what the user meant and is reverted.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 Kanban sidebar menu item shows a muted version badge (e.g. v0.14.1) sourced from aa_kanban.__version__
-- [x] #2 Menu item hash/text unchanged so no duplicate MenuItem rows are created on upgrade
-- [x] #3 Permission check (basic_access) still hides the item entirely
-- [x] #4 Unit tests cover badge rendering and permission hiding
+- [x] #1 AA top header on all aa-kanban pages shows the app name from AA_KANBAN_APP_NAME (same as the sidebar menu) instead of the site name
+- [x] #2 A version badge (v + aa_kanban.__version__) is shown next to the header name, styled like aa-industry
+- [x] #3 Sidebar menu item is unchanged (sidebar badge from 6df3e21 reverted)
+- [x] #4 Unit tests cover the header brand name and version badge
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Own BS5 menu template (aa_kanban/menu/menu-item-bs5.html) swapped in inside render() because AA's render_menu overwrites hook.template right before render(). Hook class/text unchanged -> stable MenuItem hash. Verified on devauth via render_menu (badge renders, also inside a folder). 151 passed / 8 skipped.
+Reverted sidebar menu badge. Implemented aa-industry pattern: header_nav_brand block in aa_kanban/base.html rendering kanban_app_name and kanban_version badge (styled with badge bg-secondary ms-2 text-white). Verified on devauth live rendering where header displays 'Project Management v0.14.1'. All 149 tests pass on remote devauth.
 <!-- SECTION:NOTES:END -->

@@ -1,7 +1,11 @@
 {% extends "allianceauth/base-bs5.html" %}
-{% load i18n static %}
+{% load i18n static kanban_tags %}
 
-{% block page_title %}{% trans "Kanban" %}{% endblock %}
+{% block page_title %}{% kanban_app_name %}{% endblock %}
+
+{% block header_nav_brand %}
+    {% kanban_app_name %} <span class="badge bg-secondary ms-2 text-white" style="font-size: 0.5em; vertical-align: middle;">v{% kanban_version %}</span>
+{% endblock header_nav_brand %}
 
 {% block content %}
 <div class="container-fluid">

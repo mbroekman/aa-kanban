@@ -1,6 +1,21 @@
 from django import template
+from django.conf import settings
+
+from aa_kanban import __version__
 
 register = template.Library()
+
+
+@register.simple_tag
+def kanban_version():
+    """Return the installed aa-kanban version."""
+    return __version__
+
+
+@register.simple_tag
+def kanban_app_name():
+    """Return the configured app name (same as the sidebar menu item)."""
+    return getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
 
 
 @register.filter

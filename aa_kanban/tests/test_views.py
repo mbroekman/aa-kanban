@@ -111,6 +111,21 @@ class TestBoardListView:
         assert data["board2"] not in boards
         assert data["board3"] not in boards
 
+    def test_header_nav_brand_and_version(self, user_factory, settings):
+        """Header brand must display the app name and version badge."""
+        from aa_kanban import __version__
+
+        settings.AA_KANBAN_APP_NAME = "Custom Project Manager"
+        user = user_factory("brand_viewer")
+        client = Client()
+        client.force_login(user)
+
+        response = client.get(reverse("aa_kanban:index"))
+        assert response.status_code == 200
+        content = response.content.decode("utf-8")
+        assert "Custom Project Manager" in content
+        assert f"v{__version__}" in content
+
 
 @pytest.mark.django_db
 class TestBoardDetailView:
@@ -217,7 +232,12 @@ class TestBoardDetailView:
         with patch("aa_kanban.utils.send_discord_webhook") as mock_send:
             response = client.post(url, post_data)
             assert response.status_code == 302
+            expected_msg = (
+                "**New Kanban Board Created!**\n"
+                "Name: `Webhook Board`\n"
+                "Created by: `creator`"
+            )
             mock_send.assert_called_once_with(
                 "https://discord.com/api/webhooks/test",
-                "**New Kanban Board Created!**\nName: `Webhook Board`\nCreated by: `creator`",
+                expected_msg,
             )
