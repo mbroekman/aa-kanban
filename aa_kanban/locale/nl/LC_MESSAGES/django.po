@@ -1184,3 +1184,6 @@ msgstr "Donker"
 
 
 
+
+msgid "aa-kanban version"
+msgstr "aa-kanban versie"

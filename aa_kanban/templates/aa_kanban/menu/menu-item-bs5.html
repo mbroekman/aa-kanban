@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load navactive %}
+{% comment %}
+    Mirrors allianceauth/menu/templates/menu/menu-item-bs5.html (non-folder branch)
+    and adds a muted version badge next to the menu label.
+{% endcomment %}
+
+<li class="d-flex flex-wrap m-2 p-2 pt-0 pb-0 mt-0 mb-0 me-0 pe-0">
+    <i class="nav-link {{ item.classes }} fa-fw align-self-center me-3 {% if item.navactive %}{% navactive request item.navactive|join:' ' %}{% endif %}"></i>
+    <a class="nav-link flex-fill align-self-center me-auto {% if item.navactive %}{% navactive request item.navactive|join:' ' %}{% endif %}"
+       href="{% url item.url_name %}">
+        {% translate item.text %}
+    </a>
+
+    {% if item.count >= 1 %}
+        <span class="badge text-bg-primary m-2 align-self-center me-2">{{ item.count }}</span>
+    {% endif %}
+
+    {% if item.version %}
+        <span class="aa-kanban-menu-version badge rounded-pill border border-secondary text-secondary fw-normal m-2 align-self-center me-2"
+              title="{% translate 'aa-kanban version' %}">v{{ item.version }}</span>
+    {% endif %}
+</li>

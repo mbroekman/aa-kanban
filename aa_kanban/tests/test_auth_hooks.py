@@ -4,7 +4,7 @@ import pytest
 from django.contrib.auth.models import Permission, User
 from django.test import RequestFactory
 
-from aa_kanban import auth_hooks
+from aa_kanban import __version__, auth_hooks
 
 
 @pytest.fixture
@@ -52,3 +52,29 @@ class TestAuthHooks:
         url_hook = auth_hooks.register_urls()
         assert url_hook.include_pattern.app_name == "aa_kanban"
         assert "kanban" in str(url_hook.include_pattern.pattern)
+
+    def test_bs5_menu_item_shows_version_badge(self, user_with_basic_access):
+        request = RequestFactory().get("/")
+        request.user = user_with_basic_access
+
+        menu_item = auth_hooks.AaKanbanMenuItem()
+        # AA's sidebar renderer sets this template right before render()
+        menu_item.template = auth_hooks.AA_BS5_MENU_ITEM_TEMPLATE
+        rendered = menu_item.render(request)
+
+        assert "aa-kanban-menu-version" in rendered
+        assert f"v{__version__}" in rendered
+        assert "Kanban" in rendered
+
+    def test_bs5_menu_item_hidden_without_permission(self, user_without_basic_access):
+        request = RequestFactory().get("/")
+        request.user = user_without_basic_access
+
+        menu_item = auth_hooks.AaKanbanMenuItem()
+        menu_item.template = auth_hooks.AA_BS5_MENU_ITEM_TEMPLATE
+        assert menu_item.render(request) == ""
+
+    def test_menu_item_text_unchanged(self):
+        # Text/class must stay stable so AA's MenuItem hash sync creates no duplicates
+        menu_item = auth_hooks.AaKanbanMenuItem()
+        assert __version__ not in str(menu_item.text)

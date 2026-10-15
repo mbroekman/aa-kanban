@@ -1057,3 +1057,6 @@ msgid "Dark"
 msgstr ""
 
 
+
+msgid "aa-kanban version"
+msgstr ""

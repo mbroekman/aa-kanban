@@ -4,11 +4,14 @@ from allianceauth import hooks
 from allianceauth.services.hooks import MenuItemHook, UrlHook
 from django.conf import settings
 
-from . import urls
+from . import __version__, urls
+
+AA_BS5_MENU_ITEM_TEMPLATE = "menu/menu-item-bs5.html"
+KANBAN_BS5_MENU_ITEM_TEMPLATE = "aa_kanban/menu/menu-item-bs5.html"
 
 
 class AaKanbanMenuItem(MenuItemHook):
-    """Menu item hook for aa_kanban."""
+    """Menu item hook for aa_kanban, showing the installed plugin version as a badge."""
 
     def __init__(self):
         super().__init__(
@@ -17,11 +20,17 @@ class AaKanbanMenuItem(MenuItemHook):
             "aa_kanban:index",
             navactive=["aa_kanban:"],
         )
+        self.version = __version__
 
     def render(self, request):
-        if request.user.has_perm("aa_kanban.basic_access"):
-            return super().render(request)
-        return ""
+        """Render the menu item (with version badge) for users with basic access."""
+        if not request.user.has_perm("aa_kanban.basic_access"):
+            return ""
+        # AA's menu renderer sets the BS5 template right before calling render(),
+        # so swap in our own template (which adds the version badge) at this point.
+        if self.template == AA_BS5_MENU_ITEM_TEMPLATE:
+            self.template = KANBAN_BS5_MENU_ITEM_TEMPLATE
+        return super().render(request)
 
 
 @hooks.register("menu_item_hook")

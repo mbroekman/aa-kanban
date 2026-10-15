@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Plugin Version Badge in Sidebar Menu (TASK-101)**: The Kanban entry in the Alliance Auth sidebar now shows the installed aa-kanban version (e.g. `v0.14.1`) as a small muted pill, so admins can see which version is deployed at a glance. Implemented via a dedicated BS5 menu item template (`aa_kanban/menu/menu-item-bs5.html`); the menu text and hook class are unchanged, so AA's menu sync creates no duplicate entries and custom names/folder placement keep working.
+
 ## [0.14.1] - 2026-10-14
 
 ### Added
