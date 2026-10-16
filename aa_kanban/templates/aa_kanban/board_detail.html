@@ -5,7 +5,7 @@
 {% block page_title %}{{ board.name }} - {{ app_name }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'aa_kanban/css/kanban.css' %}?v=7">
 <style>
     .kanban-board-container {
         display: flex;
@@ -224,7 +224,7 @@
 {% block extra_javascript %}
 {{ block.super }}
 <script src="{% static 'aa_kanban/libs/Sortable.min.js' %}"></script>
-<script src="{% static 'aa_kanban/js/kanban.js' %}?v=6"></script>
+<script src="{% static 'aa_kanban/js/kanban.js' %}?v=7"></script>
 <script>
 (function () {
     'use strict';

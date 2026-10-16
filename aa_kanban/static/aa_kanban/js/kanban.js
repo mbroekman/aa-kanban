@@ -395,6 +395,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const editBtn = document.getElementById("btn-card-desc-edit");
         const viewBtn = document.getElementById("btn-card-desc-view");
         const textarea = document.getElementById("card-desc-textarea");
+        const renderedEl = document.getElementById("card-desc-rendered");
 
         if (mode === "edit") {
             if (viewEl) viewEl.classList.add("d-none");
@@ -407,6 +408,41 @@ document.addEventListener("DOMContentLoaded", function () {
             if (viewEl) viewEl.classList.remove("d-none");
             if (editBtn) editBtn.classList.remove("d-none");
             if (viewBtn) viewBtn.classList.add("d-none");
+
+            // Live preview: render the *current* unsaved textarea content,
+            // not the stale HTML from the last save.
+            if (textarea && renderedEl) {
+                const previewUrl = textarea.dataset.previewUrl;
+                const text = textarea.value.trim();
+                if (!text) {
+                    renderedEl.innerHTML = '<em class="text-muted">No description provided.</em>';
+                } else if (previewUrl) {
+                    renderedEl.innerHTML = '<div class="text-center py-3"><span class="spinner-border spinner-border-sm text-primary"></span></div>';
+                    const formData = new FormData();
+                    formData.append("text", textarea.value);
+                    fetch(previewUrl, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": getCsrfToken(),
+                            "X-Requested-With": "XMLHttpRequest",
+                        },
+                        body: formData,
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error(`Server returned HTTP ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                        .then(function (html) {
+                            renderedEl.innerHTML = html;
+                        })
+                        .catch(function (error) {
+                            console.error("Failed to load description preview:", error);
+                            renderedEl.innerHTML = '<span class="text-danger">Failed to load preview.</span>';
+                        });
+                }
+            }
         }
     };
 
@@ -537,7 +573,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const safeFilename = file.name || "image.png";
-        const placeholder = `\n![Uploading ${safeFilename}...]()\n`;
+        // Clipboard-pasted images are all named "image.png" by the browser, so a
+        // filename-only placeholder collides when two uploads are in flight at
+        // once; a unique token keeps each upload's placeholder distinguishable.
+        uploadAndInsert.counter = (uploadAndInsert.counter || 0) + 1;
+        const placeholder = `\n![Uploading ${safeFilename}...](#upload-${uploadAndInsert.counter})\n`;
         const startPos = textarea.selectionStart || textarea.value.length;
         const endPos = textarea.selectionEnd || textarea.value.length;
         const textBefore = textarea.value.substring(0, startPos);
@@ -584,6 +624,19 @@ document.addEventListener("DOMContentLoaded", function () {
         initTooltips();
         updateListCounts();
         initMarkdownImageUploads();
+    });
+
+    // Open the card detail modal right away for a newly created card.
+    // htmx:afterSettle fires once htmx has fully processed the swapped-in
+    // content (including binding its own hx-get click handler) -- clicking
+    // any earlier (even via afterSwap + setTimeout) opens the Bootstrap
+    // modal shell but never fires htmx's request, leaving it stuck loading.
+    document.body.addEventListener('htmx:afterSettle', function (evt) {
+        const autoOpenCard = document.querySelector('[data-auto-open="true"]');
+        if (autoOpenCard) {
+            autoOpenCard.removeAttribute('data-auto-open');
+            autoOpenCard.click();
+        }
     });
 
     // Also listen to htmx:load when dynamic content is inserted

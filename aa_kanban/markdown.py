@@ -64,6 +64,27 @@ def _is_safe_url(url: str) -> bool:
     return False
 
 
+_IMAGE_MARKDOWN_RE = re.compile(r"!\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+
+
+def extract_first_image_url(text: str | None) -> str:
+    """Return the URL of the first Markdown image in text, or "" if none."""
+    if not text:
+        return ""
+    match = _IMAGE_MARKDOWN_RE.search(text)
+    if not match:
+        return ""
+    url = match.group(2)
+    return url if _is_safe_url(url) else ""
+
+
+def strip_image_markdown(text: str | None) -> str:
+    """Remove Markdown image references from text, leaving the rest intact."""
+    if not text:
+        return ""
+    return _IMAGE_MARKDOWN_RE.sub("", text).strip()
+
+
 def render_markdown(text: str) -> str:
     """Safely render Markdown into sanitized HTML with enhanced image handling.
 

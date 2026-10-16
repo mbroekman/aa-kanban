@@ -6,7 +6,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from django.urls import reverse
 
-from aa_kanban.markdown import render_markdown
+from aa_kanban.markdown import (
+    extract_first_image_url,
+    render_markdown,
+    strip_image_markdown,
+)
 from aa_kanban.models import KanbanAttachment
 
 TINY_PNG = (
@@ -226,3 +230,30 @@ class TestMarkdownRendering:
         content = response.content.decode()
         assert "<h3>Test Ticket</h3>" in content
         assert "Hello world!" in content
+
+
+@pytest.mark.django_db
+class TestCardThumbnailExtraction:
+    def test_extract_first_image_url_returns_first_of_several(self):
+        md = (
+            "![one](/media/aa_kanban/uploads/one.png)\n\n"
+            "![two](/media/aa_kanban/uploads/two.png)"
+        )
+        assert extract_first_image_url(md) == "/media/aa_kanban/uploads/one.png"
+
+    def test_extract_first_image_url_none_when_absent(self):
+        assert extract_first_image_url("Just plain text, no images here.") == ""
+        assert extract_first_image_url("") == ""
+        assert extract_first_image_url(None) == ""
+
+    def test_extract_first_image_url_rejects_dangerous_scheme(self):
+        md = '![x](javascript:alert(1) "title")'
+        assert extract_first_image_url(md) == ""
+
+    def test_strip_image_markdown_removes_images_keeps_text(self):
+        md = "![shot](/media/aa_kanban/uploads/shot.png)\n\nSome real description text."
+        assert strip_image_markdown(md) == "Some real description text."
+
+    def test_strip_image_markdown_image_only_is_empty(self):
+        md = "![shot](/media/aa_kanban/uploads/shot.png)"
+        assert strip_image_markdown(md) == ""

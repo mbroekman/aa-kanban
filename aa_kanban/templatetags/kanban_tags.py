@@ -52,3 +52,19 @@ def render_markdown(text: str):
     from aa_kanban.markdown import render_markdown as _render_markdown
 
     return mark_safe(_render_markdown(text))
+
+
+@register.filter
+def first_image_url(text: str) -> str:
+    """Return the URL of the first Markdown image in text, or "" if none."""
+    from aa_kanban.markdown import extract_first_image_url
+
+    return extract_first_image_url(text)
+
+
+@register.filter
+def strip_image_markdown(text: str) -> str:
+    """Remove Markdown image references from text, for a text-only preview."""
+    from aa_kanban.markdown import strip_image_markdown as _strip_image_markdown
+
+    return _strip_image_markdown(text)

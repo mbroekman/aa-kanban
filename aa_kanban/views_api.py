@@ -632,7 +632,7 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
     return render(
         request,
         "aa_kanban/partials/card_item.html",
-        {"card": card, "can_write": True},
+        {"card": card, "can_write": True, "auto_open": True},
     )
 
 

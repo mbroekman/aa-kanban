@@ -1,7 +1,8 @@
-{% load i18n %}
+{% load i18n kanban_tags %}
 {# Partial: één kaart-item, gebruikt door board_detail.html en create_card HTMX response #}
 <div id="card-{{ card.id }}" class="card kanban-card shadow {% if card.color %}text-bg-{{ card.color }} border-0{% else %}border border-secondary-subtle{% endif %} mb-2 p-3 cursor-grab"
      {% if hx_oob %}{% if hx_oob_append %}hx-swap-oob="beforeend:#list-cards-{{ card.list.id }}"{% else %}hx-swap-oob="true"{% endif %}{% endif %}
+     {% if auto_open %}data-auto-open="true"{% endif %}
      data-card-id="{{ card.id }}"
      data-move-url="{% url 'aa_kanban:move_card' card.id %}"
      data-modal-url="{% url 'aa_kanban:card_modal' card.id %}"
@@ -20,14 +21,26 @@
         </div>
     {% endif %}
 
+    {% if card.description and not summary_mode %}
+        {% with thumb_url=card.description|first_image_url %}
+            {% if thumb_url %}
+                <img src="{{ thumb_url }}" alt="" class="kanban-card-thumb mb-2" loading="lazy">
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+
     <div class="card-title fw-semibold mb-1" style="font-size: 0.95rem;">
         {{ card.title }}
     </div>
 
     {% if card.description and not summary_mode %}
-        <div class="card-text opacity-75 mb-2" style="font-size: 0.8rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
-            {{ card.description }}
-        </div>
+        {% with preview_text=card.description|strip_image_markdown %}
+            {% if preview_text %}
+                <div class="card-text opacity-75 mb-2" style="font-size: 0.8rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                    {{ preview_text }}
+                </div>
+            {% endif %}
+        {% endwith %}
     {% endif %}
 
     <div class="d-flex justify-content-between align-items-center mt-2 pt-1 opacity-75" style="font-size: 0.8rem;">
