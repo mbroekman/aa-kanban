@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-16
+
+### Added
+
+- **Image Thumbnail on Card Front (TASK-105)**: Cards whose description contains an image now show a real thumbnail preview on the card front in the board/list view, instead of the raw Markdown source text (e.g. `![image.png](/media/...)`). The image reference is stripped from the text snippet shown underneath, so it no longer duplicates as ugly raw syntax.
+- **Auto-Open Card Detail on Create (TASK-104)**: Creating a card via a column's inline "New card title..." quick-add form now opens its detail modal immediately, instead of leaving the user to find and click the freshly added card themselves.
+
+### Fixed
+
+- **Card Description Preview Only Ever Showed the Last-Saved Content (TASK-103)**: The Preview button in the card modal's description editor was hardcoded hidden for a brand-new card with no description yet, and even once visible, clicking it only ever re-displayed the server-rendered HTML from page load rather than the current unsaved text -- so edits (including newly pasted/attached images) never actually showed in Preview until after saving. Preview now renders the live textarea content via the existing preview-markdown endpoint, matching the ticket submission form's already-correct behavior.
+- **Potential Image Upload Placeholder Collision**: `uploadAndInsert()`'s in-textarea placeholder text was based solely on the uploaded filename, but clipboard-pasted images are always named `image.png` by the browser, so two images pasted in quick succession could share an identical placeholder string. Each upload now gets a unique token, eliminating any chance of the wrong upload's result landing in the wrong place.
+
 ## [0.14.2] - 2026-10-15
 
 ### Added
