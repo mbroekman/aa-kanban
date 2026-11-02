@@ -1,6 +1,6 @@
 """Intake API for the Discord thread router: a new Discord thread becomes a card.
 
-The router (github.com/mbroekman/githubDiscordBOT) holds the channel rules and sends
+The router (github.com/mbroekman/discord-thread-router) holds the channel rules and sends
 the board, list, labels and team with every thread. Authenticated with an
 IntakeApiKey (Bearer), not with a session.
 """

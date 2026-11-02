@@ -179,7 +179,7 @@ AA Kanban features seamless integration with `aadiscordbot` and Discord webhooks
 
 ### Cards from Discord Threads (Thread Router)
 
-The [Discord Thread Router](https://github.com/mbroekman/githubDiscordBOT) watches chosen Discord channels. When someone opens a thread there, it creates a card on the board set for that channel.
+The [Discord Thread Router](https://github.com/mbroekman/discord-thread-router) watches chosen Discord channels. When someone opens a thread there, it creates a card on the board set for that channel.
 
 - **Where it is set:** the channels, boards, lists, labels and team are set in the router's `rules.yaml`, not in Auth.
 - **Card content:** the thread title becomes the card title. The first message, the Discord author and a link to the thread go in the description.
