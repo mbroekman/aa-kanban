@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-02
+
+### Upgrade notes
+
+- Run `migrate` (migration 0026 adds Intake API keys).
+- Add `'aa_kanban'` to `APPS_WITH_PUBLIC_VIEWS` in `local.py` so the intake endpoint is reachable without a login. Other Kanban pages still require a login.
+
 ### Added
 
 - **Discord Thread Intake API (TASK-107)**: `POST /kanban/api/intake/discord-thread/` lets the Discord Thread Router turn a new Discord thread into a card on a given board and list, with labels and team.
