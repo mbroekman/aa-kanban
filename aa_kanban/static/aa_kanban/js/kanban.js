@@ -639,6 +639,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // A link like board/<slug>/?card=123 (e.g. from the Discord thread router)
+    // opens that card. 'load' fires after htmx has bound its handlers.
+    window.addEventListener('load', function () {
+        const cardId = new URLSearchParams(window.location.search).get('card');
+        if (!cardId || !/^\d+$/.test(cardId)) return;
+        const linkedCard = document.querySelector('[data-card-id="' + cardId + '"]');
+        if (linkedCard) linkedCard.click();
+    });
+
     // Also listen to htmx:load when dynamic content is inserted
     document.body.addEventListener('htmx:load', function(evt) {
         initSortable(evt.detail && evt.detail.elt ? evt.detail.elt : document);

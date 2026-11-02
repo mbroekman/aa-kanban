@@ -53,7 +53,13 @@ def register_menu_create_ticket():
 
 @hooks.register("url_hook")
 def register_urls():
-    return UrlHook(urls, "aa_kanban", r"^kanban/")
+    # The intake endpoint authenticates with an API key, not a login session.
+    return UrlHook(
+        urls,
+        "aa_kanban",
+        r"^kanban/",
+        excluded_views=["aa_kanban.views_intake.discord_thread_intake"],
+    )
 
 
 @hooks.register("discord_cogs_hook")

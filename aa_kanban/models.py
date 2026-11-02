@@ -552,3 +552,50 @@ class KanbanAttachment(models.Model):
 
     def __str__(self) -> str:
         return f"{self.original_filename} ({self.size} bytes)"
+
+
+class IntakeApiKey(models.Model):
+    """API key for the Discord thread router (intake endpoint).
+
+    Only the SHA-256 hash is stored; the key itself is shown once, when it is made.
+    """
+
+    name = models.CharField(max_length=100, help_text=_("Who or what uses this key."))
+    key_hash = models.CharField(max_length=64, unique=True, editable=False)
+    prefix = models.CharField(
+        max_length=8,
+        editable=False,
+        help_text=_("First characters of the key, to recognise it."),
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField(null=True, blank=True, editable=False)
+
+    class Meta:
+        verbose_name = _("Intake API key")
+        verbose_name_plural = _("Intake API keys")
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.prefix}…)"
+
+    @staticmethod
+    def hash_key(raw_key: str) -> str:
+        import hashlib
+
+        return hashlib.sha256(raw_key.encode()).hexdigest()
+
+    def set_new_key(self) -> str:
+        """Give this record a fresh key; returns the key, which is not stored."""
+        import secrets
+
+        raw_key = secrets.token_urlsafe(32)
+        self.key_hash = self.hash_key(raw_key)
+        self.prefix = raw_key[:8]
+        return raw_key
+
+    @classmethod
+    def lookup(cls, raw_key: str) -> "IntakeApiKey | None":
+        if not raw_key:
+            return None
+        return cls.objects.filter(key_hash=cls.hash_key(raw_key), is_active=True).first()

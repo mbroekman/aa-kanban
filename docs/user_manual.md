@@ -177,6 +177,17 @@ AA Kanban features seamless integration with `aadiscordbot` and Discord webhooks
 - Messages sent in the Discord thread are captured by the `KanbanTicketCog` and automatically logged as comments on the card in Alliance Auth.
 - **Discord Context Menu**: Right-clicking any Discord message (`Apps -> Upload to Ticket`) allows users to push existing chat discussions straight into an active Kanban card.
 
+### Cards from Discord Threads (Thread Router)
+
+The [Discord Thread Router](https://github.com/mbroekman/githubDiscordBOT) watches chosen Discord channels. When someone opens a thread there, it creates a card on the board set for that channel.
+
+- **Where it is set:** the channels, boards, lists, labels and team are set in the router's `rules.yaml`, not in Auth.
+- **Card content:** the thread title becomes the card title. The first message, the Discord author and a link to the thread go in the description.
+- **Linked to the thread:** the card is linked to the thread, so messages in the thread become comments (see above), and the router replies in the thread with a link that opens the card.
+- **Card creator:** the Auth user linked to the Discord account. For someone without a linked account, the creator is the service user `discord-intake`, and the description says so.
+- **No duplicates:** a second event for the same thread returns the existing card instead of creating a new one.
+- **API key:** an admin creates it in Django admin under *AA Kanban > Intake API keys*. The key is shown once; it goes into the router's `KANBAN_API_KEY`.
+
 ### Discord Webhooks & Stale Card Alerts
 
 - **Board Creation Webhook**: Broadcasts an announcement when a new board is launched.

@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from . import views, views_api, views_settings
+from . import views, views_api, views_intake, views_settings
 
 app_name = "aa_kanban"
 
@@ -204,5 +204,13 @@ urlpatterns = [
         "settings/teams/<int:team_id>/authgroups/<int:authgroup_id>/remove/",
         views_settings.remove_authgroup_from_team,
         name="remove_authgroup_from_team",
+    ),
+    # Must stay LAST: Alliance Auth stops adding its login check to the patterns
+    # after an excluded (public) view. Public because it uses an API key; needs
+    # "aa_kanban" in APPS_WITH_PUBLIC_VIEWS.
+    path(
+        "api/intake/discord-thread/",
+        views_intake.discord_thread_intake,
+        name="intake_discord_thread",
     ),
 ]

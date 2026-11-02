@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Discord Thread Intake API (TASK-107)**: `POST /kanban/api/intake/discord-thread/` lets the Discord Thread Router turn a new Discord thread into a card on a given board and list, with labels and team.
+  - The card is linked to the thread (`discord_thread_id`), so thread messages sync as comments.
+  - Idempotent per thread.
+  - The creator is the Auth user linked to the Discord account, or the service user `discord-intake`.
+  - Authenticated with an Intake API key. Keys are managed in Django admin and stored only as a hash.
+- **Card Deep Link**: `board/<slug>/?card=<id>` opens that card's detail modal.
+
 ## [1.0.0] - 2026-10-16
 
 ### Added

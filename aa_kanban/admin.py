@@ -5,12 +5,14 @@ de frontend. De admin is hier read-only voor overzicht/debug. Alleen Comments
 blijven bewerkbaar voor moderatie-doeleinden.
 """
 
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.utils.translation import gettext_lazy as _
 
 from .models import (
     Board,
     Card,
     Comment,
+    IntakeApiKey,
     KanbanGroup,
     KanbanSetting,
     KanbanTeam,
@@ -165,3 +167,35 @@ class KanbanTeamAdmin(admin.ModelAdmin):
     list_display = ("name", "discord_role_id")
     search_fields = ("name",)
     filter_horizontal = ("members", "groups")
+
+
+@admin.register(IntakeApiKey)
+class IntakeApiKeyAdmin(admin.ModelAdmin):
+    """API keys for the Discord thread router (technical setting, AGENTS §8)."""
+
+    list_display = ("name", "prefix", "is_active", "created_at", "last_used_at")
+    readonly_fields = ("prefix", "created_at", "last_used_at")
+    fields = ("name", "is_active", "prefix", "created_at", "last_used_at")
+    actions = ["regenerate_key"]
+
+    def save_model(self, request, obj, form, change):
+        raw_key = obj.set_new_key() if not change else None
+        super().save_model(request, obj, form, change)
+        if raw_key:
+            self._show_key(request, obj, raw_key)
+
+    def _show_key(self, request, obj, raw_key):
+        messages.warning(
+            request,
+            _(
+                "API key for {name}: {key} - copy it now into KANBAN_API_KEY of the"
+                " router; it is not shown again."
+            ).format(name=obj.name, key=raw_key),
+        )
+
+    @admin.action(description=_("Generate a new key (the old one stops working)"))
+    def regenerate_key(self, request, queryset):
+        for obj in queryset:
+            raw_key = obj.set_new_key()
+            obj.save(update_fields=["key_hash", "prefix"])
+            self._show_key(request, obj, raw_key)

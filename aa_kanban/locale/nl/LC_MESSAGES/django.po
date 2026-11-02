@@ -1176,8 +1176,20 @@ msgstr "Licht"
 msgid "Dark"
 msgstr "Donker"
 
+msgid "Who or what uses this key."
+msgstr "Wie of wat deze sleutel gebruikt."
 
+msgid "First characters of the key, to recognise it."
+msgstr "Eerste tekens van de sleutel, om hem te herkennen."
 
+msgid "Intake API key"
+msgstr "Intake-API-sleutel"
 
+msgid "Intake API keys"
+msgstr "Intake-API-sleutels"
 
+msgid "API key for {name}: {key} - copy it now into KANBAN_API_KEY of the router; it is not shown again."
+msgstr "API-sleutel voor {name}: {key} - kopieer hem nu naar KANBAN_API_KEY van de router; hij wordt niet opnieuw getoond."
 
+msgid "Generate a new key (the old one stops working)"
+msgstr "Nieuwe sleutel maken (de oude werkt dan niet meer)"
