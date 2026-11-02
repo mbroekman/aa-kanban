@@ -598,4 +598,6 @@ class IntakeApiKey(models.Model):
     def lookup(cls, raw_key: str) -> "IntakeApiKey | None":
         if not raw_key:
             return None
-        return cls.objects.filter(key_hash=cls.hash_key(raw_key), is_active=True).first()
+        return cls.objects.filter(
+            key_hash=cls.hash_key(raw_key), is_active=True
+        ).first()

@@ -31,7 +31,9 @@ def board(db):
 
 def post(data, key):
     headers = {"HTTP_AUTHORIZATION": f"Bearer {key}"} if key else {}
-    return Client().post(URL, json.dumps(data), content_type="application/json", **headers)
+    return Client().post(
+        URL, json.dumps(data), content_type="application/json", **headers
+    )
 
 
 def thread(**extra):
@@ -53,7 +55,9 @@ def test_thread_becomes_card_on_board_list_with_labels_and_team(api_key, board):
     Label.objects.create(name="Discord")
     team = KanbanTeam.objects.create(name="IT")
 
-    response = post(thread(list="in progress", labels=["Discord", "Nope"], team="it"), api_key)
+    response = post(
+        thread(list="in progress", labels=["Discord", "Nope"], team="it"), api_key
+    )
 
     assert response.status_code == 201
     body = response.json()
@@ -89,7 +93,9 @@ def test_linked_discord_user_is_creator_else_service_user(api_key, board):
     assert "no Auth account" not in card.description
 
     card = Card.objects.get(
-        pk=post(thread(thread_id=2222, author_discord_id=888), api_key).json()["card_id"]
+        pk=post(thread(thread_id=2222, author_discord_id=888), api_key).json()[
+            "card_id"
+        ]
     )
     assert card.created_by.username == SERVICE_USERNAME
     assert not card.created_by.is_active
@@ -153,5 +159,7 @@ def test_other_kanban_pages_still_need_a_login():
     for name in ("index", "summary"):
         response = Client().get(reverse(f"aa_kanban:{name}"))
         assert response.status_code == 302 and "/login/" in response.url
-    response = Client().post(reverse("aa_kanban:remove_authgroup_from_team", args=[1, 1]))
+    response = Client().post(
+        reverse("aa_kanban:remove_authgroup_from_team", args=[1, 1])
+    )
     assert response.status_code == 302 and "/login/" in response.url

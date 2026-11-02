@@ -59,9 +59,13 @@ def _description(data: dict, linked: bool) -> str:
     return f"{content}\n\n---\n{source}" if content else source
 
 
-def _card_reply(request: HttpRequest, card: Card, status: int, skipped=()) -> JsonResponse:
+def _card_reply(
+    request: HttpRequest, card: Card, status: int, skipped=()
+) -> JsonResponse:
     board = card.list.board
-    url = request.build_absolute_uri(reverse("aa_kanban:board_detail", args=[board.slug]))
+    url = request.build_absolute_uri(
+        reverse("aa_kanban:board_detail", args=[board.slug])
+    )
     return JsonResponse(
         {
             "card_id": card.id,
