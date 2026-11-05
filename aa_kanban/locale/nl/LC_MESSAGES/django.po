@@ -1287,3 +1287,15 @@ msgstr "Naam van de ledenpagina in het Auth-menu."
 
 msgid "An archived board is hidden from the dashboards and read-only. Only board managers can open and restore it."
 msgstr "Een gearchiveerd bord is verborgen op de dashboards en alleen-lezen. Alleen bordbeheerders kunnen het openen en terugzetten."
+
+msgid "Readers only see the cards they created or are assigned to, and can add cards in the first column. Write groups and board managers see all cards."
+msgstr "Lezers zien alleen de kaarten die ze zelf maakten of waaraan ze zijn toegewezen, en kunnen kaarten toevoegen in de eerste kolom. Schrijfgroepen en bordbeheerders zien alle kaarten."
+
+msgid "Own cards only"
+msgstr "Alleen eigen kaarten"
+
+msgid "Your cards"
+msgstr "Jouw kaarten"
+
+msgid "You see the cards you created or are assigned to."
+msgstr "Je ziet de kaarten die je zelf maakte of waaraan je bent toegewezen."

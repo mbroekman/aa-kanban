@@ -138,6 +138,13 @@
                     </label>
                     <div class="form-text">{% trans "Show this board on the members page instead of the management dashboard. Everyone with Kanban access can view it; only its write groups can change it." %}</div>
                 </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="board-own-cards-only" name="own_cards_only" {% if form_data.own_cards_only == 'on' %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold" for="board-own-cards-only">
+                        <i class="fas fa-user-lock me-1 text-info"></i>{% trans "Own cards only" %}
+                    </label>
+                    <div class="form-text">{% trans "Readers only see the cards they created or are assigned to, and can add cards in the first column. Write groups and board managers see all cards." %}</div>
+                </div>
             </div>
         </div>
 

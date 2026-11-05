@@ -3,7 +3,8 @@
 from dataclasses import dataclass, field
 from datetime import timedelta
 
-from django.db.models import Max
+from django.contrib.auth.models import User
+from django.db.models import Max, Q
 from django.utils import timezone
 
 from .models import Board, Card, List
@@ -29,13 +30,16 @@ def is_done_list(lst: List, last_list_id: int | None) -> bool:
     return lst.id == last_list_id or any(kw in name for kw in DONE_KEYWORDS)
 
 
-def board_stats(boards: list[Board]) -> dict[int, BoardStats]:
+def board_stats(boards: list[Board], user: User | None = None) -> dict[int, BoardStats]:
     """Stats per board id, in two queries whatever the number of boards.
 
     A card needs attention when it is not archived, not in a finished
     list, and either past its due date or inactive (no update or comment)
     longer than the board's stale_card_alert_hours. A column needs attention
     when it holds more cards than its WIP limit.
+
+    With a user, boards that show that user only their own cards count
+    only those cards.
     """
     stats = {b.id: BoardStats() for b in boards}
     if not stats:
@@ -52,10 +56,17 @@ def board_stats(boards: list[Board]) -> dict[int, BoardStats]:
     }
 
     now = timezone.now()
-    cards = (
-        Card.objects.filter(list__board_id__in=stats, is_archived=False)
-        .annotate(last_comment=Max("comments__created_at"))
-        .values("list_id", "due_date", "updated_at", "last_comment")
+    cards = Card.objects.filter(list__board_id__in=stats, is_archived=False)
+    own_only_ids = (
+        [b.id for b in boards if not b.can_user_see_all_cards(user)] if user else []
+    )
+    if own_only_ids:
+        cards = cards.exclude(
+            Q(list__board_id__in=own_only_ids)
+            & ~Q(pk__in=Card.objects.owned_by(user).values("pk"))
+        )
+    cards = cards.annotate(last_comment=Max("comments__created_at")).values(
+        "list_id", "due_date", "updated_at", "last_comment"
     )
     per_list: dict[int, int] = {}
     for card in cards:

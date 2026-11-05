@@ -1148,3 +1148,15 @@ msgstr ""
 
 msgid "An archived board is hidden from the dashboards and read-only. Only board managers can open and restore it."
 msgstr ""
+
+msgid "Readers only see the cards they created or are assigned to, and can add cards in the first column. Write groups and board managers see all cards."
+msgstr ""
+
+msgid "Own cards only"
+msgstr ""
+
+msgid "Your cards"
+msgstr ""
+
+msgid "You see the cards you created or are assigned to."
+msgstr ""

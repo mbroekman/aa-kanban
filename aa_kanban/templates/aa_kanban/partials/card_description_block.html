@@ -3,7 +3,7 @@
     <label class="form-label small fw-bold text-muted text-uppercase mb-0">
         <i class="fas fa-align-left me-1"></i>{% trans "Description" %}
     </label>
-    {% if can_write %}
+    {% if can_write or can_edit_card %}
         <div class="btn-group btn-group-sm" role="group" id="card-desc-toggle-group">
             <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 {% if not card.description %}d-none{% endif %}" id="btn-card-desc-edit" onclick="toggleCardDescMode('edit')">
                 <i class="fas fa-pen me-1"></i>{% trans "Edit" %}
@@ -16,7 +16,7 @@
 </div>
 
 <!-- Rendered Markdown View (Lightbox clickable) -->
-<div id="card-desc-view" class="kanban-desc-box p-3 rounded mb-2 {% if not card.description and can_write %}d-none{% endif %}">
+<div id="card-desc-view" class="kanban-desc-box p-3 rounded mb-2 {% if not card.description and can_write or not card.description and can_edit_card %}d-none{% endif %}">
     <div id="card-desc-rendered" class="kanban-desc-rendered-content text-break">
         {% if card.description %}
             {{ card.description|render_markdown }}
@@ -24,7 +24,7 @@
             <em class="text-muted">{% trans "No description provided." %}</em>
         {% endif %}
     </div>
-    {% if can_write and not card.description %}
+    {% if not card.description and can_write or not card.description and can_edit_card %}
         <div class="mt-2 text-center" id="card-desc-empty-prompt">
             <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleCardDescMode('edit')">
                 <i class="fas fa-plus me-1"></i>{% trans "Add description" %}
@@ -33,7 +33,7 @@
     {% endif %}
 </div>
 
-{% if can_write %}
+{% if can_write or can_edit_card %}
     <!-- Edit Form -->
     <form id="card-desc-form"
           class="{% if card.description %}d-none{% endif %}"

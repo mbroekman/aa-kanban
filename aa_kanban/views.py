@@ -1,7 +1,7 @@
 """Views for aa_kanban."""
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q, prefetch_related_objects
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
@@ -29,7 +29,7 @@ def index(request: HttpRequest) -> HttpResponse:
         .annotate(list_count=Count("lists", distinct=True))
     )
     boards = list(boards)
-    stats = board_stats(boards)
+    stats = board_stats(boards, request.user)
     for board in boards:
         board.stats = stats[board.id]
     can_manage = user_can_manage_boards(request.user)
@@ -64,7 +64,7 @@ def members_index(request: HttpRequest) -> HttpResponse:
         .select_related("created_by")
         .annotate(list_count=Count("lists", distinct=True))
     )
-    stats = board_stats(boards)
+    stats = board_stats(boards, request.user)
     for board in boards:
         board.stats = stats[board.id]
     page_name = KanbanSetting.get_settings().members_page_name
@@ -156,10 +156,20 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
     lists = board.lists.prefetch_related(
         Prefetch(
             "cards",
-            queryset=Card.objects.filter(is_archived=False)
+            queryset=board.visible_cards(
+                Card.objects.filter(is_archived=False), request.user
+            )
             .select_related("created_by")
             .prefetch_related("assignees", "labels"),
         )
+    )
+    first_list = board.lists.order_by("order", "id").first()
+    add_card_list_id = (
+        first_list.pk
+        if first_list
+        and not can_write
+        and board.can_user_add_card(request.user, first_list)
+        else None
     )
 
     all_groups = (
@@ -180,6 +190,8 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
         "can_write": can_write,
         "can_manage": can_manage,
         "all_groups": all_groups,
+        "add_card_list_id": add_card_list_id,
+        "own_cards_view": not board.can_user_see_all_cards(request.user),
     }
     return render(request, "aa_kanban/board_detail.html", context)
 
@@ -190,7 +202,9 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
 def archived_cards(request: HttpRequest, board_slug: str, board: Board) -> HttpResponse:
     """Render an overview of a board's auto-archived cards."""
     cards = (
-        Card.objects.filter(list__board=board, is_archived=True)
+        board.visible_cards(
+            Card.objects.filter(list__board=board, is_archived=True), request.user
+        )
         .select_related("list", "created_by")
         .prefetch_related("assignees", "labels")
         .order_by("-archived_at")
@@ -267,6 +281,7 @@ def create_board(request: HttpRequest) -> HttpResponse:
         )
 
         is_members_board = request.POST.get("is_members_board") == "on"
+        own_cards_only = request.POST.get("own_cards_only") == "on"
 
         if not name:
             context = {
@@ -287,6 +302,7 @@ def create_board(request: HttpRequest) -> HttpResponse:
             stale_card_repeat_hours=stale_card_repeat_hours,
             is_ticket_board=is_ticket_board,
             is_members_board=is_members_board,
+            own_cards_only=own_cards_only,
             archive_after_days=archive_after_days,
             created_by=request.user,  # type: ignore[misc]
         )
@@ -383,6 +399,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         )
 
         is_members_board = request.POST.get("is_members_board") == "on"
+        own_cards_only = request.POST.get("own_cards_only") == "on"
 
         if not name:
             context = {
@@ -403,6 +420,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         board.stale_card_repeat_hours = stale_card_repeat_hours
         board.is_ticket_board = is_ticket_board
         board.is_members_board = is_members_board
+        board.own_cards_only = own_cards_only
         board.archive_after_days = archive_after_days
         board.save(
             update_fields=[
@@ -416,6 +434,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
                 "stale_card_repeat_hours",
                 "is_ticket_board",
                 "is_members_board",
+                "own_cards_only",
                 "archive_after_days",
                 "updated_at",
             ]
@@ -469,20 +488,30 @@ def delete_board(request: HttpRequest, board_slug: str) -> HttpResponse:
 @permission_required("aa_kanban.basic_access", raise_exception=True)
 def summary(request: HttpRequest) -> HttpResponse:
     """Render a summary of all accessible Kanban boards."""
-    boards = (
+    boards = list(
         Board.objects.visible_to(request.user).active().filter(is_members_board=False)
-    ).prefetch_related(
+    )
+    # Boards where this user only sees their own cards.
+    own_only_ids = [b.pk for b in boards if not b.can_user_see_all_cards(request.user)]
+    cards = Card.objects.all()
+    if own_only_ids:
+        cards = cards.exclude(
+            Q(list__board_id__in=own_only_ids)
+            & ~Q(pk__in=Card.objects.owned_by(request.user).values("pk"))
+        )
+    prefetch_related_objects(
+        boards,
         Prefetch(
             "lists",
             queryset=List.objects.prefetch_related(
                 Prefetch(
                     "cards",
-                    queryset=Card.objects.select_related("created_by").prefetch_related(
+                    queryset=cards.select_related("created_by").prefetch_related(
                         "assignees", "labels"
                     ),
                 )
             ),
-        )
+        ),
     )
 
     from django.conf import settings

@@ -221,6 +221,14 @@ class Board(models.Model):
             "groups can change it."
         ),
     )
+    own_cards_only = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Readers only see the cards they created or are assigned to, and can "
+            "add cards in the first column. Write groups and board managers see "
+            "all cards."
+        ),
+    )
     is_archived = models.BooleanField(
         default=False,
         help_text=_(
@@ -318,9 +326,11 @@ class Board(models.Model):
         """
         if not user.is_authenticated or self.is_archived:
             return False
-        if user.is_superuser:
-            return True
-        if self.created_by_id == user.id:
+        return self._is_board_writer(user)
+
+    def _is_board_writer(self, user: User) -> bool:
+        """Superuser, board creator or member of a write group (archive ignored)."""
+        if user.is_superuser or self.created_by_id == user.id:
             return True
         user_kanban_groups = KanbanGroup.objects.filter(
             models.Q(members=user) | models.Q(groups__in=user.groups.all())
@@ -328,6 +338,35 @@ class Board(models.Model):
         user_group_ids = set(user_kanban_groups)
         write_group_ids = set(self.write_groups.values_list("id", flat=True))
         return bool(user_group_ids & write_group_ids)
+
+    def can_user_see_all_cards(self, user: User | AnonymousUser) -> bool:
+        """False when the board shows this user only their own cards."""
+        if not self.own_cards_only:
+            return True
+        if not user.is_authenticated:
+            return False
+        if self._is_board_writer(user):
+            return True
+        from .permissions import user_can_manage_boards
+
+        return user_can_manage_boards(user)
+
+    def visible_cards(self, cards: "models.QuerySet[Card]", user: User):
+        """Narrow a queryset of this board's cards to those the user may see."""
+        if self.can_user_see_all_cards(user):
+            return cards
+        return cards.filter(pk__in=Card.objects.owned_by(user).values("pk"))
+
+    def can_user_add_card(self, user: User | AnonymousUser, kanban_list) -> bool:
+        """Writers add anywhere; own-cards readers only in the first column."""
+        if self.can_user_write(user):
+            return True
+        if not self.own_cards_only or self.is_archived:
+            return False
+        if not self.can_user_view(user):
+            return False
+        first = self.lists.order_by("order", "id").first()
+        return first is not None and first.pk == kanban_list.pk
 
     def get_stale_cards(self):
         """Return cards on this board that have been inactive longer than stale_card_alert_hours.
@@ -454,6 +493,19 @@ class Label(models.Model):
         return f"{self.name} ({self.color})"
 
 
+class CardQuerySet(models.QuerySet):
+    """Custom queryset for Card model."""
+
+    def owned_by(self, user: User):
+        """Cards the user created or is assigned to, directly or via a team."""
+        return self.filter(
+            models.Q(created_by=user)
+            | models.Q(assignees=user)
+            | models.Q(assigned_team__members=user)
+            | models.Q(assigned_team__groups__in=user.groups.all())
+        ).distinct()
+
+
 class Card(models.Model):
     """Task card within a Kanban List."""
 
@@ -532,6 +584,8 @@ class Card(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = CardQuerySet.as_manager()
+
     class Meta:
         verbose_name = _("Card")
         verbose_name_plural = _("Cards")
@@ -539,6 +593,30 @@ class Card(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    def is_owned_by(self, user: User | AnonymousUser) -> bool:
+        """True when the user created the card or is assigned to it."""
+        if not user.is_authenticated:
+            return False
+        return Card.objects.owned_by(user).filter(pk=self.pk).exists()
+
+    def can_user_view(self, user: User | AnonymousUser) -> bool:
+        board = self.list.board
+        if not board.can_user_view(user):
+            return False
+        return board.can_user_see_all_cards(user) or self.is_owned_by(user)
+
+    def can_user_edit(self, user: User | AnonymousUser) -> bool:
+        """Title, description and comments: writers, or owners on own-cards boards."""
+        board = self.list.board
+        if board.can_user_write(user):
+            return True
+        return (
+            board.own_cards_only
+            and not board.is_archived
+            and board.can_user_view(user)
+            and self.is_owned_by(user)
+        )
 
 
 class Comment(models.Model):

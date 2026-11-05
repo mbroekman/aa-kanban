@@ -1,6 +1,6 @@
 {% load i18n %}
 <div id="card-title-container" class="flex-grow-1">
-    {% if can_write %}
+    {% if can_write or can_edit_card %}
         <form hx-post="{% url 'aa_kanban:update_card' card.id %}"
               hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
               hx-target="#card-title-container"

@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Upgrade notes
+
+- Run `migrate` (migration 0028 adds the own-cards setting).
+
+### Added
+
+- **Own cards only (TASK-111)**: tick **Own cards only** in the board settings so readers see only the cards they created or are assigned to, directly or through their team. Meant for members boards.
+  - Readers can add a card in the first column, and edit the title, description and comments of their own cards. Opening someone else's card is refused.
+  - Moving, labels, assignees, team, colour and delete stay with the write groups.
+  - Write groups, the board creator and board managers still see all cards.
+  - The board page, archived cards, summary and dashboard counts all follow the setting.
+
 ## [1.3.0] - 2026-11-05
 
 ### Upgrade notes

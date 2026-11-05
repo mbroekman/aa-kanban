@@ -178,7 +178,7 @@ def card_modal(request: HttpRequest, card_id: int) -> HttpResponse:
         pk=card_id,
     )
     board = card.list.board
-    if not board.can_user_view(request.user):
+    if not card.can_user_view(request.user):
         raise PermissionDenied("You do not have permission to view this card.")
 
     can_write = board.can_user_write(request.user)
@@ -204,6 +204,7 @@ def card_modal(request: HttpRequest, card_id: int) -> HttpResponse:
     context = {
         "card": card,
         "can_write": can_write,
+        "can_edit_card": card.can_user_edit(request.user),
         "available_users": available_users,
         "available_labels": available_labels,
         "available_teams": available_teams,
@@ -219,7 +220,7 @@ def add_comment(request: HttpRequest, card_id: int) -> HttpResponse:
         return HttpResponseNotAllowed(["POST"])
 
     card = get_object_or_404(Card.objects.select_related("list__board"), pk=card_id)
-    if not card.list.board.can_user_write(request.user):
+    if not card.can_user_edit(request.user):
         raise PermissionDenied("Write permission required to comment.")
 
     comment_text = request.POST.get("comment", "").strip()
@@ -350,8 +351,9 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
         return HttpResponseNotAllowed(["POST"])
 
     card = get_object_or_404(Card.objects.select_related("list__board"), pk=card_id)
-    if not card.list.board.can_user_write(request.user):
+    if not card.can_user_edit(request.user):
         raise PermissionDenied("Write permission required to update card.")
+    can_write = card.list.board.can_user_write(request.user)
 
     if "description" in request.POST:
         card.description = request.POST.get("description", "").strip()
@@ -364,7 +366,7 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
         )
         desc_block_html = render_to_string(
             "aa_kanban/partials/card_description_block.html",
-            {"card": card, "can_write": True},
+            {"card": card, "can_write": can_write, "can_edit_card": True},
             request=request,
         )
         oob_desc_block = (
@@ -383,7 +385,7 @@ def update_card(request: HttpRequest, card_id: int) -> HttpResponse:
 
         html_partial = render_to_string(
             "aa_kanban/partials/card_title.html",
-            {"card": card, "can_write": True},
+            {"card": card, "can_write": can_write, "can_edit_card": True},
             request=request,
         )
         oob_partial = render_to_string(
@@ -589,7 +591,7 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
         return HttpResponseNotAllowed(["POST"])
 
     kanban_list = get_object_or_404(List.objects.select_related("board"), pk=list_id)
-    if not kanban_list.board.can_user_write(request.user):
+    if not kanban_list.board.can_user_add_card(request.user, kanban_list):
         raise PermissionDenied("Write permission required to add a card.")
 
     title = request.POST.get("title", "").strip()
@@ -632,7 +634,11 @@ def create_card(request: HttpRequest, list_id: int) -> HttpResponse:
     return render(
         request,
         "aa_kanban/partials/card_item.html",
-        {"card": card, "can_write": True, "auto_open": True},
+        {
+            "card": card,
+            "can_write": kanban_list.board.can_user_write(request.user),
+            "auto_open": True,
+        },
     )
 
 

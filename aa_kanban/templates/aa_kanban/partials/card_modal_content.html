@@ -75,7 +75,7 @@
             {% include "aa_kanban/partials/card_comments.html" with comments=card.comments.all %}
         </div>
 
-        {% if can_write %}
+        {% if can_write or can_edit_card %}
             <form hx-post="{% url 'aa_kanban:add_comment' card.id %}"
                   hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                   hx-target="#card-comments-container">
