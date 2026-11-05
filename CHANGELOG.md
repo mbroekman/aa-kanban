@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Board overview (TASK-108)**: Each board shows how many cards it holds. A board with cards that need attention gets a red edge and warning badge, with the reasons listed:
+
+  - cards past their due date;
+  - cards inactive longer than the board's stale-alert hours (only when stale alerts are on for that board);
+  - columns over their WIP limit.
+
+  Cards in the last column, in a column named like "Done", and archived cards never count as needing attention.
+
 ## [1.1.0] - 2026-11-02
 
 ### Upgrade notes

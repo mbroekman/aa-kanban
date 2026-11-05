@@ -1054,3 +1054,30 @@ msgid "Dark"
 msgstr ""
 
 
+
+#: templates/aa_kanban/index.html
+msgid "Cards need attention"
+msgstr ""
+
+#: templates/aa_kanban/index.html
+msgid "cards"
+msgstr ""
+
+#: templates/aa_kanban/index.html
+#, python-format
+msgid "%(column)s is over its WIP limit"
+msgstr ""
+
+#: templates/aa_kanban/index.html
+#, python-format
+msgid "%(counter)s card past its due date"
+msgid_plural "%(counter)s cards past their due date"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/aa_kanban/index.html
+#, python-format
+msgid "%(counter)s card inactive for over %(hours)sh"
+msgid_plural "%(counter)s cards inactive for over %(hours)sh"
+msgstr[0] ""
+msgstr[1] ""

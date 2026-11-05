@@ -9,6 +9,7 @@ Alliance Auth plugin for native Kanban boards.
 ## Features
 
 - **Native Kanban boards** with an intuitive drag-and-drop interface for cards and columns, complete with default columns (Backlog, To Do, In Progress, Review/Testing, Done). Columns can be rearranged dynamically via drag-and-drop, and newly created columns are immediately usable without a page refresh.
+- **Board overview**: Every board shows its number of cards and flags cards that need attention: past their due date, inactive past the board's stale-alert hours, or in a column over its WIP limit.
 - **Summary View** displaying all accessible boards across standardized status columns.
 - **Rich Card & Ticket Descriptions**: Markdown formatting with safe, sanitized rendering. Add images by pasting (`Ctrl+V`), dragging-and-dropping, or using the upload button, with a live `[Write]` / `[Preview]` toggle and a fullscreen lightbox for viewing.
 - **Global Labels & Card Colors**: Flexibly categorize cards using global labels and individual background colors, with automatic text-contrast adjustment.

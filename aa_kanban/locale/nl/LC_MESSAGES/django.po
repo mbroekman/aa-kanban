@@ -1193,3 +1193,30 @@ msgstr "API-sleutel voor {name}: {key} - kopieer hem nu naar KANBAN_API_KEY van 
 
 msgid "Generate a new key (the old one stops working)"
 msgstr "Nieuwe sleutel maken (de oude werkt dan niet meer)"
+
+#: templates/aa_kanban/index.html
+msgid "Cards need attention"
+msgstr "Kaarten vragen aandacht"
+
+#: templates/aa_kanban/index.html
+msgid "cards"
+msgstr "kaarten"
+
+#: templates/aa_kanban/index.html
+#, python-format
+msgid "%(column)s is over its WIP limit"
+msgstr "%(column)s zit boven de WIP-limiet"
+
+#: templates/aa_kanban/index.html
+#, python-format
+msgid "%(counter)s card past its due date"
+msgid_plural "%(counter)s cards past their due date"
+msgstr[0] "%(counter)s kaart over de deadline"
+msgstr[1] "%(counter)s kaarten over de deadline"
+
+#: templates/aa_kanban/index.html
+#, python-format
+msgid "%(counter)s card inactive for over %(hours)sh"
+msgid_plural "%(counter)s cards inactive for over %(hours)sh"
+msgstr[0] "%(counter)s kaart langer dan %(hours)su inactief"
+msgstr[1] "%(counter)s kaarten langer dan %(hours)su inactief"

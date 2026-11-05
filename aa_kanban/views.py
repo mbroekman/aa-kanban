@@ -6,6 +6,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 
+from .board_stats import board_stats
 from .models import Board, Card, KanbanGroup, List
 from .permissions import (
     board_view_required,
@@ -24,6 +25,10 @@ def index(request: HttpRequest) -> HttpResponse:
         .prefetch_related("view_groups", "write_groups")
         .annotate(list_count=Count("lists", distinct=True))
     )
+    boards = list(boards)
+    stats = board_stats(boards)
+    for board in boards:
+        board.stats = stats[board.id]
     can_manage = user_can_manage_boards(request.user)
     all_groups = (
         KanbanGroup.objects.order_by("name")
