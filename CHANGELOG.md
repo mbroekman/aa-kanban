@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-05
+
+### Upgrade notes
+
+- No migration needed. Reload the web server after the upgrade.
+
 ### Added
 
 - **Board overview (TASK-108)**: Each board shows how many cards it holds. A board with cards that need attention gets a red edge and warning badge, with the reasons listed:
