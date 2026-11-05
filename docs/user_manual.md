@@ -36,13 +36,14 @@ ______________________________________________________________________
 
 Access control in AA Kanban is structured into clear tiers:
 
-| Role                            | Required Permission / Condition                                               | Capabilities                                                                                                           |
-| :------------------------------ | :---------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| **Standard User (Viewer)**      | `aa_kanban.basic_access`                                                      | View boards where granted Read access; inspect cards and comments.                                                     |
-| **Board Operator (Editor)**     | `basic_access` + Board Write Access                                           | Create cards, drag-and-drop tasks, edit descriptions, add labels, assign users, post comments.                         |
-| **Ticket Submitter**            | `aa_kanban.create_ticket` (or `basic_access`)                                 | Submit requests and bug reports through the dedicated Ticket Portal.                                                   |
-| **Board Manager / Admin**       | `can_manage_boards=True` on user's KanbanGroup (or `aa_kanban.manage_boards`) | Create and delete boards, access `/kanban/settings/`, manage Kanban Groups, configure Ticket Teams, set global labels. |
-| **Superuser / Technical Admin** | Django Superuser / Staff                                                      | Manage Django backend settings, configure Discord bot credentials, and set global webhooks.                            |
+| Role                            | Required Permission / Condition                                               | Capabilities                                                                                                             |
+| :------------------------------ | :---------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
+| **Standard User (Viewer)**      | `aa_kanban.basic_access`                                                      | View boards where granted Read access; inspect cards and comments. View every members board.                             |
+| **Own-cards Reader**            | `basic_access` on a board with **Own cards only**                             | See only own cards (created or assigned, also via a team); add cards in the first column; edit and comment on own cards. |
+| **Board Operator (Editor)**     | `basic_access` + Board Write Access                                           | Create cards, drag-and-drop tasks, edit descriptions, add labels, assign users, post comments.                           |
+| **Ticket Submitter**            | `aa_kanban.create_ticket` (or `basic_access`)                                 | Submit requests and bug reports through the dedicated Ticket Portal.                                                     |
+| **Board Manager / Admin**       | `can_manage_boards=True` on user's KanbanGroup (or `aa_kanban.manage_boards`) | Create and delete boards, access `/kanban/settings/`, manage Kanban Groups, configure Ticket Teams, set global labels.   |
+| **Superuser / Technical Admin** | Django Superuser / Staff                                                      | Manage Django backend settings, configure Discord bot credentials, and set global webhooks.                              |
 
 ______________________________________________________________________
 
@@ -56,8 +57,11 @@ Navigating to `/kanban/` presents the **Dashboard**, the central launching point
 
 1. **Board Directory**: Visual cards for every board you have permission to view or manage. Each card displays:
    - Board title and descriptive summary.
-   - Real-time card count and active list counter.
+   - Real-time card count and active list counter. On a board with **Own cards only**, readers see the count of their own cards.
+   - **Needs attention**: a red edge and badge when the board has overdue cards, cards inactive longer than its stale-alert setting, or columns over their WIP limit. The reasons are listed on the card.
    - Quick "Open Board" button.
+1. **Members page**: Boards marked as **Members Board** do not appear on the dashboard. They have their own page and Auth menu item (see [Board Settings](#board-settings)).
+1. **Archived Boards**: Board managers see an **Archived Boards** button with the number of archived boards. From there an archived board can be opened read-only or restored.
 1. **Create Board Button**: Available to any user belonging to a Kanban Group with `can_manage_boards=True`.
    - Clicking **Create Board** opens a quick modal requiring a unique Board Name and optional Description.
    - Upon creation, standard industry columns are automatically initialized:
@@ -82,6 +86,19 @@ Clicking on any board opens the interactive workspace.
 - **Drag-and-Drop Column Reordering**: Move columns horizontally across the board via drag-and-drop using either the header grab cursor or the visual grip handle (`⋮⋮`). Positions update instantaneously and persist automatically in the database.
 - **Adding Columns**: Click **+ Add Column** on the right side of the board to introduce custom workflow stages (e.g., *Blocked*, *QA*, *Deployed*). Newly added columns are immediately ready for cards and can be reordered right away without leaving or refreshing the page.
 - **Column Header Counters**: Dynamically display the number of cards currently residing in each column, updating instantaneously upon card movements.
+
+### Board Settings
+
+Board writers and managers open the board settings with the gear icon. Besides name, description, access groups and Discord settings, a board has these switches:
+
+- **Ticket Board**: members can submit tickets to this board (see [Ticket Submission System](#7-ticket-submission-system)).
+- **Members Board**: the board moves from the management dashboard to the members page. Everyone with Kanban access can view it; only its write groups can change it. The members page and its menu item appear as soon as one members board exists. The menu name is set in **Settings > General**.
+- **Own cards only**: readers see only the cards they created or are assigned to, directly or through their team. Meant for members boards where members submit their own requests.
+  - Readers can add a card in the **first column** only, and change the title and description of their own cards and comment on them.
+  - Opening someone else's card is refused. Moving cards, labels, assignees, team, colour and deleting stay with the write groups.
+  - Write groups, the board creator and board managers keep seeing all cards.
+  - The board page, archived cards, the summary and the dashboard counts all follow this setting. The board header shows a **Your cards** badge for readers.
+- **Archive Board**: hides the board from the dashboards, the summary and the ticket form, and makes it read-only for everyone. It gets no stale alerts, intake API cards or Discord thread comments. Board managers restore it from **Archived Boards**.
 
 ### Drag & Drop Workflow
 
@@ -200,6 +217,10 @@ ______________________________________________________________________
 
 All business and organizational configuration is managed through the **Settings** panel (`/kanban/settings/`).
 
+### Tab: General
+
+- **Members Page name**: the name of the members page in the Auth menu (default *Member Boards*). It cannot be empty.
+
 ### Tab 1: Kanban Groups & Permissions
 
 ![Settings - Kanban Groups](images/05_settings_groups.png)
@@ -273,10 +294,18 @@ ______________________________________________________________________
 
 **A**: Verify that the file size is below 5 MB and that the image format is PNG, JPEG, GIF, or WebP. Corrupted files failing magic bytes inspection will be rejected automatically for security.
 
+### Q: Members can see each other's requests on a members board. How do I stop that?
+
+**A**: Open the board settings and tick **Own cards only**. Readers then see only the cards they created or are assigned to. Write groups and board managers still see all cards.
+
+### Q: A board disappeared from the dashboard. Where is it?
+
+**A**: It was either marked as **Members Board** (it is now on the members page) or archived. Board managers find archived boards under **Archived Boards** on the dashboard and can restore them there.
+
 ### Q: Are member tickets visible to all users?
 
 **A**: No. Tickets are placed on the configured board for the assigned team. Only users belonging to Kanban Groups with View or Write access to that specific board can inspect and manage the resulting cards.
 
 ______________________________________________________________________
 
-*Manual maintained for AA Kanban v0.13.0+.*
+*Manual maintained for AA Kanban v1.4.0+.*
