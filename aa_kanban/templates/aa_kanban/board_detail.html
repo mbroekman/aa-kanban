@@ -36,10 +36,22 @@
 
 {% block aa_kanban_content %}
 <div class="container-fluid py-3">
+    {% if board.is_archived %}
+        <div class="alert alert-secondary d-flex justify-content-between align-items-center" role="alert">
+            <span><i class="fas fa-archive me-2"></i>{% blocktrans with date=board.archived_at|date:"d M Y" %}This board was archived on {{ date }}. It is read-only and hidden from the dashboards.{% endblocktrans %}</span>
+            {% if can_manage or board.created_by_id == request.user.pk %}
+                <button type="button" class="btn btn-sm btn-primary"
+                        hx-post="{% url 'aa_kanban:restore_board' board.slug %}"
+                        hx-confirm="{% trans 'Restore this board? It returns to its dashboard and can be changed again.' %}">
+                    <i class="fas fa-undo me-1"></i>{% trans "Restore Board" %}
+                </button>
+            {% endif %}
+        </div>
+    {% endif %}
     <!-- Board Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center gap-3">
-            <a href="{% url 'aa_kanban:index' %}" class="btn btn-secondary btn-sm" title="{% trans 'Back to boards' %}">
+            <a href="{% if board.is_archived %}{% url 'aa_kanban:archived_boards' %}{% elif board.is_members_board %}{% url 'aa_kanban:members_index' %}{% else %}{% url 'aa_kanban:index' %}{% endif %}" class="btn btn-secondary btn-sm" title="{% trans 'Back to boards' %}">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div>

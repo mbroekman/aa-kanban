@@ -1220,3 +1220,70 @@ msgid "%(counter)s card inactive for over %(hours)sh"
 msgid_plural "%(counter)s cards inactive for over %(hours)sh"
 msgstr[0] "%(counter)s kaart langer dan %(hours)su inactief"
 msgstr[1] "%(counter)s kaarten langer dan %(hours)su inactief"
+
+msgid "Archived Boards"
+msgstr "Gearchiveerde borden"
+
+msgid "Members Board"
+msgstr "Ledenbord"
+
+msgid "Archive this board? It disappears from the dashboards and becomes read-only. Board managers can restore it under Archived Boards."
+msgstr "Dit bord archiveren? Het verdwijnt van de dashboards en wordt alleen-lezen. Bordbeheerders kunnen het terugzetten onder Gearchiveerde borden."
+
+msgid "Archive Board"
+msgstr "Bord archiveren"
+
+msgid "General"
+msgstr "Algemeen"
+
+msgid "Members Page"
+msgstr "Ledenpagina"
+
+msgid "Name in the Auth menu"
+msgstr "Naam in het Auth-menu"
+
+msgid "Boards marked as Members Board appear on this page. The menu item only shows when there is at least one such board."
+msgstr "Borden die als Ledenbord zijn gemarkeerd, verschijnen op deze pagina. Het menu-item is alleen zichtbaar als er minstens één zo'n bord is."
+
+#, python-format
+msgid "This board was archived on %(date)s. It is read-only and hidden from the dashboards."
+msgstr "Dit bord is gearchiveerd op %(date)s. Het is alleen-lezen en verborgen op de dashboards."
+
+msgid "Restore this board? It returns to its dashboard and can be changed again."
+msgstr "Dit bord terugzetten? Het komt terug op zijn dashboard en kan weer worden gewijzigd."
+
+msgid "Restore Board"
+msgstr "Bord terugzetten"
+
+msgid "Restore"
+msgstr "Terugzetten"
+
+msgid "Boards shared with all members."
+msgstr "Borden die met alle leden gedeeld zijn."
+
+msgid "No member boards yet."
+msgstr "Nog geen ledenborden."
+
+msgid "Archived boards are hidden from the dashboards and read-only. Open one to read it, or restore it."
+msgstr "Gearchiveerde borden zijn verborgen op de dashboards en alleen-lezen. Open er een om het te lezen, of zet het terug."
+
+msgid "Page"
+msgstr "Pagina"
+
+msgid "Management"
+msgstr "Management"
+
+msgid "No archived boards."
+msgstr "Geen gearchiveerde borden."
+
+msgid "Settings saved."
+msgstr "Instellingen opgeslagen."
+
+msgid "The members page name cannot be empty."
+msgstr "De naam van de ledenpagina mag niet leeg zijn."
+
+msgid "Name of the members page in the Auth menu."
+msgstr "Naam van de ledenpagina in het Auth-menu."
+
+msgid "An archived board is hidden from the dashboards and read-only. Only board managers can open and restore it."
+msgstr "Een gearchiveerd bord is verborgen op de dashboards en alleen-lezen. Alleen bordbeheerders kunnen het openen en terugzetten."

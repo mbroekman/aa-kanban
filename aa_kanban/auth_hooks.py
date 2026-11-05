@@ -29,6 +29,33 @@ def register_menu():
     return AaKanbanMenuItem()
 
 
+class AaKanbanMembersMenuItem(MenuItemHook):
+    """Menu item for the members page; its name is set in the Kanban settings."""
+
+    def __init__(self):
+        super().__init__(
+            "Member Boards",
+            "fas fa-users fa-fw",
+            "aa_kanban:members_index",
+            navactive=["aa_kanban:members_index"],
+        )
+
+    def render(self, request):
+        if not request.user.has_perm("aa_kanban.basic_access"):
+            return ""
+        from .models import Board, KanbanSetting
+
+        if not Board.objects.active().filter(is_members_board=True).exists():
+            return ""
+        self.text = KanbanSetting.get_settings().members_page_name
+        return super().render(request)
+
+
+@hooks.register("menu_item_hook")
+def register_menu_members():
+    return AaKanbanMembersMenuItem()
+
+
 class AaKanbanCreateTicketMenuItem(MenuItemHook):
     """Menu item hook for submitting a ticket."""
 

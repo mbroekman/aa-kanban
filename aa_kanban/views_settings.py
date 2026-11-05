@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from .models import KanbanGroup
 from .permissions import manage_boards_required
@@ -311,13 +312,23 @@ def delete_settings_label(request: HttpRequest, label_id: int) -> HttpResponse:
 @login_required
 @manage_boards_required
 def update_global_settings(request: HttpRequest) -> HttpResponse:
-    """Update global settings like the designated Ticket Board."""
+    """Update the global settings, such as the members page name."""
     if request.method == "POST":
+        from django.contrib import messages
+        from django.utils.translation import gettext as _
+
         from .models import KanbanSetting
 
         settings = KanbanSetting.get_settings()
-
-        settings.save()
+        name = request.POST.get("members_page_name", "").strip()
+        max_length = KanbanSetting._meta.get_field("members_page_name").max_length
+        if name:
+            settings.members_page_name = name[:max_length]
+            settings.save(update_fields=["members_page_name"])
+            messages.success(request, _("Settings saved."))
+        else:
+            messages.error(request, _("The members page name cannot be empty."))
+        return redirect(reverse("aa_kanban:settings") + "#general")
 
     return redirect("aa_kanban:settings")
 

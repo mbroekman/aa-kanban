@@ -5,9 +5,10 @@ from django.db.models import Count, Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
 
 from .board_stats import board_stats
-from .models import Board, Card, KanbanGroup, List
+from .models import Board, Card, KanbanGroup, KanbanSetting, List
 from .permissions import (
     board_view_required,
     manage_boards_required,
@@ -18,9 +19,11 @@ from .permissions import (
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
 def index(request: HttpRequest) -> HttpResponse:
-    """Render the board overview listing boards visible to user."""
+    """Render the board overview: the management boards visible to the user."""
     boards = (
         Board.objects.visible_to(request.user)
+        .active()
+        .filter(is_members_board=False)
         .select_related("created_by")
         .prefetch_related("view_groups", "write_groups")
         .annotate(list_count=Count("lists", distinct=True))
@@ -44,8 +47,102 @@ def index(request: HttpRequest) -> HttpResponse:
         "boards": boards,
         "can_manage": can_manage,
         "all_groups": all_groups,
+        "archived_count": (
+            Board.objects.filter(is_archived=True).count() if can_manage else 0
+        ),
     }
     return render(request, "aa_kanban/index.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+def members_index(request: HttpRequest) -> HttpResponse:
+    """Render the members page: the boards marked as members boards."""
+    boards = list(
+        Board.objects.active()
+        .filter(is_members_board=True)
+        .select_related("created_by")
+        .annotate(list_count=Count("lists", distinct=True))
+    )
+    stats = board_stats(boards)
+    for board in boards:
+        board.stats = stats[board.id]
+    page_name = KanbanSetting.get_settings().members_page_name
+    context = {
+        "title": page_name,
+        "app_name": page_name,
+        "boards": boards,
+    }
+    return render(request, "aa_kanban/members.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+@manage_boards_required
+def archived_boards(request: HttpRequest) -> HttpResponse:
+    """Render the archived boards, for board managers."""
+    from django.conf import settings
+
+    app_name = getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
+    boards = (
+        Board.objects.filter(is_archived=True)
+        .select_related("created_by")
+        .annotate(card_count=Count("lists__cards", distinct=True))
+        .order_by("-archived_at", "name")
+    )
+    context = {
+        "title": _("Archived Boards"),
+        "app_name": app_name,
+        "boards": boards,
+    }
+    return render(request, "aa_kanban/archived_boards.html", context)
+
+
+def _require_board_admin(request: HttpRequest, board: Board) -> None:
+    from django.core.exceptions import PermissionDenied
+
+    if not (
+        user_can_manage_boards(request.user) or board.created_by_id == request.user.pk
+    ):
+        raise PermissionDenied("You do not have permission to manage this board.")
+
+
+def _hx_redirect(request: HttpRequest, url: str) -> HttpResponse:
+    if request.headers.get("HX-Request"):
+        response = HttpResponse(status=204)
+        response["HX-Redirect"] = url
+        return response
+    return redirect(url)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+@require_POST
+def archive_board(request: HttpRequest, board_slug: str) -> HttpResponse:
+    """Archive a board: hidden from the dashboards and read-only."""
+    from django.utils import timezone
+
+    board = get_object_or_404(Board, slug=board_slug)
+    _require_board_admin(request, board)
+    board.is_archived = True
+    board.archived_at = timezone.now()
+    board.save(update_fields=["is_archived", "archived_at", "updated_at"])
+    return _hx_redirect(request, redirect("aa_kanban:index").url)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+@require_POST
+def restore_board(request: HttpRequest, board_slug: str) -> HttpResponse:
+    """Bring an archived board back."""
+    board = get_object_or_404(Board, slug=board_slug)
+    _require_board_admin(request, board)
+    board.is_archived = False
+    board.archived_at = None
+    board.save(update_fields=["is_archived", "archived_at", "updated_at"])
+    return _hx_redirect(
+        request, redirect("aa_kanban:board_detail", board_slug=board.slug).url
+    )
 
 
 @login_required
@@ -169,6 +266,8 @@ def create_board(request: HttpRequest) -> HttpResponse:
             int(archive_after_days_str) if archive_after_days_str.isdigit() else 0
         )
 
+        is_members_board = request.POST.get("is_members_board") == "on"
+
         if not name:
             context = {
                 "all_groups": all_groups,
@@ -187,6 +286,7 @@ def create_board(request: HttpRequest) -> HttpResponse:
             stale_card_alert_hours=stale_card_alert_hours,
             stale_card_repeat_hours=stale_card_repeat_hours,
             is_ticket_board=is_ticket_board,
+            is_members_board=is_members_board,
             archive_after_days=archive_after_days,
             created_by=request.user,  # type: ignore[misc]
         )
@@ -282,6 +382,8 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
             int(archive_after_days_str) if archive_after_days_str.isdigit() else 0
         )
 
+        is_members_board = request.POST.get("is_members_board") == "on"
+
         if not name:
             context = {
                 "board": board,
@@ -300,6 +402,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
         board.stale_card_alert_hours = stale_card_alert_hours
         board.stale_card_repeat_hours = stale_card_repeat_hours
         board.is_ticket_board = is_ticket_board
+        board.is_members_board = is_members_board
         board.archive_after_days = archive_after_days
         board.save(
             update_fields=[
@@ -312,6 +415,7 @@ def edit_board(request: HttpRequest, board_slug: str) -> HttpResponse:
                 "stale_card_alert_hours",
                 "stale_card_repeat_hours",
                 "is_ticket_board",
+                "is_members_board",
                 "archive_after_days",
                 "updated_at",
             ]
@@ -365,7 +469,9 @@ def delete_board(request: HttpRequest, board_slug: str) -> HttpResponse:
 @permission_required("aa_kanban.basic_access", raise_exception=True)
 def summary(request: HttpRequest) -> HttpResponse:
     """Render a summary of all accessible Kanban boards."""
-    boards = Board.objects.visible_to(request.user).prefetch_related(
+    boards = (
+        Board.objects.visible_to(request.user).active().filter(is_members_board=False)
+    ).prefetch_related(
         Prefetch(
             "lists",
             queryset=List.objects.prefetch_related(
@@ -404,7 +510,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
     """Allow members to create tickets as cards on a designated ticket board."""
     from .models import Board, KanbanTeam, Label
 
-    ticket_boards = Board.objects.filter(is_ticket_board=True)
+    ticket_boards = Board.objects.active().filter(is_ticket_board=True)
     if not ticket_boards.exists():
         # If no ticket board is configured, show an error message
         context = {
@@ -415,9 +521,9 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
         return render(request, "aa_kanban/ticket_form.html", context)
 
     labels = Label.objects.filter(is_ticket_label=True)
-    teams = KanbanTeam.objects.filter(ticket_board__is_ticket_board=True).order_by(
-        "name"
-    )
+    teams = KanbanTeam.objects.filter(
+        ticket_board__is_ticket_board=True, ticket_board__is_archived=False
+    ).order_by("name")
 
     if request.method == "POST":
         title = request.POST.get("title", "").strip()
@@ -462,7 +568,7 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
             return render(request, "aa_kanban/ticket_form.html", context)
 
         board = team.ticket_board
-        if not board or not board.is_ticket_board:
+        if not board or not board.is_ticket_board or board.is_archived:
             context = {
                 "boards": ticket_boards,
                 "labels": labels,

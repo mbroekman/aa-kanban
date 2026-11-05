@@ -1081,3 +1081,70 @@ msgid "%(counter)s card inactive for over %(hours)sh"
 msgid_plural "%(counter)s cards inactive for over %(hours)sh"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "Archived Boards"
+msgstr ""
+
+msgid "Members Board"
+msgstr ""
+
+msgid "Archive this board? It disappears from the dashboards and becomes read-only. Board managers can restore it under Archived Boards."
+msgstr ""
+
+msgid "Archive Board"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Members Page"
+msgstr ""
+
+msgid "Name in the Auth menu"
+msgstr ""
+
+msgid "Boards marked as Members Board appear on this page. The menu item only shows when there is at least one such board."
+msgstr ""
+
+#, python-format
+msgid "This board was archived on %(date)s. It is read-only and hidden from the dashboards."
+msgstr ""
+
+msgid "Restore this board? It returns to its dashboard and can be changed again."
+msgstr ""
+
+msgid "Restore Board"
+msgstr ""
+
+msgid "Restore"
+msgstr ""
+
+msgid "Boards shared with all members."
+msgstr ""
+
+msgid "No member boards yet."
+msgstr ""
+
+msgid "Archived boards are hidden from the dashboards and read-only. Open one to read it, or restore it."
+msgstr ""
+
+msgid "Page"
+msgstr ""
+
+msgid "Management"
+msgstr ""
+
+msgid "No archived boards."
+msgstr ""
+
+msgid "Settings saved."
+msgstr ""
+
+msgid "The members page name cannot be empty."
+msgstr ""
+
+msgid "Name of the members page in the Auth menu."
+msgstr ""
+
+msgid "An archived board is hidden from the dashboards and read-only. Only board managers can open and restore it."
+msgstr ""

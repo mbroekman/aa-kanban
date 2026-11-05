@@ -1,0 +1,70 @@
+{% extends "aa_kanban/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{{ title }} - {{ app_name }}{% endblock %}
+
+{% block aa_kanban_content %}
+<div class="container-fluid py-3">
+    {% csrf_token %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-archive me-2 text-secondary"></i>{% trans "Archived Boards" %}</h2>
+            <p class="text-muted mb-0">{% trans "Archived boards are hidden from the dashboards and read-only. Open one to read it, or restore it." %}</p>
+        </div>
+        <a href="{% url 'aa_kanban:index' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>{% trans "Back to Boards" %}
+        </a>
+    </div>
+
+    {% if boards %}
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Board" %}</th>
+                            <th>{% trans "Page" %}</th>
+                            <th class="text-end">{% trans "Cards" %}</th>
+                            <th>{% trans "Archived" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for board in boards %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'aa_kanban:board_detail' board.slug %}" class="fw-semibold text-decoration-none">{{ board.name }}</a>
+                                    {% if board.description %}<div class="small text-muted">{{ board.description|truncatewords:12 }}</div>{% endif %}
+                                </td>
+                                <td>
+                                    {% if board.is_members_board %}
+                                        <span class="badge bg-info text-dark">{% trans "Members" %}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{% trans "Management" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">{{ board.card_count }}</td>
+                                <td class="small text-muted">{{ board.archived_at|date:"d M Y" }}</td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-sm btn-primary"
+                                            hx-post="{% url 'aa_kanban:restore_board' board.slug %}"
+                                            hx-confirm="{% trans 'Restore this board? It returns to its dashboard and can be changed again.' %}">
+                                        <i class="fas fa-undo me-1"></i>{% trans "Restore" %}
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm text-center py-5">
+            <div class="card-body">
+                <i class="fas fa-archive fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% trans "No archived boards." %}</h4>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

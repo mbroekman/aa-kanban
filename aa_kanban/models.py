@@ -31,11 +31,18 @@ class BoardQuerySet(models.QuerySet):
         user_kanban_groups = KanbanGroup.objects.filter(
             models.Q(members=user) | models.Q(groups__in=user.groups.all())
         ).distinct()
-        return self.filter(
+        access = (
             models.Q(view_groups__in=user_kanban_groups)
             | models.Q(write_groups__in=user_kanban_groups)
             | models.Q(created_by=user)
-        ).distinct()
+        )
+        if user.has_perm("aa_kanban.basic_access"):
+            access |= models.Q(is_members_board=True)
+        return self.filter(access).distinct()
+
+    def active(self):
+        """Boards that are not archived."""
+        return self.filter(is_archived=False)
 
 
 class KanbanGroup(models.Model):
@@ -123,6 +130,11 @@ class KanbanSetting(models.Model):
         null=True,
         help_text=_("Discord Webhook URL for global board creation notifications."),
     )
+    members_page_name = models.CharField(
+        max_length=50,
+        default="Member Boards",
+        help_text=_("Name of the members page in the Auth menu."),
+    )
 
     class Meta:
         verbose_name = _("Kanban Setting")
@@ -201,6 +213,22 @@ class Board(models.Model):
             "Days a card may sit in the last list before auto-archiving (0 to disable)."
         ),
     )
+    is_members_board = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Show this board on the members page instead of the management "
+            "dashboard. Everyone with Kanban access can view it; only its write "
+            "groups can change it."
+        ),
+    )
+    is_archived = models.BooleanField(
+        default=False,
+        help_text=_(
+            "An archived board is hidden from the dashboards and read-only. "
+            "Only board managers can open and restore it."
+        ),
+    )
+    archived_at = models.DateTimeField(null=True, blank=True)
 
     view_groups = models.ManyToManyField(
         KanbanGroup,
@@ -259,12 +287,21 @@ class Board(models.Model):
                 self.lists.create(name=name, order=i)
 
     def can_user_view(self, user: User | AnonymousUser) -> bool:
-        """Check if user has read-only or higher access to this board."""
+        """Check if user has read-only or higher access to this board.
+
+        An archived board is open only to board managers and its creator.
+        """
         if not user.is_authenticated:
             return False
         if user.is_superuser:
             return True
         if self.created_by_id == user.id:
+            return True
+        if self.is_archived:
+            from .permissions import user_can_manage_boards
+
+            return user_can_manage_boards(user)
+        if self.is_members_board and user.has_perm("aa_kanban.basic_access"):
             return True
         user_kanban_groups = KanbanGroup.objects.filter(
             models.Q(members=user) | models.Q(groups__in=user.groups.all())
@@ -275,8 +312,11 @@ class Board(models.Model):
         return bool(user_group_ids & (write_group_ids | view_group_ids))
 
     def can_user_write(self, user: User | AnonymousUser) -> bool:
-        """Check if user has write/mutation access to this board."""
-        if not user.is_authenticated:
+        """Check if user has write/mutation access to this board.
+
+        An archived board is read-only for everyone.
+        """
+        if not user.is_authenticated or self.is_archived:
             return False
         if user.is_superuser:
             return True
@@ -298,7 +338,11 @@ class Board(models.Model):
           - If repeat_hours == 0: cards already alerted are excluded until new activity occurs.
           - If repeat_hours > 0: cards already alerted are excluded until repeat_hours have passed.
         """
-        if not self.stale_card_alert_hours or self.stale_card_alert_hours <= 0:
+        if (
+            self.is_archived
+            or not self.stale_card_alert_hours
+            or self.stale_card_alert_hours <= 0
+        ):
             return Card.objects.none()
 
         from datetime import timedelta

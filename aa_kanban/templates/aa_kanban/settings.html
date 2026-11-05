@@ -22,6 +22,11 @@
     <!-- Tabs Nav -->
     <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
         <li class="nav-item" role="presentation">
+            <button class="nav-link" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="false">
+                <i class="fas fa-sliders-h me-2"></i>{% trans "General" %}
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
             <button class="nav-link active" id="groups-tab" data-bs-toggle="tab" data-bs-target="#groups" type="button" role="tab" aria-controls="groups" aria-selected="true">
                 <i class="fas fa-users-cog me-2"></i>{% trans "Groups" %}
             </button>
@@ -40,6 +45,34 @@
 
     <!-- Tabs Content -->
     <div class="tab-content" id="settingsTabsContent">
+        <!-- General Tab -->
+        <div class="tab-pane fade" id="general" role="tabpanel" aria-labelledby="general-tab">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header border-bottom-0 pt-4 pb-0">
+                            <h5 class="card-title mb-0"><i class="fas fa-users me-2 text-primary"></i>{% trans "Members Page" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{% url 'aa_kanban:update_global_settings' %}" class="d-flex flex-column gap-3">
+                                {% csrf_token %}
+                                <div>
+                                    <label for="membersPageName" class="form-label">{% trans "Name in the Auth menu" %}</label>
+                                    <input type="text" class="form-control" id="membersPageName" name="members_page_name" required maxlength="50" value="{{ settings.members_page_name }}">
+                                    <div class="form-text">{% trans "Boards marked as Members Board appear on this page. The menu item only shows when there is at least one such board." %}</div>
+                                </div>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>{% trans "Save" %}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Groups Tab -->
         <div class="tab-pane fade show active" id="groups" role="tabpanel" aria-labelledby="groups-tab">
             <div class="row">
@@ -226,4 +259,11 @@
         </div>
     </div>
 </div>
+<script>
+    // Open the tab named in the URL hash, e.g. #general after saving.
+    document.addEventListener('DOMContentLoaded', function() {
+        const tab = window.location.hash && document.querySelector('[data-bs-target="' + window.location.hash + '"]');
+        if (tab && window.bootstrap) { bootstrap.Tab.getOrCreateInstance(tab).show(); }
+    });
+</script>
 {% endblock %}

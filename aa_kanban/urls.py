@@ -10,6 +10,8 @@ urlpatterns = [
     # Board overview & detail
     path("", views.index, name="index"),
     path("summary/", views.summary, name="summary"),
+    path("members/", views.members_index, name="members_index"),
+    path("boards/archived/", views.archived_boards, name="archived_boards"),
     path("tickets/create/", views.create_ticket, name="create_ticket"),
     path("tickets/success/", views.ticket_success, name="ticket_success"),
     path("board/<slug:board_slug>/", views.board_detail, name="board_detail"),
@@ -25,6 +27,16 @@ urlpatterns = [
         "boards/<slug:board_slug>/delete/",
         views.delete_board,
         name="delete_board",
+    ),
+    path(
+        "boards/<slug:board_slug>/archive/",
+        views.archive_board,
+        name="archive_board",
+    ),
+    path(
+        "boards/<slug:board_slug>/restore/",
+        views.restore_board,
+        name="restore_board",
     ),
     # List (column) management via HTMX
     path(

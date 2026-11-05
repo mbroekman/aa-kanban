@@ -134,6 +134,18 @@
                     </label>
                     <div class="form-text">{% trans "Allow members to submit tickets to this board." %}</div>
                 </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="edit-board-is-members-board" name="is_members_board"
+                        {% if form_data %}
+                            {% if form_data.is_members_board == 'on' %}checked{% endif %}
+                        {% elif board.is_members_board %}
+                            checked
+                        {% endif %}>
+                    <label class="form-check-label fw-semibold" for="edit-board-is-members-board">
+                        <i class="fas fa-users me-1 text-info"></i>{% trans "Members Board" %}
+                    </label>
+                    <div class="form-text">{% trans "Show this board on the members page instead of the management dashboard. Everyone with Kanban access can view it; only its write groups can change it." %}</div>
+                </div>
             </div>
         </div>
 
@@ -205,6 +217,14 @@
                 hx-push-url="{% url 'aa_kanban:index' %}">
             <i class="fas fa-trash-alt me-1"></i>{% trans "Delete Board" %}
         </button>
+        {% if not board.is_archived %}
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    hx-post="{% url 'aa_kanban:archive_board' board.slug %}"
+                    hx-confirm="{% trans 'Archive this board? It disappears from the dashboards and becomes read-only. Board managers can restore it under Archived Boards.' %}">
+                <i class="fas fa-archive me-1"></i>{% trans "Archive Board" %}
+            </button>
+        {% endif %}
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                 {% trans "Cancel" %}

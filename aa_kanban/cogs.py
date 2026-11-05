@@ -26,7 +26,8 @@ class KanbanTicketCog(commands.Cog):
 
         try:
             card = await sync_to_async(Card.objects.get)(
-                discord_thread_id=message.channel.id
+                discord_thread_id=message.channel.id,
+                list__board__is_archived=False,
             )
 
             # Find the user who sent it
@@ -71,7 +72,8 @@ class KanbanTicketCog(commands.Cog):
 
         try:
             card = await sync_to_async(Card.objects.get)(
-                discord_thread_id=ctx.channel.id
+                discord_thread_id=ctx.channel.id,
+                list__board__is_archived=False,
             )
 
             from allianceauth.services.modules.discord.models import DiscordUser

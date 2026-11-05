@@ -131,6 +131,13 @@
                     </label>
                     <div class="form-text">{% trans "Allow members to submit tickets to this board." %}</div>
                 </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="board-is-members-board" name="is_members_board" {% if form_data.is_members_board == 'on' %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold" for="board-is-members-board">
+                        <i class="fas fa-users me-1 text-info"></i>{% trans "Members Board" %}
+                    </label>
+                    <div class="form-text">{% trans "Show this board on the members page instead of the management dashboard. Everyone with Kanban access can view it; only its write groups can change it." %}</div>
+                </div>
             </div>
         </div>
 

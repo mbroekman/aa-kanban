@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Upgrade notes
+
+- Run `migrate` (migration 0027 adds board archiving and the members page).
+
+### Added
+
+- **Archive a board (TASK-109)**: "Archive Board" in the board settings. An archived board leaves the dashboards, the summary and the ticket form, and is read-only for everyone. It gets no stale alerts, intake API cards or Discord thread comments. Board managers find it under **Archived Boards** on the dashboard, can open it read-only and restore it.
+- **Members page (TASK-110)**: tick **Members Board** on a board to move it from the management dashboard to a separate members page with its own Auth menu item.
+  - Everyone with Kanban access can view a members board; only its write groups can change it.
+  - The menu item shows once a members board exists. Its name is set in **Settings > General** (default "Member Boards").
+
 ## [1.2.0] - 2026-11-05
 
 ### Upgrade notes

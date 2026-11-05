@@ -103,6 +103,8 @@ def discord_thread_intake(request: HttpRequest) -> JsonResponse:
         board = Board.objects.select_for_update().filter(slug=board_slug).first()
         if not board:
             return JsonResponse({"error": "Unknown board."}, status=404)
+        if board.is_archived:
+            return JsonResponse({"error": "The board is archived."}, status=409)
         existing = Card.objects.filter(discord_thread_id=thread_id).first()
         if existing:
             return _card_reply(request, existing, 200)
