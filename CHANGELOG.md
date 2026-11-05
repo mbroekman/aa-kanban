@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-05
+
 ### Upgrade notes
 
 - Run `migrate` (migration 0028 adds the own-cards setting).
@@ -15,6 +17,10 @@ All notable changes to this project will be documented in this file.
   - Moving, labels, assignees, team, colour and delete stay with the write groups.
   - Write groups, the board creator and board managers still see all cards.
   - The board page, archived cards, summary and dashboard counts all follow the setting.
+
+### Documentation
+
+- User manual: board settings (members board, own cards only, archive), the dashboard attention signal, the members page and the General settings tab.
 
 ## [1.3.0] - 2026-11-05
 
