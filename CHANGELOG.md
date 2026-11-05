@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-05
+
 ### Upgrade notes
 
 - Run `migrate` (migration 0027 adds board archiving and the members page).
