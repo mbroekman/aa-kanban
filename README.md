@@ -18,7 +18,7 @@ Alliance Auth plugin for native Kanban boards.
 - **Global Labels & Card Colors**: Flexibly categorize cards using global labels and individual background colors, with automatic text-contrast adjustment.
 - **Member Ticket System**: Allows regular members to submit tickets (cards). Tickets are automatically routed to the correct board based on the selected target team. Boards can be individually designated as ticket boards. When a Discord ticket thread is created, members of the assigned team are automatically invited to the thread.
 - **Permission management**: Manage read-only and write groups globally and per board directly from the frontend UI. Easily authorize large numbers of members by linking Django Auth Groups directly to Kanban groups. Board/settings management access can also be granted per Kanban Group (`can_manage_boards`) entirely from the frontend, without needing Django admin access.
-- **Discord Integrations**: Receive notifications via Webhooks when boards are created or cards are moved. Ticket threads are automatically generated in configured channels, and Discord DM notifications are sent directly to users when they are assigned to cards (requires the `aadiscordbot` app).
+- **Discord Integrations**: Receive notifications via Webhooks when boards are created or cards are moved. Ticket threads are automatically generated in configured channels, and Discord DM notifications are sent directly to users when they are assigned to cards, and to a card's creator when someone else changes their card (requires the `aadiscordbot` app).
 - **Multilingual Support**: Fully supports English and Dutch language interfaces.
 
 ## Documentation

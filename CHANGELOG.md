@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **DM to the card's creator (TASK-113):** the creator gets a Discord DM when someone else moves their card, comments on it, changes its assignees, labels or team.
+  - No DM for their own changes, while they are an assignee or in the card's team, or when the change is also posted in the card's ticket thread (the creator is in it). Comments are not posted in the thread, so they still give a DM.
+  - Dutch translations for the new messages.
+
+### Changed
+
+- **Manual:** the thread router replies in the thread with the card number, without a link (router TASK-7).
+
 ## [1.4.1] - 2026-11-06
 
 ### Fixed

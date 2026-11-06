@@ -110,9 +110,21 @@ def move_kanban_card(card_id: int, target_column_name: str) -> Card:
         card.moved_to_list_at = timezone.now()
         card.save(update_fields=["list", "moved_to_list_at", "updated_at"])
 
-        if card.discord_thread_id:
-            from django.utils.translation import gettext as _
+        from django.utils.translation import gettext as _
 
+        from aa_kanban.tasks import notify_card_creator
+
+        creator_msg = _(
+            "Your card **{card_title}** was moved from `{source_list_name}` to "
+            "`{target_list_name}`."
+        ).format(
+            card_title=card.title,
+            source_list_name=old_list_name,
+            target_list_name=target_list.name,
+        )
+        notify_card_creator(card, str(creator_msg))
+
+        if card.discord_thread_id:
             from aa_kanban.tasks import notify_ticket_thread
 
             thread_msg = _(

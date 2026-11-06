@@ -200,10 +200,26 @@ The [Discord Thread Router](https://github.com/mbroekman/discord-thread-router) 
 
 - **Where it is set:** the channels, boards, lists, labels and team are set in the router's `rules.yaml`, not in Auth.
 - **Card content:** the thread title becomes the card title. The first message, the Discord author and a link to the thread go in the description.
-- **Linked to the thread:** the card is linked to the thread, so messages in the thread become comments (see above), and the router replies in the thread with a link that opens the card.
+- **Linked to the thread:** the card is linked to the thread, so messages in the thread become comments (see above), and the router replies in the thread with the card number. It posts no link to the card, because not everyone in the thread may have access to the board.
 - **Card creator:** the Auth user linked to the Discord account. For someone without a linked account, the creator is the service user `discord-intake`, and the description says so.
 - **No duplicates:** a second event for the same thread returns the existing card instead of creating a new one.
 - **API key:** an admin creates it in Django admin under *AA Kanban > Intake API keys*. The key is shown once; it goes into the router's `KANBAN_API_KEY`.
+
+### Direct Messages (DMs)
+
+AA Kanban sends Discord DMs (requires `aadiscordbot`):
+
+- **Assignees** get a DM when they are assigned to a card or removed from it.
+- **The card's creator** gets a DM when someone else changes their card:
+  - the card is moved to another list;
+  - someone comments on it;
+  - someone is assigned to it or removed from it;
+  - a label is added or removed;
+  - a team is assigned or unassigned.
+- **No double messages for the creator.** The creator gets no DM:
+  - for their own changes;
+  - while they are an assignee or a member of the card's team (they hear about it there already);
+  - when the card has a ticket thread and the change is also posted in it (the creator is in the thread). Comments are not posted in the thread, so a comment still gives a DM.
 
 ### Discord Webhooks & Stale Card Alerts
 

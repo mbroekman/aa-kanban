@@ -4,7 +4,7 @@ title: Discord thread intake API
 status: In Progress
 assignee: []
 created_date: '2026-11-02 13:18'
-updated_date: '2026-11-02 13:56'
+updated_date: '2026-11-02 16:03'
 labels: []
 dependencies: []
 ordinal: 121000
@@ -29,4 +29,6 @@ Endpoint for the discord-thread-router (githubDiscordBOT doc-1): POST /kanban/ap
 
 <!-- SECTION:NOTES:BEGIN -->
 views_intake.py + IntakeApiKey (migration 0026, admin with one-time key display and regenerate action). URL is last in urls.py: AA's decorate_url_patterns returns instead of continuing after an excluded view, so patterns after it would lose the login check; test guards this. Needs aa_kanban in APPS_WITH_PUBLIC_VIEWS (server local.py) to be reachable - not changed on devauth yet, waiting for the user. Deployed to devauth from a clean clone (other uncommitted work in this repo left alone). 166 tests pass on devauth.
+
+2026-11-02: aa_kanban added to APPS_WITH_PUBLIC_VIEWS on devauth (backup local.py.bak-<timestamp>). Verified: intake POST without key = 401; /kanban/ and /kanban/summary/ still 302 to login.
 <!-- SECTION:NOTES:END -->

@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: apps.py:9 templates/aa_kanban/base.html:4
 msgid "Kanban"
 msgstr ""
@@ -71,7 +72,8 @@ msgid "Discord Webhook URL for card movement notifications on this board."
 msgstr ""
 
 #: models.py:143
-msgid "Discord Channel ID where ticket threads will be created for this board."
+msgid ""
+"Discord Channel ID where ticket threads will be created for this board."
 msgstr ""
 
 #: models.py:147 templates/aa_kanban/partials/create_board_form.html:60
@@ -211,7 +213,8 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: templates/aa_kanban/board_detail.html:42 templates/aa_kanban/summary.html:58
+#: templates/aa_kanban/board_detail.html:42
+#: templates/aa_kanban/summary.html:58
 msgid "Back to boards"
 msgstr ""
 
@@ -258,8 +261,9 @@ msgstr ""
 #: templates/aa_kanban/board_detail.html:150
 #: templates/aa_kanban/board_detail.html:163
 #: templates/aa_kanban/board_detail.html:176
-#: templates/aa_kanban/board_detail.html:189 templates/aa_kanban/index.html:116
-#: templates/aa_kanban/settings.html:187 templates/aa_kanban/settings.html:200
+#: templates/aa_kanban/board_detail.html:189
+#: templates/aa_kanban/index.html:116 templates/aa_kanban/settings.html:187
+#: templates/aa_kanban/settings.html:200
 msgid "Loading..."
 msgstr ""
 
@@ -892,8 +896,7 @@ msgstr ""
 #: views_api.py:100
 #, python-brace-format
 msgid ""
-"Card moved: **{card_title}** was moved from `{source_list_name}` to "
-"`{target_list_name}`.\n"
+"Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n"
 "[View Board]({url})"
 msgstr ""
 
@@ -912,15 +915,15 @@ msgstr ""
 #: views_api.py:215
 #, python-brace-format
 msgid ""
-"You have been removed from the card: **{card_title}** on board **{board_name}"
-"**."
+"You have been removed from the card: **{card_title}** on board "
+"**{board_name}**."
 msgstr ""
 
 #: views_api.py:224
 #, python-brace-format
 msgid ""
-"You have been assigned to the card: **{card_title}** on board **{board_name}"
-"**."
+"You have been assigned to the card: **{card_title}** on board "
+"**{board_name}**."
 msgstr ""
 
 #: views_api.py:292
@@ -966,7 +969,9 @@ msgstr ""
 msgid "Close Discord Thread?"
 msgstr ""
 
-msgid "This ticket was moved to the last column. Do you want to close its Discord thread?"
+msgid ""
+"This ticket was moved to the last column. Do you want to close its Discord "
+"thread?"
 msgstr ""
 
 msgid "Not now"
@@ -981,7 +986,8 @@ msgstr ""
 msgid "Archived Cards"
 msgstr ""
 
-msgid "Cards automatically archived after sitting in the last column too long."
+msgid ""
+"Cards automatically archived after sitting in the last column too long."
 msgstr ""
 
 msgid "Back to Board"
@@ -1002,7 +1008,10 @@ msgstr ""
 msgid "Auto-Archive After (days)"
 msgstr ""
 
-msgid "Automatically archive cards that have sat in the last column for this many days (0 to disable). Archived cards disappear from the board and are only visible in the Archived Cards overview."
+msgid ""
+"Automatically archive cards that have sat in the last column for this many "
+"days (0 to disable). Archived cards disappear from the board and are only "
+"visible in the Archived Cards overview."
 msgstr ""
 
 msgid "Edit Label:"
@@ -1053,8 +1062,6 @@ msgstr ""
 msgid "Dark"
 msgstr ""
 
-
-
 #: templates/aa_kanban/index.html
 msgid "Cards need attention"
 msgstr ""
@@ -1088,7 +1095,9 @@ msgstr ""
 msgid "Members Board"
 msgstr ""
 
-msgid "Archive this board? It disappears from the dashboards and becomes read-only. Board managers can restore it under Archived Boards."
+msgid ""
+"Archive this board? It disappears from the dashboards and becomes read-only."
+" Board managers can restore it under Archived Boards."
 msgstr ""
 
 msgid "Archive Board"
@@ -1103,14 +1112,19 @@ msgstr ""
 msgid "Name in the Auth menu"
 msgstr ""
 
-msgid "Boards marked as Members Board appear on this page. The menu item only shows when there is at least one such board."
+msgid ""
+"Boards marked as Members Board appear on this page. The menu item only shows"
+" when there is at least one such board."
 msgstr ""
 
 #, python-format
-msgid "This board was archived on %(date)s. It is read-only and hidden from the dashboards."
+msgid ""
+"This board was archived on %(date)s. It is read-only and hidden from the "
+"dashboards."
 msgstr ""
 
-msgid "Restore this board? It returns to its dashboard and can be changed again."
+msgid ""
+"Restore this board? It returns to its dashboard and can be changed again."
 msgstr ""
 
 msgid "Restore Board"
@@ -1125,7 +1139,9 @@ msgstr ""
 msgid "No member boards yet."
 msgstr ""
 
-msgid "Archived boards are hidden from the dashboards and read-only. Open one to read it, or restore it."
+msgid ""
+"Archived boards are hidden from the dashboards and read-only. Open one to "
+"read it, or restore it."
 msgstr ""
 
 msgid "Page"
@@ -1146,10 +1162,14 @@ msgstr ""
 msgid "Name of the members page in the Auth menu."
 msgstr ""
 
-msgid "An archived board is hidden from the dashboards and read-only. Only board managers can open and restore it."
+msgid ""
+"An archived board is hidden from the dashboards and read-only. Only board "
+"managers can open and restore it."
 msgstr ""
 
-msgid "Readers only see the cards they created or are assigned to, and can add cards in the first column. Write groups and board managers see all cards."
+msgid ""
+"Readers only see the cards they created or are assigned to, and can add "
+"cards in the first column. Write groups and board managers see all cards."
 msgstr ""
 
 msgid "Own cards only"
@@ -1159,4 +1179,46 @@ msgid "Your cards"
 msgstr ""
 
 msgid "You see the cards you created or are assigned to."
+msgstr ""
+
+msgid ""
+"Your card **{card_title}** was moved from `{source_list_name}` to "
+"`{target_list_name}`."
+msgstr ""
+
+msgid "**{username}** commented on your card **{card_title}**."
+msgstr ""
+
+msgid ""
+"Your card **{card_title}** was moved from `{source_list_name}` to "
+"`{target_list_name}` by **{username}**."
+msgstr ""
+
+msgid ""
+"**{target_username}** was removed from your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+
+msgid ""
+"**{target_username}** was assigned to your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+
+msgid ""
+"Label **{label_name}** was added to your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+
+msgid ""
+"Label **{label_name}** was removed from your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+
+msgid ""
+"Your card **{card_title}** was assigned to team **{team_name}** by "
+"**{username}**."
+msgstr ""
+
+msgid ""
+"The team was unassigned from your card **{card_title}** by **{username}**."
 msgstr ""

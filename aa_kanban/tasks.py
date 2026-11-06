@@ -3,6 +3,7 @@ import re
 
 from asgiref.sync import sync_to_async
 from celery import shared_task
+from django.contrib.auth.models import User
 from django.db import close_old_connections
 from django.utils.translation import gettext as _
 
@@ -14,6 +15,46 @@ except ImportError:
     DiscordUser = None
 
 logger = logging.getLogger(__name__)
+
+
+def notify_card_creator(
+    card: Card,
+    message: str,
+    actor: User | None = None,
+    posted_in_thread: bool = True,
+) -> None:
+    """Send the card's creator a Discord DM about a change to their card.
+
+    Skipped when the creator made the change themselves, or when they are
+    already an assignee or a member of the card's assigned team, since they
+    are informed through those existing channels and would otherwise be
+    notified twice. For the same reason it is skipped when the card has a
+    ticket thread (the creator is in it) and the change is also posted there;
+    pass posted_in_thread=False for changes the thread does not get.
+    """
+    creator_id = card.created_by_id
+    if not creator_id or (actor is not None and creator_id == actor.id):
+        return
+
+    if posted_in_thread and card.discord_thread_id:
+        return
+
+    if card.assignees.filter(pk=creator_id).exists():
+        return
+
+    if (
+        card.assigned_team_id
+        and card.assigned_team.get_all_members().filter(pk=creator_id).exists()
+    ):
+        return
+
+    try:
+        from aadiscordbot.tasks import send_direct_message_by_user_id
+    except ImportError:
+        logger.warning("aadiscordbot is not installed or available.")
+        return
+
+    send_direct_message_by_user_id.delay(creator_id, str(message))
 
 
 def _format_description_for_discord(description: str, site_url: str = "") -> str:

@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: apps.py:9 templates/aa_kanban/base.html:4
 msgid "Kanban"
 msgstr "Kanban"
@@ -68,11 +69,14 @@ msgstr "Kanban Instellingen"
 
 #: models.py:138
 msgid "Discord Webhook URL for card movement notifications on this board."
-msgstr "Discord Webhook URL voor notificaties van kaartverplaatsingen op dit bord."
+msgstr ""
+"Discord Webhook URL voor notificaties van kaartverplaatsingen op dit bord."
 
 #: models.py:143
-msgid "Discord Channel ID where ticket threads will be created for this board."
-msgstr "Discord Kanaal ID waar ticket threads worden aangemaakt voor dit bord."
+msgid ""
+"Discord Channel ID where ticket threads will be created for this board."
+msgstr ""
+"Discord Kanaal ID waar ticket threads worden aangemaakt voor dit bord."
 
 #: models.py:147 templates/aa_kanban/partials/create_board_form.html:60
 #: templates/aa_kanban/partials/edit_board_form.html:63
@@ -211,7 +215,8 @@ msgstr "Annuleren"
 msgid "Confirm"
 msgstr "Bevestigen"
 
-#: templates/aa_kanban/board_detail.html:42 templates/aa_kanban/summary.html:58
+#: templates/aa_kanban/board_detail.html:42
+#: templates/aa_kanban/summary.html:58
 msgid "Back to boards"
 msgstr "Terug naar borden"
 
@@ -258,14 +263,16 @@ msgstr "Kolom toevoegen"
 #: templates/aa_kanban/board_detail.html:150
 #: templates/aa_kanban/board_detail.html:163
 #: templates/aa_kanban/board_detail.html:176
-#: templates/aa_kanban/board_detail.html:189 templates/aa_kanban/index.html:116
-#: templates/aa_kanban/settings.html:187 templates/aa_kanban/settings.html:200
+#: templates/aa_kanban/board_detail.html:189
+#: templates/aa_kanban/index.html:116 templates/aa_kanban/settings.html:187
+#: templates/aa_kanban/settings.html:200
 msgid "Loading..."
 msgstr "Laden..."
 
 #: templates/aa_kanban/index.html:11
 msgid "Select a board to view tasks, or manage your assigned projects."
-msgstr "Selecteer een bord om taken te bekijken of beheer je toegewezen projecten."
+msgstr ""
+"Selecteer een bord om taken te bekijken of beheer je toegewezen projecten."
 
 #: templates/aa_kanban/index.html:15 templates/aa_kanban/ticket_form.html:4
 #: templates/aa_kanban/ticket_form.html:50
@@ -344,7 +351,8 @@ msgstr "Beheer labels voor bord:"
 #: templates/aa_kanban/partials/board_labels_modal.html:24
 #: templates/aa_kanban/partials/settings_label_list.html:13
 msgid "Delete this label permanently? It will be removed from all cards."
-msgstr "Dit label permanent verwijderen? Het wordt van alle kaarten verwijderd."
+msgstr ""
+"Dit label permanent verwijderen? Het wordt van alle kaarten verwijderd."
 
 #: templates/aa_kanban/partials/board_labels_modal.html:25
 #: templates/aa_kanban/partials/settings_label_list.html:14
@@ -372,8 +380,7 @@ msgstr "Label toevoegen"
 msgid "Remove assignee"
 msgstr "Toegewezene verwijderen"
 
-#: templates/aa_kanban/partials/card_assignees.html:21
-#: aa_kanban/tasks.py:431
+#: templates/aa_kanban/partials/card_assignees.html:21 aa_kanban/tasks.py:431
 msgid "Unassigned"
 msgstr "Niet toegewezen"
 
@@ -575,7 +582,8 @@ msgstr "WIP-limiet"
 
 #: templates/aa_kanban/partials/edit_list_modal.html:28
 msgid "Maximum number of cards allowed in this column. Enter 0 for unlimited."
-msgstr "Maximum aantal kaarten toegestaan in deze kolom. Vul 0 in voor onbeperkt."
+msgstr ""
+"Maximum aantal kaarten toegestaan in deze kolom. Vul 0 in voor onbeperkt."
 
 #: templates/aa_kanban/partials/edit_list_modal.html:36
 msgid "Optional context or description for this column."
@@ -830,7 +838,9 @@ msgstr "-- Selecteer Team --"
 
 #: templates/aa_kanban/ticket_form.html:42
 msgid "Select the specific department or team this issue should be routed to."
-msgstr "Selecteer de specifieke afdeling of het team waarnaar dit probleem gerouteerd moet worden."
+msgstr ""
+"Selecteer de specifieke afdeling of het team waarnaar dit probleem "
+"gerouteerd moet worden."
 
 #: templates/aa_kanban/ticket_form.html:46
 msgid "Provide more details..."
@@ -893,12 +903,10 @@ msgstr "Doellijst heeft zijn WIP-limiet bereikt."
 #: views_api.py:100
 #, python-brace-format
 msgid ""
-"Card moved: **{card_title}** was moved from `{source_list_name}` to "
-"`{target_list_name}`.\n"
+"Card moved: **{card_title}** was moved from `{source_list_name}` to `{target_list_name}`.\n"
 "[View Board]({url})"
 msgstr ""
-"Card verplaatst: **{card_title}** is verplaatst van `{source_list_name}` naar "
-"`{target_list_name}`.\n"
+"Card verplaatst: **{card_title}** is verplaatst van `{source_list_name}` naar `{target_list_name}`.\n"
 "[Bekijk Bord]({url})"
 
 #: views_api.py:170
@@ -916,16 +924,18 @@ msgstr "user_id moet een integer zijn."
 #: views_api.py:215
 #, python-brace-format
 msgid ""
-"You have been removed from the card: **{card_title}** on board **{board_name}"
-"**."
-msgstr "Je bent verwijderd van de kaart: **{card_title}** op bord **{board_name}**."
+"You have been removed from the card: **{card_title}** on board "
+"**{board_name}**."
+msgstr ""
+"Je bent verwijderd van de kaart: **{card_title}** op bord **{board_name}**."
 
 #: views_api.py:224
 #, python-brace-format
 msgid ""
-"You have been assigned to the card: **{card_title}** on board **{board_name}"
-"**."
-msgstr "Je bent toegewezen aan de kaart: **{card_title}** op bord **{board_name}**."
+"You have been assigned to the card: **{card_title}** on board "
+"**{board_name}**."
+msgstr ""
+"Je bent toegewezen aan de kaart: **{card_title}** op bord **{board_name}**."
 
 #: views_api.py:292
 msgid "No valid fields to update."
@@ -965,8 +975,11 @@ msgstr "label_id moet een integer zijn."
 msgid "Board name is required."
 msgstr "Board naam is verplicht."
 
-msgid "Ticket system is currently unavailable. No ticket boards are configured."
-msgstr "Ticket systeem is momenteel niet beschikbaar. Er zijn geen ticket boards geconfigureerd."
+msgid ""
+"Ticket system is currently unavailable. No ticket boards are configured."
+msgstr ""
+"Ticket systeem is momenteel niet beschikbaar. Er zijn geen ticket boards "
+"geconfigureerd."
 
 msgid "Title is required."
 msgstr "Titel is verplicht."
@@ -986,8 +999,13 @@ msgstr "Discord & Signalering"
 msgid "Stale Card Alert (hours)"
 msgstr "Signalering stilstaande kaarten (uren)"
 
-msgid "Send a Discord notification when cards remain inactive for this many hours (0 to disable). 'Done'/'Afgerond' columns are excluded."
-msgstr "Stuur een Discord notificatie wanneer kaarten langer inactief blijven dan dit aantal uren (0 om uit te schakelen). 'Done'/'Afgerond' kolommen worden uitgesloten."
+msgid ""
+"Send a Discord notification when cards remain inactive for this many hours "
+"(0 to disable). 'Done'/'Afgerond' columns are excluded."
+msgstr ""
+"Stuur een Discord notificatie wanneer kaarten langer inactief blijven dan "
+"dit aantal uren (0 om uit te schakelen). 'Done'/'Afgerond' kolommen worden "
+"uitgesloten."
 
 msgid "Discord Alert Channel ID"
 msgstr "Discord Alert Kanaal ID"
@@ -995,35 +1013,63 @@ msgstr "Discord Alert Kanaal ID"
 msgid "Optional Discord Channel ID for stale card alerts..."
 msgstr "Optioneel Discord Kanaal ID voor stilstand-signaleringen..."
 
-msgid "Discord Channel ID where stale card alerts will be posted by the bot. Falls back to Ticket Channel ID if blank."
-msgstr "Discord Kanaal ID waar stilstand-signaleringen worden geplaatst door de bot. Valt terug op Ticket Kanaal ID indien leeg."
+msgid ""
+"Discord Channel ID where stale card alerts will be posted by the bot. Falls "
+"back to Ticket Channel ID if blank."
+msgstr ""
+"Discord Kanaal ID waar stilstand-signaleringen worden geplaatst door de bot."
+" Valt terug op Ticket Kanaal ID indien leeg."
 
 msgid "Discord Alert Webhook URL"
 msgstr "Discord Alert Webhook URL"
 
-msgid "Discord Webhook URL for stale card alerts. Falls back to Card Movement Webhook if blank."
-msgstr "Discord Webhook URL voor stilstand-signaleringen. Valt terug op Card Movement Webhook indien leeg."
+msgid ""
+"Discord Webhook URL for stale card alerts. Falls back to Card Movement "
+"Webhook if blank."
+msgstr ""
+"Discord Webhook URL voor stilstand-signaleringen. Valt terug op Card "
+"Movement Webhook indien leeg."
 
 msgid "Discord Card Movement Webhook URL"
 msgstr "Discord Card Movement Webhook URL"
 
 msgid "Webhook URL for notifications when cards are created or moved."
-msgstr "Webhook URL voor notificaties wanneer kaarten worden aangemaakt of verplaatst."
+msgstr ""
+"Webhook URL voor notificaties wanneer kaarten worden aangemaakt of "
+"verplaatst."
 
 msgid "Hours of inactivity after which cards trigger an alert (0 to disable)."
-msgstr "Aantal uren inactiviteit waarna kaarten een signalering triggeren (0 om uit te schakelen)."
+msgstr ""
+"Aantal uren inactiviteit waarna kaarten een signalering triggeren (0 om uit "
+"te schakelen)."
 
-msgid "Discord Channel ID for stale card alerts. If blank, falls back to ticket channel."
-msgstr "Discord Kanaal ID voor signaleringen van stilstaande kaarten. Valt terug op het ticketkanaal indien leeg."
+msgid ""
+"Discord Channel ID for stale card alerts. If blank, falls back to ticket "
+"channel."
+msgstr ""
+"Discord Kanaal ID voor signaleringen van stilstaande kaarten. Valt terug op "
+"het ticketkanaal indien leeg."
 
-msgid "Discord Webhook URL for stale card alerts. If blank, falls back to card movement webhook."
-msgstr "Discord Webhook URL voor signaleringen van stilstaande kaarten. Valt terug op de card movement webhook indien leeg."
+msgid ""
+"Discord Webhook URL for stale card alerts. If blank, falls back to card "
+"movement webhook."
+msgstr ""
+"Discord Webhook URL voor signaleringen van stilstaande kaarten. Valt terug "
+"op de card movement webhook indien leeg."
 
-msgid "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}` by **{username}**."
-msgstr "🔄 **Status Update:** Card verplaatst van `{source_list_name}` naar `{target_list_name}` door **{username}**."
+msgid ""
+"🔄 **Status Update:** Card moved from `{source_list_name}` to "
+"`{target_list_name}` by **{username}**."
+msgstr ""
+"🔄 **Status Update:** Card verplaatst van `{source_list_name}` naar "
+"`{target_list_name}` door **{username}**."
 
-msgid "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}`."
-msgstr "🔄 **Status Update:** Card verplaatst van `{source_list_name}` naar `{target_list_name}`."
+msgid ""
+"🔄 **Status Update:** Card moved from `{source_list_name}` to "
+"`{target_list_name}`."
+msgstr ""
+"🔄 **Status Update:** Card verplaatst van `{source_list_name}` naar "
+"`{target_list_name}`."
 
 msgid "🏷️ **Label Added:** `{label_name}` by **{username}**."
 msgstr "🏷️ **Label Toegevoegd:** `{label_name}` door **{username}**."
@@ -1031,8 +1077,12 @@ msgstr "🏷️ **Label Toegevoegd:** `{label_name}` door **{username}**."
 msgid "🏷️ **Label Removed:** `{label_name}` by **{username}**."
 msgstr "🏷️ **Label Verwijderd:** `{label_name}` door **{username}**."
 
-msgid "👥 **Team Update:** Assigned to **{team_name}**{role_mention} by **{username}**."
-msgstr "👥 **Team Update:** Toegewezen aan **{team_name}**{role_mention} door **{username}**."
+msgid ""
+"👥 **Team Update:** Assigned to **{team_name}**{role_mention} by "
+"**{username}**."
+msgstr ""
+"👥 **Team Update:** Toegewezen aan **{team_name}**{role_mention} door "
+"**{username}**."
 
 msgid "👥 **Team Update:** Team unassigned by **{username}**."
 msgstr "👥 **Team Update:** Team toewijzing verwijderd door **{username}**."
@@ -1044,8 +1094,12 @@ msgstr ""
 "⚠️ **Kanban Signalering: Stilstaande Cards op '{board_name}'** ⚠️\n"
 "Er zijn **{count}** card(s) die langer dan **{hours}** uur stil staan:\n"
 
-msgid "• **{title}** (List: `{list_name}`, Inactive: **{duration}**, Assigned: {assignees})"
-msgstr "• **{title}** (Lijst: `{list_name}`, Stilstand: **{duration}**, Toegewezen: {assignees})"
+msgid ""
+"• **{title}** (List: `{list_name}`, Inactive: **{duration}**, Assigned: "
+"{assignees})"
+msgstr ""
+"• **{title}** (Lijst: `{list_name}`, Stilstand: **{duration}**, Toegewezen: "
+"{assignees})"
 
 msgid ""
 "\n"
@@ -1064,11 +1118,19 @@ msgstr ""
 msgid "Alert Reminder Repeat (hours)"
 msgstr "Herhaling signalering (uren)"
 
-msgid "Hours to wait before sending a repeat reminder for an inactive card (0 for one-time alert only)."
-msgstr "Aantal uren wachten alvorens een herinnering te sturen voor een inactieve kaart (0 voor alleen eenmalige signalering)."
+msgid ""
+"Hours to wait before sending a repeat reminder for an inactive card (0 for "
+"one-time alert only)."
+msgstr ""
+"Aantal uren wachten alvorens een herinnering te sturen voor een inactieve "
+"kaart (0 voor alleen eenmalige signalering)."
 
-msgid "Hours between reminder alerts for a still inactive card (0 for one-time alert only)."
-msgstr "Uren tussen herinneringssignalen voor een nog steeds inactieve kaart (0 voor alleen eenmalige signalering)."
+msgid ""
+"Hours between reminder alerts for a still inactive card (0 for one-time "
+"alert only)."
+msgstr ""
+"Uren tussen herinneringssignalen voor een nog steeds inactieve kaart (0 voor"
+" alleen eenmalige signalering)."
 
 msgid "Timestamp when the last stale card alert was sent for this card."
 msgstr "Tijdstip waarop de laatste signalering voor deze kaart is verzonden."
@@ -1089,8 +1151,12 @@ msgstr "Kolom '%(name)s' en alle kaarten permanent verwijderen?"
 msgid "Close Discord Thread?"
 msgstr "Discord-thread sluiten?"
 
-msgid "This ticket was moved to the last column. Do you want to close its Discord thread?"
-msgstr "Dit ticket is naar de laatste kolom verplaatst. Wil je de bijbehorende Discord-thread sluiten?"
+msgid ""
+"This ticket was moved to the last column. Do you want to close its Discord "
+"thread?"
+msgstr ""
+"Dit ticket is naar de laatste kolom verplaatst. Wil je de bijbehorende "
+"Discord-thread sluiten?"
 
 msgid "Not now"
 msgstr "Niet nu"
@@ -1099,13 +1165,17 @@ msgid "Close Thread"
 msgstr "Thread sluiten"
 
 msgid "🔒 This ticket has been marked as done and this thread is now closed."
-msgstr "🔒 Dit ticket is gemarkeerd als voltooid en deze thread is nu gesloten."
+msgstr ""
+"🔒 Dit ticket is gemarkeerd als voltooid en deze thread is nu gesloten."
 
 msgid "Archived Cards"
 msgstr "Gearchiveerde Cards"
 
-msgid "Cards automatically archived after sitting in the last column too long."
-msgstr "Cards die automatisch zijn gearchiveerd na te lang stilstaan in de laatste kolom."
+msgid ""
+"Cards automatically archived after sitting in the last column too long."
+msgstr ""
+"Cards die automatisch zijn gearchiveerd na te lang stilstaan in de laatste "
+"kolom."
 
 msgid "Back to Board"
 msgstr "Terug naar bord"
@@ -1125,8 +1195,14 @@ msgstr "Bord Onderhoud"
 msgid "Auto-Archive After (days)"
 msgstr "Automatisch archiveren na (dagen)"
 
-msgid "Automatically archive cards that have sat in the last column for this many days (0 to disable). Archived cards disappear from the board and are only visible in the Archived Cards overview."
-msgstr "Automatisch cards archiveren die dit aantal dagen in de laatste kolom hebben gestaan (0 om uit te schakelen). Gearchiveerde kaarten verdwijnen van het bord en zijn alleen zichtbaar in het overzicht Gearchiveerde Cards."
+msgid ""
+"Automatically archive cards that have sat in the last column for this many "
+"days (0 to disable). Archived cards disappear from the board and are only "
+"visible in the Archived Cards overview."
+msgstr ""
+"Automatisch cards archiveren die dit aantal dagen in de laatste kolom hebben"
+" gestaan (0 om uit te schakelen). Gearchiveerde kaarten verdwijnen van het "
+"bord en zijn alleen zichtbaar in het overzicht Gearchiveerde Cards."
 
 msgid "Edit Label:"
 msgstr "Label bewerken:"
@@ -1188,8 +1264,12 @@ msgstr "Intake-API-sleutel"
 msgid "Intake API keys"
 msgstr "Intake-API-sleutels"
 
-msgid "API key for {name}: {key} - copy it now into KANBAN_API_KEY of the router; it is not shown again."
-msgstr "API-sleutel voor {name}: {key} - kopieer hem nu naar KANBAN_API_KEY van de router; hij wordt niet opnieuw getoond."
+msgid ""
+"API key for {name}: {key} - copy it now into KANBAN_API_KEY of the router; "
+"it is not shown again."
+msgstr ""
+"API-sleutel voor {name}: {key} - kopieer hem nu naar KANBAN_API_KEY van de "
+"router; hij wordt niet opnieuw getoond."
 
 msgid "Generate a new key (the old one stops working)"
 msgstr "Nieuwe sleutel maken (de oude werkt dan niet meer)"
@@ -1227,8 +1307,12 @@ msgstr "Gearchiveerde borden"
 msgid "Members Board"
 msgstr "Ledenbord"
 
-msgid "Archive this board? It disappears from the dashboards and becomes read-only. Board managers can restore it under Archived Boards."
-msgstr "Dit bord archiveren? Het verdwijnt van de dashboards en wordt alleen-lezen. Bordbeheerders kunnen het terugzetten onder Gearchiveerde borden."
+msgid ""
+"Archive this board? It disappears from the dashboards and becomes read-only."
+" Board managers can restore it under Archived Boards."
+msgstr ""
+"Dit bord archiveren? Het verdwijnt van de dashboards en wordt alleen-lezen. "
+"Bordbeheerders kunnen het terugzetten onder Gearchiveerde borden."
 
 msgid "Archive Board"
 msgstr "Bord archiveren"
@@ -1242,15 +1326,26 @@ msgstr "Ledenpagina"
 msgid "Name in the Auth menu"
 msgstr "Naam in het Auth-menu"
 
-msgid "Boards marked as Members Board appear on this page. The menu item only shows when there is at least one such board."
-msgstr "Borden die als Ledenbord zijn gemarkeerd, verschijnen op deze pagina. Het menu-item is alleen zichtbaar als er minstens één zo'n bord is."
+msgid ""
+"Boards marked as Members Board appear on this page. The menu item only shows"
+" when there is at least one such board."
+msgstr ""
+"Borden die als Ledenbord zijn gemarkeerd, verschijnen op deze pagina. Het "
+"menu-item is alleen zichtbaar als er minstens één zo'n bord is."
 
 #, python-format
-msgid "This board was archived on %(date)s. It is read-only and hidden from the dashboards."
-msgstr "Dit bord is gearchiveerd op %(date)s. Het is alleen-lezen en verborgen op de dashboards."
+msgid ""
+"This board was archived on %(date)s. It is read-only and hidden from the "
+"dashboards."
+msgstr ""
+"Dit bord is gearchiveerd op %(date)s. Het is alleen-lezen en verborgen op de"
+" dashboards."
 
-msgid "Restore this board? It returns to its dashboard and can be changed again."
-msgstr "Dit bord terugzetten? Het komt terug op zijn dashboard en kan weer worden gewijzigd."
+msgid ""
+"Restore this board? It returns to its dashboard and can be changed again."
+msgstr ""
+"Dit bord terugzetten? Het komt terug op zijn dashboard en kan weer worden "
+"gewijzigd."
 
 msgid "Restore Board"
 msgstr "Bord terugzetten"
@@ -1264,8 +1359,12 @@ msgstr "Borden die met alle leden gedeeld zijn."
 msgid "No member boards yet."
 msgstr "Nog geen ledenborden."
 
-msgid "Archived boards are hidden from the dashboards and read-only. Open one to read it, or restore it."
-msgstr "Gearchiveerde borden zijn verborgen op de dashboards en alleen-lezen. Open er een om het te lezen, of zet het terug."
+msgid ""
+"Archived boards are hidden from the dashboards and read-only. Open one to "
+"read it, or restore it."
+msgstr ""
+"Gearchiveerde borden zijn verborgen op de dashboards en alleen-lezen. Open "
+"er een om het te lezen, of zet het terug."
 
 msgid "Page"
 msgstr "Pagina"
@@ -1285,11 +1384,20 @@ msgstr "De naam van de ledenpagina mag niet leeg zijn."
 msgid "Name of the members page in the Auth menu."
 msgstr "Naam van de ledenpagina in het Auth-menu."
 
-msgid "An archived board is hidden from the dashboards and read-only. Only board managers can open and restore it."
-msgstr "Een gearchiveerd bord is verborgen op de dashboards en alleen-lezen. Alleen bordbeheerders kunnen het openen en terugzetten."
+msgid ""
+"An archived board is hidden from the dashboards and read-only. Only board "
+"managers can open and restore it."
+msgstr ""
+"Een gearchiveerd bord is verborgen op de dashboards en alleen-lezen. Alleen "
+"bordbeheerders kunnen het openen en terugzetten."
 
-msgid "Readers only see the cards they created or are assigned to, and can add cards in the first column. Write groups and board managers see all cards."
-msgstr "Lezers zien alleen de kaarten die ze zelf maakten of waaraan ze zijn toegewezen, en kunnen kaarten toevoegen in de eerste kolom. Schrijfgroepen en bordbeheerders zien alle kaarten."
+msgid ""
+"Readers only see the cards they created or are assigned to, and can add "
+"cards in the first column. Write groups and board managers see all cards."
+msgstr ""
+"Lezers zien alleen de kaarten die ze zelf maakten of waaraan ze zijn "
+"toegewezen, en kunnen kaarten toevoegen in de eerste kolom. Schrijfgroepen "
+"en bordbeheerders zien alle kaarten."
 
 msgid "Own cards only"
 msgstr "Alleen eigen kaarten"
@@ -1299,3 +1407,60 @@ msgstr "Jouw kaarten"
 
 msgid "You see the cards you created or are assigned to."
 msgstr "Je ziet de kaarten die je zelf maakte of waaraan je bent toegewezen."
+
+msgid ""
+"Your card **{card_title}** was moved from `{source_list_name}` to "
+"`{target_list_name}`."
+msgstr ""
+"Je kaart **{card_title}** is verplaatst van `{source_list_name}` naar "
+"`{target_list_name}`."
+
+msgid "**{username}** commented on your card **{card_title}**."
+msgstr "**{username}** heeft gereageerd op je kaart **{card_title}**."
+
+msgid ""
+"Your card **{card_title}** was moved from `{source_list_name}` to "
+"`{target_list_name}` by **{username}**."
+msgstr ""
+"Je kaart **{card_title}** is door **{username}** verplaatst van "
+"`{source_list_name}` naar `{target_list_name}`."
+
+msgid ""
+"**{target_username}** was removed from your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+"**{target_username}** is door **{username}** van je kaart **{card_title}** "
+"gehaald."
+
+msgid ""
+"**{target_username}** was assigned to your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+"**{target_username}** is door **{username}** toegewezen aan je kaart "
+"**{card_title}**."
+
+msgid ""
+"Label **{label_name}** was added to your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+"Label **{label_name}** is door **{username}** toegevoegd aan je kaart "
+"**{card_title}**."
+
+msgid ""
+"Label **{label_name}** was removed from your card **{card_title}** by "
+"**{username}**."
+msgstr ""
+"Label **{label_name}** is door **{username}** verwijderd van je kaart "
+"**{card_title}**."
+
+msgid ""
+"Your card **{card_title}** was assigned to team **{team_name}** by "
+"**{username}**."
+msgstr ""
+"Je kaart **{card_title}** is door **{username}** toegewezen aan team "
+"**{team_name}**."
+
+msgid ""
+"The team was unassigned from your card **{card_title}** by **{username}**."
+msgstr ""
+"Het team is door **{username}** losgekoppeld van je kaart **{card_title}**."

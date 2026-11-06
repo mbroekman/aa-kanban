@@ -100,6 +100,19 @@ def move_card(request: HttpRequest, card_id: int) -> HttpResponse:
 
     prompt_close_thread = False
     if source_list.id != target_list.id:
+        from aa_kanban.tasks import notify_card_creator
+
+        creator_msg = _(
+            "Your card **{card_title}** was moved from `{source_list_name}` to "
+            "`{target_list_name}` by **{username}**."
+        ).format(
+            card_title=card.title,
+            source_list_name=source_list.name,
+            target_list_name=target_list.name,
+            username=request.user.username,
+        )
+        notify_card_creator(card, str(creator_msg), actor=request.user)
+
         if card.discord_thread_id:
             from aa_kanban.tasks import notify_ticket_thread
 
@@ -233,6 +246,16 @@ def add_comment(request: HttpRequest, card_id: int) -> HttpResponse:
         text=comment_text,  # type: ignore[misc]
     )
 
+    from aa_kanban.tasks import notify_card_creator
+
+    creator_msg = _("**{username}** commented on your card **{card_title}**.").format(
+        username=request.user.username, card_title=card.title
+    )
+    # Comments are not posted in the ticket thread, so the DM is still sent.
+    notify_card_creator(
+        card, str(creator_msg), actor=request.user, posted_in_thread=False
+    )
+
     comments = card.comments.select_related("author").order_by("created_at")
     return render(
         request,
@@ -279,6 +302,18 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
         except ImportError:
             pass
 
+        from aa_kanban.tasks import notify_card_creator
+
+        creator_msg = _(
+            "**{target_username}** was removed from your card **{card_title}** "
+            "by **{username}**."
+        ).format(
+            target_username=target_user.username,
+            card_title=card.title,
+            username=request.user.username,
+        )
+        notify_card_creator(card, str(creator_msg), actor=request.user)
+
         if card.discord_thread_id:
             from aa_kanban.tasks import notify_ticket_thread
 
@@ -303,6 +338,18 @@ def toggle_assignee(request: HttpRequest, card_id: int) -> HttpResponse:
             send_direct_message_by_user_id.delay(target_user.pk, str(msg))
         except ImportError:
             pass
+
+        from aa_kanban.tasks import notify_card_creator
+
+        creator_msg = _(
+            "**{target_username}** was assigned to your card **{card_title}** "
+            "by **{username}**."
+        ).format(
+            target_username=target_user.username,
+            card_title=card.title,
+            username=request.user.username,
+        )
+        notify_card_creator(card, str(creator_msg), actor=request.user)
 
         if card.discord_thread_id:
             from aa_kanban.tasks import notify_ticket_thread
@@ -675,6 +722,28 @@ def toggle_label(request: HttpRequest, card_id: int) -> HttpResponse:
         card.labels.add(target_label)
         is_added = True
 
+    from aa_kanban.tasks import notify_card_creator
+
+    if is_added:
+        creator_msg = _(
+            "Label **{label_name}** was added to your card **{card_title}** "
+            "by **{username}**."
+        ).format(
+            label_name=target_label.name,
+            card_title=card.title,
+            username=request.user.username,
+        )
+    else:
+        creator_msg = _(
+            "Label **{label_name}** was removed from your card **{card_title}** "
+            "by **{username}**."
+        ).format(
+            label_name=target_label.name,
+            card_title=card.title,
+            username=request.user.username,
+        )
+    notify_card_creator(card, str(creator_msg), actor=request.user)
+
     if card.discord_thread_id:
         from aa_kanban.tasks import notify_ticket_thread
 
@@ -738,6 +807,23 @@ def update_card_team(request: HttpRequest, card_id: int) -> HttpResponse:
     else:
         card.assigned_team = None
     card.save(update_fields=["assigned_team", "updated_at"])
+
+    from aa_kanban.tasks import notify_card_creator
+
+    if card.assigned_team:
+        creator_msg = _(
+            "Your card **{card_title}** was assigned to team **{team_name}** "
+            "by **{username}**."
+        ).format(
+            card_title=card.title,
+            team_name=card.assigned_team.name,
+            username=request.user.username,
+        )
+    else:
+        creator_msg = _(
+            "The team was unassigned from your card **{card_title}** by **{username}**."
+        ).format(card_title=card.title, username=request.user.username)
+    notify_card_creator(card, str(creator_msg), actor=request.user)
 
     if card.discord_thread_id:
         from aa_kanban.tasks import notify_ticket_thread

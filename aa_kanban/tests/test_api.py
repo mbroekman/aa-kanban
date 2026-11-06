@@ -315,15 +315,22 @@ class TestToggleAssignee:
 
         target_user = user_factory("target_assignee")
 
+        creator_id = data["card0"].created_by_id
+
         mock_tasks = MagicMock()
         with patch.dict("sys.modules", {"aadiscordbot.tasks": mock_tasks}):
             # Assign user
             response = client.post(url, {"user_id": target_user.id})
             assert response.status_code == 200
             assert target_user in data["card0"].assignees.all()
-            mock_tasks.send_direct_message_by_user_id.delay.assert_called_once_with(
+            mock_tasks.send_direct_message_by_user_id.delay.assert_any_call(
                 target_user.id,
                 "You have been assigned to the card: **Card 0** on board **Board One**.",
+            )
+            mock_tasks.send_direct_message_by_user_id.delay.assert_any_call(
+                creator_id,
+                "**target_assignee** was assigned to your card **Card 0** by "
+                "**toggle_assignee_writer**.",
             )
 
             mock_tasks.send_direct_message_by_user_id.delay.reset_mock()
@@ -332,9 +339,14 @@ class TestToggleAssignee:
             response = client.post(url, {"user_id": target_user.id})
             assert response.status_code == 200
             assert target_user not in data["card0"].assignees.all()
-            mock_tasks.send_direct_message_by_user_id.delay.assert_called_once_with(
+            mock_tasks.send_direct_message_by_user_id.delay.assert_any_call(
                 target_user.id,
                 "You have been removed from the card: **Card 0** on board **Board One**.",
+            )
+            mock_tasks.send_direct_message_by_user_id.delay.assert_any_call(
+                creator_id,
+                "**target_assignee** was removed from your card **Card 0** by "
+                "**toggle_assignee_writer**.",
             )
 
 
