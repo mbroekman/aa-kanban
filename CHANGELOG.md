@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-11-06
+
+### Fixed
+
+- **Ticket threads were not created after the Discord bot had run for a while (TASK-112).** The bot kept a database connection the server had already closed, so creating the thread failed with "Lost connection to MySQL server". The bot tasks now close such a connection first.
+
 ## [1.4.0] - 2026-11-05
 
 ### Upgrade notes

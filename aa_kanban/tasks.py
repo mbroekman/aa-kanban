@@ -3,6 +3,7 @@ import re
 
 from asgiref.sync import sync_to_async
 from celery import shared_task
+from django.db import close_old_connections
 from django.utils.translation import gettext as _
 
 from .models import Board, Card
@@ -58,6 +59,15 @@ def _split_discord_message(content: str, max_length: int = 1900) -> list[str]:
     if current_chunk:
         chunks.append(current_chunk)
     return chunks
+
+
+async def _drop_stale_db_connection() -> None:
+    """Close a database connection the server has dropped.
+
+    The Discord bot runs for days. Without this, its first query after the
+    database's idle timeout fails with "Lost connection to MySQL server".
+    """
+    await sync_to_async(close_old_connections)()
 
 
 async def _send_stale_cards_discord(bot, channel_id: int, message_content: str):
@@ -237,6 +247,7 @@ def archive_done_cards():
 
 async def _create_discord_thread(bot, card_id: int):
     try:
+        await _drop_stale_db_connection()
         # Load card and settings asynchronously
         card = await sync_to_async(
             Card.objects.select_related("assigned_team", "created_by", "list__board")
@@ -424,6 +435,7 @@ async def _send_discord_thread_message(
     used to keep thread access in sync with a card's Assignees.
     """
     try:
+        await _drop_stale_db_connection()
         thread = bot.get_channel(thread_id)
         if not thread:
             try:

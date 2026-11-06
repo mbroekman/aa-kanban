@@ -812,3 +812,20 @@ def test_edit_kanban_team_modal_get_and_post(ticket_setup):
     assert team.name == "Dev Ops Updated"
     assert team.discord_role_id == 987654321
     assert team.ticket_board_id == board.id
+
+
+@pytest.mark.django_db
+def test_bot_tasks_drop_a_stale_db_connection_first():
+    """The long-running bot must not reuse a connection the database closed."""
+    from asgiref.sync import async_to_sync
+
+    bot = MagicMock()
+    with patch("aa_kanban.tasks.close_old_connections") as close:
+        async_to_sync(_create_discord_thread)(bot, 999999)
+        assert close.called
+
+    bot.get_channel.return_value = None
+    bot.fetch_channel = AsyncMock(side_effect=Exception("gone"))
+    with patch("aa_kanban.tasks.close_old_connections") as close:
+        async_to_sync(_send_discord_thread_message)(bot, 1, "hi")
+        assert close.called
