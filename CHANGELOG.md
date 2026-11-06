@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-06
+
 ### Added
 
 - **DM to the card's creator (TASK-113):** the creator gets a Discord DM when someone else moves their card, comments on it, changes its assignees, labels or team.
