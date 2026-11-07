@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-07
+
 ### Added
 
 - **Search across all boards (TASK-114):** a search box on the dashboard and in every board header.
