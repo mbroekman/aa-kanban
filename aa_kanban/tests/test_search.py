@@ -17,7 +17,9 @@ def make_user(db):
     def _make(username: str, *perms: str):
         counter["id"] += 1
         user = AuthUtils.create_user(username)
-        AuthUtils.add_main_character(user, f"Char {username}", character_id=counter["id"])
+        AuthUtils.add_main_character(
+            user, f"Char {username}", character_id=counter["id"]
+        )
         AuthUtils.add_permission_to_user_by_name("aa_kanban.basic_access", user)
         for perm in perms:
             AuthUtils.add_permission_to_user_by_name(perm, user)
@@ -39,12 +41,21 @@ def world(make_user):
     open_board.view_groups.add(readers)
     hidden = Board.objects.create(name="Secret", slug="secret", created_by=owner)
     archived = Board.objects.create(
-        name="Old", slug="old", created_by=owner, is_archived=True, archived_at=timezone.now()
+        name="Old",
+        slug="old",
+        created_by=owner,
+        is_archived=True,
+        archived_at=timezone.now(),
     )
     archived.view_groups.add(readers)
 
     todo = open_board.lists.get(name="To Do")
-    card = Card.objects.create(list=todo, title="Refit the Nyx", description="Needs **fighters**", created_by=owner)
+    card = Card.objects.create(
+        list=todo,
+        title="Refit the Nyx",
+        description="Needs **fighters**",
+        created_by=owner,
+    )
     return {
         "owner": owner,
         "reader": reader,
@@ -83,7 +94,9 @@ class TestFields:
             assert ids(reader, query) == {card.pk}, query
 
     def test_every_word_must_match(self, world):
-        Card.objects.create(list=world["todo"], title="Refit the Avatar", created_by=world["owner"])
+        Card.objects.create(
+            list=world["todo"], title="Refit the Avatar", created_by=world["owner"]
+        )
         assert ids(world["reader"], "refit nyx") == {world["card"].pk}
 
     def test_too_short_query_finds_nothing(self, world):
@@ -93,18 +106,30 @@ class TestFields:
 @pytest.mark.django_db
 class TestVisibility:
     def test_hidden_board_is_not_searched(self, world):
-        Card.objects.create(list=world["hidden"].lists.first(), title="Nyx secret", created_by=world["owner"])
+        Card.objects.create(
+            list=world["hidden"].lists.first(),
+            title="Nyx secret",
+            created_by=world["owner"],
+        )
         assert ids(world["reader"], "nyx") == {world["card"].pk}
         assert ids(world["outsider"], "nyx") == set()
 
     def test_members_board_is_searched_with_basic_access(self, world):
         world["hidden"].is_members_board = True
         world["hidden"].save()
-        card = Card.objects.create(list=world["hidden"].lists.first(), title="Members nyx", created_by=world["owner"])
+        card = Card.objects.create(
+            list=world["hidden"].lists.first(),
+            title="Members nyx",
+            created_by=world["owner"],
+        )
         assert card.pk in ids(world["outsider"], "nyx")
 
     def test_archived_board_only_for_managers_and_creator(self, world, make_user):
-        card = Card.objects.create(list=world["archived"].lists.first(), title="Old nyx", created_by=world["owner"])
+        card = Card.objects.create(
+            list=world["archived"].lists.first(),
+            title="Old nyx",
+            created_by=world["owner"],
+        )
         manager = make_user("search_manager", "aa_kanban.manage_boards")
         assert card.pk not in ids(world["reader"], "nyx")
         assert card.pk in ids(world["owner"], "nyx")
@@ -115,10 +140,17 @@ class TestVisibility:
         board.own_cards_only = True
         board.save()
         reader = world["reader"]
-        mine = Card.objects.create(list=world["todo"], title="Nyx for reader", created_by=reader)
+        mine = Card.objects.create(
+            list=world["todo"], title="Nyx for reader", created_by=reader
+        )
         team = KanbanTeam.objects.create(name="Reader team")
         team.members.add(reader)
-        via_team = Card.objects.create(list=world["todo"], title="Nyx team", created_by=world["owner"], assigned_team=team)
+        via_team = Card.objects.create(
+            list=world["todo"],
+            title="Nyx team",
+            created_by=world["owner"],
+            assigned_team=team,
+        )
 
         assert ids(reader, "nyx") == {mine.pk, via_team.pk}
         assert world["card"].pk in ids(world["owner"], "nyx")
@@ -135,7 +167,12 @@ class TestVisibility:
 @pytest.mark.django_db
 def test_limit_keeps_title_matches_first(world):
     for i in range(3):
-        Card.objects.create(list=world["todo"], title=f"Other {i}", description="nyx", created_by=world["owner"])
+        Card.objects.create(
+            list=world["todo"],
+            title=f"Other {i}",
+            description="nyx",
+            created_by=world["owner"],
+        )
     cards, truncated = search_cards(world["reader"], "nyx", limit=2)
     assert truncated
     assert cards[0].pk == world["card"].pk
@@ -166,18 +203,25 @@ class TestPage:
         card.save()
         client = Client()
         client.force_login(world["reader"])
-        html = client.get(reverse("aa_kanban:search"), {"q": "nyx", "archived": "1"}).content.decode()
+        html = client.get(
+            reverse("aa_kanban:search"), {"q": "nyx", "archived": "1"}
+        ).content.decode()
         assert f"/board/ops/archived/?card={card.pk}" in html
 
     def test_search_box_on_overview_and_board(self, world):
         client = Client()
         client.force_login(world["reader"])
         search_url = reverse("aa_kanban:search")
-        for url in (reverse("aa_kanban:index"), reverse("aa_kanban:board_detail", args=["ops"])):
+        for url in (
+            reverse("aa_kanban:index"),
+            reverse("aa_kanban:board_detail", args=["ops"]),
+        ):
             assert search_url in client.get(url).content.decode(), url
 
     def test_highlight_escapes_html(self, world):
-        Card.objects.create(list=world["todo"], title="<b>nyx</b>", created_by=world["owner"])
+        Card.objects.create(
+            list=world["todo"], title="<b>nyx</b>", created_by=world["owner"]
+        )
         client = Client()
         client.force_login(world["reader"])
         html = client.get(reverse("aa_kanban:search"), {"q": "nyx"}).content.decode()
