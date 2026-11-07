@@ -14,6 +14,7 @@ Alliance Auth plugin for native Kanban boards.
 - **Own cards only**: Per board, let readers see only the cards they created or are assigned to. They can add cards in the first column and edit their own; write groups and board managers see everything.
 - **Board archive**: Archive a board to hide it from the dashboards and make it read-only. Board managers can open and restore it from Archived Boards.
 - **Summary View** displaying all accessible boards across standardized status columns.
+- **Search across all boards**: Find cards by title, description, comments, names, labels, team or card number on every board you can see, optionally including archived cards.
 - **Rich Card & Ticket Descriptions**: Markdown formatting with safe, sanitized rendering. Add images by pasting (`Ctrl+V`), dragging-and-dropping, or using the upload button, with a live `[Write]` / `[Preview]` toggle and a fullscreen lightbox for viewing.
 - **Global Labels & Card Colors**: Flexibly categorize cards using global labels and individual background colors, with automatic text-contrast adjustment.
 - **Member Ticket System**: Allows regular members to submit tickets (cards). Tickets are automatically routed to the correct board based on the selected target team. Boards can be individually designated as ticket boards. When a Discord ticket thread is created, members of the assigned team are automatically invited to the thread.

@@ -1,0 +1,19 @@
+{% load i18n %}
+{# Search box for all boards: on the overview, in the board header and on the results page. #}
+<form method="get" action="{% url 'aa_kanban:search' %}" class="d-flex align-items-center gap-2" role="search">
+    <div class="input-group{% if compact %} input-group-sm{% endif %}">
+        <input type="search" name="q" class="form-control" value="{{ query|default:'' }}"
+               placeholder="{% trans 'Search all boards' %}" aria-label="{% trans 'Search all boards' %}"
+               minlength="2">
+        <button type="submit" class="btn btn-outline-primary" title="{% trans 'Search' %}">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    {% if show_archived_toggle %}
+        <div class="form-check text-nowrap mb-0">
+            <input class="form-check-input" type="checkbox" name="archived" value="1" id="search-archived"
+                   {% if include_archived %}checked{% endif %}>
+            <label class="form-check-label" for="search-archived">{% trans "Include archived cards" %}</label>
+        </div>
+    {% endif %}
+</form>

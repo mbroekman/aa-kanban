@@ -68,3 +68,21 @@ def strip_image_markdown(text: str) -> str:
     from aa_kanban.markdown import strip_image_markdown as _strip_image_markdown
 
     return _strip_image_markdown(text)
+
+
+@register.filter
+def highlight(text: str, query: str):
+    """Escape text and wrap each search word in <mark>."""
+    import re
+
+    from django.utils.html import escape
+    from django.utils.safestring import mark_safe
+
+    from aa_kanban.search import search_terms
+
+    escaped = escape(text or "")
+    terms = [escape(t) for t in search_terms(query)]
+    if not terms:
+        return mark_safe(escaped)
+    pattern = re.compile("|".join(re.escape(t) for t in terms), re.IGNORECASE)
+    return mark_safe(pattern.sub(lambda m: f"<mark>{m.group(0)}</mark>", escaped))

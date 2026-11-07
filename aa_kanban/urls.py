@@ -10,6 +10,7 @@ urlpatterns = [
     # Board overview & detail
     path("", views.index, name="index"),
     path("summary/", views.summary, name="summary"),
+    path("search/", views.search, name="search"),
     path("members/", views.members_index, name="members_index"),
     path("boards/archived/", views.archived_boards, name="archived_boards"),
     path("tickets/create/", views.create_ticket, name="create_ticket"),

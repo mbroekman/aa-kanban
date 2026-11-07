@@ -18,6 +18,32 @@ from .permissions import (
 
 @login_required
 @permission_required("aa_kanban.basic_access", raise_exception=True)
+def search(request: HttpRequest) -> HttpResponse:
+    """Search cards across every board the user can see (TASK-114)."""
+    from django.conf import settings
+
+    from .search import MIN_QUERY_LENGTH, RESULT_LIMIT, search_cards
+
+    query = request.GET.get("q", "").strip()
+    include_archived = request.GET.get("archived") == "1"
+    cards, truncated = search_cards(request.user, query, include_archived)
+
+    app_name = getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
+    context = {
+        "title": _("Search - {app_name}").format(app_name=app_name),
+        "app_name": app_name,
+        "query": query,
+        "include_archived": include_archived,
+        "cards": cards,
+        "truncated": truncated,
+        "result_limit": RESULT_LIMIT,
+        "too_short": bool(query) and not cards and len(query) < MIN_QUERY_LENGTH,
+    }
+    return render(request, "aa_kanban/search.html", context)
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
 def index(request: HttpRequest) -> HttpResponse:
     """Render the board overview: the management boards visible to the user."""
     boards = (

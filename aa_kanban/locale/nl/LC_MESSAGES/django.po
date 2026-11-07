@@ -1464,3 +1464,46 @@ msgid ""
 "The team was unassigned from your card **{card_title}** by **{username}**."
 msgstr ""
 "Het team is door **{username}** losgekoppeld van je kaart **{card_title}**."
+
+msgid "Column"
+msgstr "Kolom"
+
+msgid "Include archived cards"
+msgstr "Ook gearchiveerde kaarten"
+
+msgid "No cards found."
+msgstr "Geen kaarten gevonden."
+
+msgid "Search"
+msgstr "Zoeken"
+
+msgid "Search - {app_name}"
+msgstr "Zoeken - {app_name}"
+
+msgid "Search all boards"
+msgstr "Zoek in alle borden"
+
+msgid ""
+"Searches titles, descriptions, comments, names, labels, teams and card "
+"numbers on every board you can see."
+msgstr ""
+"Zoekt in titels, beschrijvingen, reacties, namen, labels, teams en "
+"kaartnummers op alle borden die je kunt zien."
+
+msgid ""
+"Showing the first %(limit)s cards. Refine your search to narrow it down."
+msgstr "De eerste %(limit)s kaarten worden getoond. Verfijn je zoekopdracht."
+
+msgid "Team"
+msgstr "Team"
+
+msgid "Type at least 2 characters."
+msgstr "Typ minstens 2 tekens."
+
+msgid "Updated"
+msgstr "Bijgewerkt"
+
+msgid "%(counter)s card found"
+msgid_plural "%(counter)s cards found"
+msgstr[0] "%(counter)s kaart gevonden"
+msgstr[1] "%(counter)s kaarten gevonden"

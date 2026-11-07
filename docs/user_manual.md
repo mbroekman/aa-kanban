@@ -60,6 +60,7 @@ Navigating to `/kanban/` presents the **Dashboard**, the central launching point
    - Real-time card count and active list counter. On a board with **Own cards only**, readers see the count of their own cards.
    - **Needs attention**: a red edge and badge when the board has overdue cards, cards inactive longer than its stale-alert setting, or columns over their WIP limit. The reasons are listed on the card.
    - Quick "Open Board" button.
+1. **Search**: The search box searches every board you can see (see [Search](#search)).
 1. **Members page**: Boards marked as **Members Board** do not appear on the dashboard. They have their own page and Auth menu item (see [Board Settings](#board-settings)).
 1. **Archived Boards**: Board managers see an **Archived Boards** button with the number of archived boards. From there an archived board can be opened read-only or restored.
 1. **Create Board Button**: Available to any user belonging to a Kanban Group with `can_manage_boards=True`.
@@ -73,6 +74,17 @@ Navigating to `/kanban/` presents the **Dashboard**, the central launching point
 1. **Responsive Navigation Bar**: Quick links to **Dashboard**, **Submit Ticket** (for member requests), and **Settings** (for managers).
 
 ______________________________________________________________________
+
+### Search
+
+The search box is at the top of the dashboard and in the header of every board. It searches all boards you can see and opens a results page.
+
+- **What it searches:** card title, description and comments; the names of assignees, the card's creator and comment authors; labels; the team; and the card number (`#123` or `123`).
+- **Several words:** every word must match somewhere on the card. `nyx fighters` finds cards that mention both.
+- **Results:** cards with the word in the title come first, then the most recently changed. The results page shows at most 100 cards; refine the search for more.
+- **Open a card:** click a result. The board opens with that card.
+- **Archived cards:** tick **Include archived cards** on the results page. Those results open the board's archive page.
+- **Privacy:** you only find cards you could also open on the board. On a board with **Own cards only**, readers only find the cards they created or are assigned to. Archived boards are searched for board managers and the board's creator.
 
 ## 4. Interactive Kanban Boards
 

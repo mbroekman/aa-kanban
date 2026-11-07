@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Search across all boards (TASK-114):** a search box on the dashboard and in every board header.
+  - Searches card titles, descriptions, comments, names (assignees, creator, comment authors), labels, team and card number, on every board the user can see.
+  - Every word must match. Title matches come first; at most 100 results.
+  - Results link straight to the card. Archived cards are searched when **Include archived cards** is ticked.
+  - Follows the board rules: readers on an **Own cards only** board only find their own cards; archived boards only for board managers and the creator.
+
 ## [1.5.0] - 2026-11-06
 
 ### Added
