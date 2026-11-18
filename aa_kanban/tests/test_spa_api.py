@@ -239,3 +239,11 @@ def test_default_routes_serve_spa_and_settings_crud(client, basic_user):
     )
     assert lbl_resp.status_code == 200
     assert any(lbl["name"] == "SPA Label" for lbl in lbl_resp.json()["labels"])
+
+    # Submit Ticket GET route renders SPA without VariableDoesNotExist
+    AuthUtils.add_permission_to_user_by_name("aa_kanban.create_ticket", basic_user)
+    basic_user.refresh_from_db()
+    client.force_login(basic_user)
+    ticket_resp = client.get(reverse("aa_kanban:create_ticket"))
+    assert ticket_resp.status_code == 200
+    assert b'id="aa-kanban-spa"' in ticket_resp.content

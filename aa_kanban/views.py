@@ -736,7 +736,16 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
 
         return redirect("aa_kanban:ticket_success")
 
-    context = {"boards": ticket_boards, "labels": labels, "teams": teams}
+    from django.conf import settings
+
+    app_name = getattr(settings, "AA_KANBAN_APP_NAME", "Kanban")
+    context = {
+        "title": _("Submit Ticket"),
+        "app_name": app_name,
+        "boards": ticket_boards,
+        "labels": labels,
+        "teams": teams,
+    }
     return render(
         request,
         "aa_kanban/ticket_form.html"

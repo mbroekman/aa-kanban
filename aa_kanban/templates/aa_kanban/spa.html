@@ -1,7 +1,7 @@
 {% extends "allianceauth/base-bs5.html" %}
 {% load i18n static kanban_tags %}
 
-{% block page_title %}{{ title|default:app_name }}{% endblock %}
+{% block page_title %}{% if title %}{{ title }}{% elif app_name %}{{ app_name }}{% else %}{% kanban_app_name %}{% endif %}{% endblock %}
 
 {% block header_nav_brand %}
     {% kanban_app_name %} <span class="badge bg-secondary ms-2 text-white" style="font-size: 0.5em; vertical-align: middle;">v{% kanban_version %}</span>
@@ -19,7 +19,7 @@
      data-classic-url="{{ request.path }}?classic=1"
      data-settings-url="{% url 'aa_kanban:settings' %}"
      data-ticket-url="{% url 'aa_kanban:create_ticket' %}"
-     data-app-name="{{ app_name|default:'Kanban' }}"
+     data-app-name="{% if app_name %}{{ app_name }}{% else %}{% kanban_app_name %}{% endif %}"
      data-csrf-token="{{ csrf_token }}">
 </div>
 {% endblock %}
