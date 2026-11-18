@@ -39,7 +39,13 @@ def search(request: HttpRequest) -> HttpResponse:
         "result_limit": RESULT_LIMIT,
         "too_short": bool(query) and not cards and len(query) < MIN_QUERY_LENGTH,
     }
-    return render(request, "aa_kanban/search.html", context)
+    return render(
+        request,
+        "aa_kanban/search.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 @login_required
@@ -77,7 +83,13 @@ def index(request: HttpRequest) -> HttpResponse:
             Board.objects.filter(is_archived=True).count() if can_manage else 0
         ),
     }
-    return render(request, "aa_kanban/index.html", context)
+    return render(
+        request,
+        "aa_kanban/index.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 @login_required
@@ -99,7 +111,13 @@ def members_index(request: HttpRequest) -> HttpResponse:
         "app_name": page_name,
         "boards": boards,
     }
-    return render(request, "aa_kanban/members.html", context)
+    return render(
+        request,
+        "aa_kanban/members.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 @login_required
@@ -121,7 +139,13 @@ def archived_boards(request: HttpRequest) -> HttpResponse:
         "app_name": app_name,
         "boards": boards,
     }
-    return render(request, "aa_kanban/archived_boards.html", context)
+    return render(
+        request,
+        "aa_kanban/archived_boards.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 def _require_board_admin(request: HttpRequest, board: Board) -> None:
@@ -219,7 +243,13 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
         "add_card_list_id": add_card_list_id,
         "own_cards_view": not board.can_user_see_all_cards(request.user),
     }
-    return render(request, "aa_kanban/board_detail.html", context)
+    return render(
+        request,
+        "aa_kanban/board_detail.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 @login_required
@@ -247,7 +277,13 @@ def archived_cards(request: HttpRequest, board_slug: str, board: Board) -> HttpR
         "cards": cards,
         "can_write": board.can_user_write(request.user),
     }
-    return render(request, "aa_kanban/archived_cards.html", context)
+    return render(
+        request,
+        "aa_kanban/archived_cards.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 @login_required
@@ -556,7 +592,13 @@ def summary(request: HttpRequest) -> HttpResponse:
             "Done",
         ],
     }
-    return render(request, "aa_kanban/summary.html", context)
+    return render(
+        request,
+        "aa_kanban/summary.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 @login_required
@@ -695,7 +737,13 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
         return redirect("aa_kanban:ticket_success")
 
     context = {"boards": ticket_boards, "labels": labels, "teams": teams}
-    return render(request, "aa_kanban/ticket_form.html", context)
+    return render(
+        request,
+        "aa_kanban/ticket_form.html"
+        if request.GET.get("classic") == "1"
+        else "aa_kanban/spa.html",
+        context,
+    )
 
 
 @login_required
