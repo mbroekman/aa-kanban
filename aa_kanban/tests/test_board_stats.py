@@ -124,7 +124,7 @@ def test_dashboard_shows_card_count_and_attention():
     client = Client()
     client.force_login(user)
 
-    response = client.get(reverse("aa_kanban:index"))
+    response = client.get(reverse("aa_kanban:index"), {"classic": "1"})
 
     assert response.status_code == 200
     html = response.content.decode()

@@ -60,7 +60,7 @@ class TestArchiveBoard:
         url = reverse("aa_kanban:board_detail", args=[board.slug])
 
         assert client_for(people["writer"]).get(url).status_code == 403
-        page = client_for(people["manager"]).get(url)
+        page = client_for(people["manager"]).get(url, {"classic": "1"})
         assert page.status_code == 200
         assert "Restore Board" in page.content.decode()
 

@@ -195,7 +195,8 @@ def test_board_detail_excludes_archived_cards(board_setup):
     response = client.get(
         reverse(
             "aa_kanban:board_detail", kwargs={"board_slug": board_setup["board"].slug}
-        )
+        ),
+        {"classic": "1"},
     )
     assert response.status_code == 200
     assert visible_card.title.encode() in response.content
@@ -218,7 +219,8 @@ def test_archived_cards_view_lists_archived_cards(board_setup):
     response = client.get(
         reverse(
             "aa_kanban:archived_cards", kwargs={"board_slug": board_setup["board"].slug}
-        )
+        ),
+        {"classic": "1"},
     )
     assert response.status_code == 200
     assert archived_card.title.encode() in response.content
@@ -235,6 +237,7 @@ def test_archived_cards_view_requires_board_access(board_setup, user_factory):
     response = client.get(
         reverse(
             "aa_kanban:archived_cards", kwargs={"board_slug": board_setup["board"].slug}
-        )
+        ),
+        {"classic": "1"},
     )
     assert response.status_code == 403

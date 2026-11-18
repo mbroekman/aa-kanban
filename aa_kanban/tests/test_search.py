@@ -190,7 +190,7 @@ class TestPage:
     def test_results_link_to_the_card(self, world):
         client = Client()
         client.force_login(world["reader"])
-        response = client.get(reverse("aa_kanban:search"), {"q": "nyx"})
+        response = client.get(reverse("aa_kanban:search"), {"q": "nyx", "classic": "1"})
         assert response.status_code == 200
         html = response.content.decode()
         assert f"/board/ops/?card={world['card'].pk}" in html
@@ -204,7 +204,8 @@ class TestPage:
         client = Client()
         client.force_login(world["reader"])
         html = client.get(
-            reverse("aa_kanban:search"), {"q": "nyx", "archived": "1"}
+            reverse("aa_kanban:search"),
+            {"q": "nyx", "archived": "1", "classic": "1"},
         ).content.decode()
         assert f"/board/ops/archived/?card={card.pk}" in html
 
@@ -216,7 +217,7 @@ class TestPage:
             reverse("aa_kanban:index"),
             reverse("aa_kanban:board_detail", args=["ops"]),
         ):
-            assert search_url in client.get(url).content.decode(), url
+            assert search_url in client.get(url, {"classic": "1"}).content.decode(), url
 
     def test_highlight_escapes_html(self, world):
         Card.objects.create(
@@ -224,7 +225,9 @@ class TestPage:
         )
         client = Client()
         client.force_login(world["reader"])
-        html = client.get(reverse("aa_kanban:search"), {"q": "nyx"}).content.decode()
+        html = client.get(
+            reverse("aa_kanban:search"), {"q": "nyx", "classic": "1"}
+        ).content.decode()
         assert "&lt;b&gt;<mark>nyx</mark>&lt;/b&gt;" in html
 
     def test_needs_basic_access(self, db):

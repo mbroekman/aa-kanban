@@ -158,7 +158,7 @@ class TestEditing:
 
     def test_board_page_shows_add_form_only_on_first_column(self, setup):
         url = reverse("aa_kanban:board_detail", args=[setup["board"].slug])
-        html = client_for(setup["alice"]).get(url).content.decode()
+        html = client_for(setup["alice"]).get(url, {"classic": "1"}).content.decode()
 
         assert reverse("aa_kanban:create_card", args=[setup["first"].pk]) in html
         assert reverse("aa_kanban:create_card", args=[setup["second"].pk]) not in html
