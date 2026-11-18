@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-18
+
+### Added
+
+- **Modern React + TypeScript + Tailwind CSS + shadcn/ui SPA (TASK-116, TASK-117):**
+  - Replaced the classic Bootstrap 5 / HTMX pages with a modern single-page application as the default UI across all Kanban routes (`/`, `/members/`, `/board/<slug>/`, `/board/<slug>/archived/`, `/boards/archived/`, `/summary/`, `/tickets/create/`, `/settings/`, `/search/`).
+  - Scoped Tailwind CSS v4 (without global Preflight) under `.aa-spa-root` so Alliance Auth's Bootstrap 5 navigation remains unaffected.
+  - Automatic light/dark theme synchronization with Alliance Auth themes (`data-bs-theme` + body luminance + `MutationObserver`).
+  - Full drag-and-drop card movement (`@dnd-kit`), column CRUD, card detail dialog with Markdown preview/edit, image lightbox, comments, board CRUD/archive/restore, cross-board summary, ticket submission, global search, and full settings management (Groups, Teams, Labels, Global Settings).
+  - New JSON API endpoints under `/kanban/api/v1/` (`views_spa_api.py`), with classic UI still reachable via `?classic=1`.
+
 ## [1.6.0] - 2026-11-07
 
 ### Added

@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from . import views, views_api, views_intake, views_settings
+from . import views, views_api, views_intake, views_settings, views_spa_api
 
 app_name = "aa_kanban"
 
@@ -217,6 +217,148 @@ urlpatterns = [
         "settings/teams/<int:team_id>/authgroups/<int:authgroup_id>/remove/",
         views_settings.remove_authgroup_from_team,
         name="remove_authgroup_from_team",
+    ),
+    # Modern React + shadcn/ui SPA & JSON API
+    path("spa/", views_spa_api.spa_app, name="spa_root"),
+    path("spa/<path:subpath>", views_spa_api.spa_app, name="spa_subpath"),
+    path("api/v1/boards/", views_spa_api.api_boards, name="spa_api_boards"),
+    path(
+        "api/v1/boards/create/",
+        views_spa_api.api_create_board,
+        name="spa_api_create_board",
+    ),
+    path(
+        "api/v1/boards/archived/",
+        views_spa_api.api_archived_boards,
+        name="spa_api_archived_boards",
+    ),
+    path(
+        "api/v1/boards/<slug:board_slug>/",
+        views_spa_api.api_board_detail,
+        name="spa_api_board_detail",
+    ),
+    path(
+        "api/v1/boards/<slug:board_slug>/edit/",
+        views_spa_api.api_edit_board,
+        name="spa_api_edit_board",
+    ),
+    path(
+        "api/v1/boards/<slug:board_slug>/archive/",
+        views_spa_api.api_archive_board,
+        name="spa_api_archive_board",
+    ),
+    path(
+        "api/v1/boards/<slug:board_slug>/restore/",
+        views_spa_api.api_restore_board,
+        name="spa_api_restore_board",
+    ),
+    path(
+        "api/v1/boards/<slug:board_slug>/delete/",
+        views_spa_api.api_delete_board,
+        name="spa_api_delete_board",
+    ),
+    path(
+        "api/v1/boards/<slug:board_slug>/archived-cards/",
+        views_spa_api.api_archived_cards,
+        name="spa_api_archived_cards",
+    ),
+    path(
+        "api/v1/boards/<slug:board_slug>/lists/create/",
+        views_spa_api.api_create_list,
+        name="spa_api_create_list",
+    ),
+    path(
+        "api/v1/lists/<int:list_id>/edit/",
+        views_spa_api.api_edit_list,
+        name="spa_api_edit_list",
+    ),
+    path(
+        "api/v1/lists/<int:list_id>/delete/",
+        views_spa_api.api_delete_list,
+        name="spa_api_delete_list",
+    ),
+    path(
+        "api/v1/lists/<int:list_id>/cards/create/",
+        views_spa_api.api_create_card,
+        name="spa_api_create_card",
+    ),
+    path(
+        "api/v1/cards/<int:card_id>/",
+        views_spa_api.api_card_detail,
+        name="spa_api_card_detail",
+    ),
+    path(
+        "api/v1/cards/<int:card_id>/update/",
+        views_spa_api.api_update_card,
+        name="spa_api_update_card",
+    ),
+    path(
+        "api/v1/cards/<int:card_id>/move/",
+        views_spa_api.api_move_card,
+        name="spa_api_move_card",
+    ),
+    path(
+        "api/v1/cards/<int:card_id>/restore/",
+        views_spa_api.api_restore_card,
+        name="spa_api_restore_card",
+    ),
+    path(
+        "api/v1/cards/<int:card_id>/delete/",
+        views_spa_api.api_delete_card,
+        name="spa_api_delete_card",
+    ),
+    path(
+        "api/v1/cards/<int:card_id>/comments/add/",
+        views_spa_api.api_add_comment,
+        name="spa_api_add_comment",
+    ),
+    path("api/v1/search/", views_spa_api.api_search, name="spa_api_search"),
+    path("api/v1/summary/", views_spa_api.api_summary, name="spa_api_summary"),
+    path(
+        "api/v1/tickets/options/",
+        views_spa_api.api_ticket_options,
+        name="spa_api_ticket_options",
+    ),
+    path(
+        "api/v1/tickets/create/",
+        views_spa_api.api_create_ticket,
+        name="spa_api_create_ticket",
+    ),
+    path("api/v1/settings/", views_spa_api.api_settings, name="spa_api_settings"),
+    path(
+        "api/v1/settings/global/update/",
+        views_spa_api.api_update_global_settings,
+        name="spa_api_update_global_settings",
+    ),
+    path(
+        "api/v1/settings/groups/save/",
+        views_spa_api.api_save_group,
+        name="spa_api_save_group",
+    ),
+    path(
+        "api/v1/settings/groups/<int:group_id>/delete/",
+        views_spa_api.api_delete_group,
+        name="spa_api_delete_group",
+    ),
+    path(
+        "api/v1/settings/teams/save/",
+        views_spa_api.api_save_team,
+        name="spa_api_save_team",
+    ),
+    path(
+        "api/v1/settings/teams/<int:team_id>/delete/",
+        views_spa_api.api_delete_team,
+        name="spa_api_delete_team",
+    ),
+    path(
+        "api/v1/settings/labels/save/",
+        views_spa_api.api_save_label,
+        name="spa_api_save_label",
+    ),
+    path(
+        "api/v1/settings/labels/<int:label_id>/delete/",
+        views_spa_api.api_delete_label,
+        name="spa_api_delete_label",
     ),
     # Must stay LAST: Alliance Auth stops adding its login check to the patterns
     # after an excluded (public) view. Public because it uses an API key; needs
