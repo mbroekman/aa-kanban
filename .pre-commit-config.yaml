@@ -31,7 +31,8 @@ exclude: |
     README\.md|
     .min(.css|.css.map|.js|.js.map)|
     locale/|
-    static/(.*)/libs/
+    static/(.*)/libs/|
+    static/(.*)/spa/
   )
 
 # pre-commit setup

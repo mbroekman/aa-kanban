@@ -41,9 +41,11 @@ def search(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "aa_kanban/search.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/search.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
@@ -85,9 +87,11 @@ def index(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "aa_kanban/index.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/index.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
@@ -113,9 +117,11 @@ def members_index(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "aa_kanban/members.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/members.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
@@ -141,9 +147,11 @@ def archived_boards(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "aa_kanban/archived_boards.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/archived_boards.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
@@ -245,9 +253,11 @@ def board_detail(request: HttpRequest, board_slug: str, board: Board) -> HttpRes
     }
     return render(
         request,
-        "aa_kanban/board_detail.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/board_detail.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
@@ -279,9 +289,11 @@ def archived_cards(request: HttpRequest, board_slug: str, board: Board) -> HttpR
     }
     return render(
         request,
-        "aa_kanban/archived_cards.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/archived_cards.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
@@ -594,9 +606,11 @@ def summary(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "aa_kanban/summary.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/summary.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
@@ -748,9 +762,11 @@ def create_ticket(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "aa_kanban/ticket_form.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/ticket_form.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 

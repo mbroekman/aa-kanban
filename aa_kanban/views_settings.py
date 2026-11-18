@@ -33,9 +33,11 @@ def kanban_settings(request: HttpRequest) -> HttpResponse:
     }
     return render(
         request,
-        "aa_kanban/settings.html"
-        if request.GET.get("classic") == "1"
-        else "aa_kanban/spa.html",
+        (
+            "aa_kanban/settings.html"
+            if request.GET.get("classic") == "1"
+            else "aa_kanban/spa.html"
+        ),
         context,
     )
 
