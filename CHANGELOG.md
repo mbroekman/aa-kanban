@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-11-18
+
+### Fixed
+
+- **Submit Ticket 500 error (TASK-118):** resolved `VariableDoesNotExist` when rendering `spa.html` on `GET /tickets/create/` without `title` or `app_name` in context.
+
 ## [2.0.0] - 2026-11-18
 
 ### Added
