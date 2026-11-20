@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **SPA root background follows the active Alliance Auth theme (TASK-119):** the Kanban board background now tracks the live computed background color of the Auth page itself (`document.body`), instead of two hardcoded light/dark values, so it matches whichever Bootstrap sub-theme (flatly, darkly, cerulean, ...) is selected. All other colors (foreground, card, border) are unchanged.
+
 ## [2.0.1] - 2026-11-18
 
 ### Fixed

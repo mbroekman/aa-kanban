@@ -24,8 +24,19 @@ function isAllianceAuthDark(): boolean {
   return true;
 }
 
+function isTransparent(color: string): boolean {
+  return color === "transparent" || /rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(color);
+}
+
 function syncTheme(mountEl: HTMLElement) {
   mountEl.classList.toggle("dark", isAllianceAuthDark());
+
+  const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+  if (bodyBg && !isTransparent(bodyBg)) {
+    mountEl.style.setProperty("--background", bodyBg);
+  } else {
+    mountEl.style.removeProperty("--background");
+  }
 }
 
 const mountEl = document.getElementById("aa-kanban-spa");
