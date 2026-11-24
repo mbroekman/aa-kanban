@@ -509,6 +509,76 @@ def api_move_card(request: HttpRequest, card_id: int) -> JsonResponse:
                     c.order = idx
                     c.save(update_fields=["order"])
 
+    prompt_close_thread = False
+    if source_list.pk != target_list.pk:
+        from aa_kanban.tasks import notify_card_creator
+
+        creator_msg = _(
+            "Your card **{card_title}** was moved from `{source_list_name}` to "
+            "`{target_list_name}` by **{username}**."
+        ).format(
+            card_title=card.title,
+            source_list_name=source_list.name,
+            target_list_name=target_list.name,
+            username=request.user.username,
+        )
+        notify_card_creator(card, str(creator_msg), actor=request.user)
+
+        if card.discord_thread_id:
+            from aa_kanban.tasks import notify_ticket_thread
+
+            thread_msg = _(
+                "🔄 **Status Update:** Card moved from `{source_list_name}` to "
+                "`{target_list_name}` by **{username}**."
+            ).format(
+                source_list_name=source_list.name,
+                target_list_name=target_list.name,
+                username=request.user.username,
+            )
+            notify_ticket_thread.delay(card.discord_thread_id, str(thread_msg))
+
+            last_list = board.lists.order_by("order", "id").last()
+            if last_list and target_list.pk == last_list.pk:
+                prompt_close_thread = True
+
+        if board.discord_webhook_cards:
+            from aa_kanban.utils import send_discord_webhook
+
+            url = request.build_absolute_uri(
+                redirect("aa_kanban:board_detail", board_slug=board.slug).url
+            )
+            msg = _(
+                "Card moved: **{card_title}** was moved from `{source_list_name}` to "
+                "`{target_list_name}`.\n[View Board]({url})"
+            ).format(
+                card_title=card.title,
+                source_list_name=source_list.name,
+                target_list_name=target_list.name,
+                url=url,
+            )
+            send_discord_webhook(board.discord_webhook_cards, msg)
+
+    return JsonResponse({"ok": True, "prompt_close_thread": prompt_close_thread})
+
+
+@login_required
+@permission_required("aa_kanban.basic_access", raise_exception=True)
+@require_POST
+def api_close_card_thread(request: HttpRequest, card_id: int) -> JsonResponse:
+    """Archive and lock a card's Discord thread."""
+    card = get_object_or_404(Card.objects.select_related("list__board"), pk=card_id)
+    if not card.list.board.can_user_write(request.user):
+        raise PermissionDenied("Write permission required to close this thread.")
+
+    if not card.discord_thread_id:
+        return JsonResponse(
+            {"error": _("This card has no Discord thread.")}, status=400
+        )
+
+    from aa_kanban.tasks import close_ticket_thread
+
+    close_ticket_thread.delay(card.discord_thread_id)
+
     return JsonResponse({"ok": True})
 
 

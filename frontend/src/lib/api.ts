@@ -210,7 +210,7 @@ export async function moveCard(
   cardId: number,
   targetListId: number,
   newPosition: number
-): Promise<{ ok: boolean }> {
+): Promise<{ ok: boolean; prompt_close_thread?: boolean }> {
   const { apiPrefix } = getSpaConfig();
   return requestJson(`${apiPrefix}cards/${cardId}/move/`, {
     method: "POST",
@@ -218,6 +218,14 @@ export async function moveCard(
       target_list_id: targetListId,
       new_position: newPosition,
     }),
+  });
+}
+
+export async function closeCardThread(cardId: number): Promise<{ ok: boolean }> {
+  const { apiPrefix } = getSpaConfig();
+  return requestJson(`${apiPrefix}cards/${cardId}/close-thread/`, {
+    method: "POST",
+    body: JSON.stringify({}),
   });
 }
 

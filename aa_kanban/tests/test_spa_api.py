@@ -1,6 +1,7 @@
 """Tests for the aa_kanban React/shadcn SPA host view and JSON API."""
 
 import json
+from unittest.mock import patch
 
 import pytest
 from allianceauth.tests.auth_utils import AuthUtils
@@ -247,3 +248,130 @@ def test_default_routes_serve_spa_and_settings_crud(client, basic_user):
     ticket_resp = client.get(reverse("aa_kanban:create_ticket"))
     assert ticket_resp.status_code == 200
     assert b'id="aa-kanban-spa"' in ticket_resp.content
+
+
+@pytest.mark.django_db
+class TestMoveCardDiscordThreadPrompt:
+    """TASK-121: the classic move_card view notifies a card's Discord
+    thread on move and flags prompt_close_thread when the card lands in
+    the board's last list - api_move_card (used by the SPA) must do the
+    same instead of silently returning {"ok": True}."""
+
+    @pytest.fixture
+    def ticket_card(self, board_with_writer):
+        list_todo = board_with_writer.lists.get(name="To Do")
+        return Card.objects.create(
+            list=list_todo,
+            title="SPA Ticket with Thread",
+            discord_thread_id=555666777,
+        )
+
+    def test_move_notifies_thread_and_does_not_prompt_mid_board(
+        self, client, basic_user, board_with_writer, ticket_card
+    ):
+        target_list = board_with_writer.lists.get(name="In Progress")
+        client.force_login(basic_user)
+
+        with patch("aa_kanban.tasks.notify_ticket_thread.delay") as mock_notify:
+            resp = client.post(
+                reverse(
+                    "aa_kanban:spa_api_move_card", kwargs={"card_id": ticket_card.id}
+                ),
+                json.dumps({"target_list_id": target_list.id, "new_position": 0}),
+                content_type="application/json",
+            )
+        assert resp.status_code == 200
+        payload = resp.json()
+        assert payload["ok"] is True
+        assert payload["prompt_close_thread"] is False
+
+        assert mock_notify.called
+        args, _kwargs = mock_notify.call_args
+        assert args[0] == 555666777
+        assert "To Do" in args[1]
+        assert "In Progress" in args[1]
+        assert basic_user.username in args[1]
+
+    def test_move_to_last_list_prompts_thread_close(
+        self, client, basic_user, board_with_writer, ticket_card
+    ):
+        last_list = board_with_writer.lists.order_by("order", "id").last()
+        client.force_login(basic_user)
+
+        with patch("aa_kanban.tasks.notify_ticket_thread.delay"):
+            resp = client.post(
+                reverse(
+                    "aa_kanban:spa_api_move_card", kwargs={"card_id": ticket_card.id}
+                ),
+                json.dumps({"target_list_id": last_list.id, "new_position": 0}),
+                content_type="application/json",
+            )
+        assert resp.status_code == 200
+        assert resp.json()["prompt_close_thread"] is True
+
+    def test_move_without_thread_never_prompts(
+        self, client, basic_user, board_with_writer
+    ):
+        list_todo = board_with_writer.lists.get(name="To Do")
+        card = Card.objects.create(list=list_todo, title="No thread card")
+        last_list = board_with_writer.lists.order_by("order", "id").last()
+        client.force_login(basic_user)
+
+        resp = client.post(
+            reverse("aa_kanban:spa_api_move_card", kwargs={"card_id": card.id}),
+            json.dumps({"target_list_id": last_list.id, "new_position": 0}),
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+        assert resp.json()["prompt_close_thread"] is False
+
+
+@pytest.mark.django_db
+class TestCloseCardThreadApi:
+    """api_close_card_thread (SPA) mirrors the classic close_card_thread view."""
+
+    @pytest.fixture
+    def ticket_card(self, board_with_writer):
+        list_todo = board_with_writer.lists.get(name="To Do")
+        return Card.objects.create(
+            list=list_todo,
+            title="SPA Close Thread Card",
+            discord_thread_id=555666777,
+        )
+
+    def test_close_card_thread_dispatches_task(self, client, basic_user, ticket_card):
+        client.force_login(basic_user)
+        with patch("aa_kanban.tasks.close_ticket_thread.delay") as mock_close:
+            resp = client.post(
+                reverse(
+                    "aa_kanban:spa_api_close_card_thread",
+                    kwargs={"card_id": ticket_card.id},
+                )
+            )
+        assert resp.status_code == 200
+        assert resp.json()["ok"] is True
+        mock_close.assert_called_once_with(555666777)
+
+    def test_close_card_thread_requires_write_permission(
+        self, client, other_user, ticket_card
+    ):
+        client.force_login(other_user)
+        resp = client.post(
+            reverse(
+                "aa_kanban:spa_api_close_card_thread",
+                kwargs={"card_id": ticket_card.id},
+            )
+        )
+        assert resp.status_code == 403
+
+    def test_close_card_thread_without_thread_returns_error(
+        self, client, basic_user, board_with_writer
+    ):
+        list_todo = board_with_writer.lists.get(name="To Do")
+        card = Card.objects.create(list=list_todo, title="No thread here")
+        client.force_login(basic_user)
+
+        resp = client.post(
+            reverse("aa_kanban:spa_api_close_card_thread", kwargs={"card_id": card.id})
+        )
+        assert resp.status_code == 400

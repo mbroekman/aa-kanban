@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-11-24
+
+### Fixed
+
+- **Discord thread close-prompt and move notifications missing in SPA (TASK-121):** the classic board's move-card notifications (card-creator notification, Discord thread status update, board webhook) and the prompt to close a ticket's Discord thread when it reaches the last column never made it into the SPA after the v2.0.0 migration - moving a card there only moved it. Restored: the SPA now sends the same notifications and shows a confirmation dialog to archive+lock the Discord thread when a ticket card lands in the last column.
+
 ## [2.1.1] - 2026-11-24
 
 ### Fixed

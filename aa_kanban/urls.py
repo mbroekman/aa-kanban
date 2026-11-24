@@ -298,6 +298,11 @@ urlpatterns = [
         name="spa_api_move_card",
     ),
     path(
+        "api/v1/cards/<int:card_id>/close-thread/",
+        views_spa_api.api_close_card_thread,
+        name="spa_api_close_card_thread",
+    ),
+    path(
         "api/v1/cards/<int:card_id>/restore/",
         views_spa_api.api_restore_card,
         name="spa_api_restore_card",
