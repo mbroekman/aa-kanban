@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Drag-and-drop on iPad / touch devices (TASK-120):** the board used a single `PointerSensor` with only a distance constraint, so on iPadOS Safari the browser claimed the touch for scrolling and cancelled the gesture before a drag could start. The board now uses a `MouseSensor` (unchanged desktop behaviour) plus a `TouchSensor` that starts a drag after a short long-press (200 ms), so swiping still scrolls the board and tapping still opens a card. Cards also suppress the iOS long-press callout.
+
 ## [2.1.0] - 2026-11-20
 
 ### Fixed
