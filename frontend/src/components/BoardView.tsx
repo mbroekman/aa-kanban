@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCorners,
   useSensor,
   useSensors,
@@ -98,7 +99,7 @@ function CardItem({
       {...(isOverlay ? {} : listeners)}
       onClick={onClick}
       className={cn(
-        "group rounded-lg border border-border bg-card p-3 shadow-xs transition-all hover:border-primary/60 hover:bg-accent/50 cursor-pointer select-none",
+        "group rounded-lg border border-border bg-card p-3 shadow-xs transition-all hover:border-primary/60 hover:bg-accent/50 cursor-pointer select-none touch-manipulation [-webkit-touch-callout:none]",
         accent,
         isDragging && "opacity-35",
         isOverlay && "shadow-2xl ring-2 ring-primary/60 rotate-1"
@@ -351,9 +352,17 @@ export function BoardView({
 
   const [boardSettingsOpen, setBoardSettingsOpen] = useState(false);
 
+  // Separate mouse and touch sensors: a PointerSensor with only a distance
+  // constraint loses the gesture on iPad/iOS Safari, because the browser
+  // claims the touch for scrolling and fires pointercancel before the drag
+  // activates. The TouchSensor starts a drag after a short long-press, so a
+  // normal swipe still scrolls the board and a tap still opens the card.
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: { distance: 6 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 8 },
     })
   );
 
