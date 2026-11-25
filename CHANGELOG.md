@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.3] - 2026-11-25
+
+### Removed
+
+- **Python 3.10 support dropped.** Minimum supported version is now Python 3.11.
+
 ## [2.1.2] - 2026-11-24
 
 ### Fixed
