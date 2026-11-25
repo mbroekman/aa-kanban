@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.1.4] - 2026-11-25
+
 ### Fixed
 
 - **Clipboard image paste in Kanban cards (TASK-122):** Restored pasting images from clipboard (`Ctrl+V`) in the SPA card description and comment inputs (`CardDetailDialog.tsx`, `uploadImage` in `api.ts` posting to `/kanban/api/upload-image/`).
