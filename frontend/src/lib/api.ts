@@ -67,6 +67,28 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   return payload as T;
 }
 
+export async function uploadImage(
+  file: File
+): Promise<{ id: number; url: string; filename: string; markdown: string }> {
+  const { apiPrefix, csrfToken } = getSpaConfig();
+  const uploadUrl = `${apiPrefix.replace(/v1\/$/, "")}upload-image/`;
+  const formData = new FormData();
+  formData.append("image", file, file.name || "pasted-image.png");
+  const resp = await fetch(uploadUrl, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "X-CSRFToken": csrfToken,
+    },
+    body: formData,
+  });
+  const payload = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(payload.error || `Image upload failed (${resp.status})`);
+  }
+  return payload as { id: number; url: string; filename: string; markdown: string };
+}
+
 export async function fetchBoards(): Promise<{
   boards: BoardSummary[];
   can_manage: boolean;

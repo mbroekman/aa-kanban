@@ -25,6 +25,7 @@ import {
   deleteCard,
   fetchCardDetail,
   updateCard,
+  uploadImage,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { KanbanCard, LabelItem, TeamItem, UserRef } from "@/types";
@@ -82,6 +83,47 @@ export function CardDetailDialog({
     src: string;
     alt: string;
   } | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handlePasteImage = async (
+    e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    const items = Array.from(e.clipboardData?.items || []);
+    const imageItem = items.find((item) => item.type.startsWith("image/"));
+    const rawFile =
+      imageItem?.getAsFile() ||
+      Array.from(e.clipboardData?.files || []).find((f) =>
+        f.type.startsWith("image/")
+      );
+    if (!rawFile) return;
+
+    e.preventDefault();
+    const ext = (rawFile.type.split("/")[1] || "png").replace("jpeg", "jpg");
+    const filename =
+      rawFile.name && rawFile.name !== "image.png"
+        ? rawFile.name
+        : `pasted-${Date.now()}.${ext}`;
+    const namedFile = new File([rawFile], filename, { type: rawFile.type });
+
+    const el = e.currentTarget;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? el.value.length;
+    const placeholder = `![Uploading ${filename}...]()`;
+
+    setter((prev) => `${prev.slice(0, start)}${placeholder}${prev.slice(end)}`);
+    setUploadingImage(true);
+    setError(null);
+    try {
+      const uploaded = await uploadImage(namedFile);
+      setter((prev) => prev.replace(placeholder, uploaded.markdown));
+    } catch (err) {
+      setter((prev) => prev.replace(placeholder, ""));
+      setError(err instanceof Error ? err.message : "Image upload failed.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleMarkdownClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement | null;
@@ -262,9 +304,15 @@ export function CardDetailDialog({
                         <Textarea
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
+                          onPaste={(e) => void handlePasteImage(e, setDescription)}
                           rows={6}
                           placeholder="Write Markdown description..."
                         />
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {uploadingImage
+                            ? "Uploading pasted image..."
+                            : "Tip: paste an image from clipboard directly into the description."}
+                        </p>
                       </TabsContent>
                     </Tabs>
                   ) : (
@@ -328,6 +376,7 @@ export function CardDetailDialog({
                       <Input
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
+                        onPaste={(e) => void handlePasteImage(e, setCommentText)}
                         placeholder="Write a comment..."
                       />
                       <Button
