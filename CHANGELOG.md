@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Auto-switch to Preview on Save Changes (TASK-123):** `CardDetailDialog` now switches the description tabs back to **Preview** after saving changes and disables **Save Changes** while a pasted image is still uploading.
+
 ## [2.1.4] - 2026-11-25
 
 ### Fixed

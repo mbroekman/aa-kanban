@@ -84,6 +84,7 @@ export function CardDetailDialog({
     alt: string;
   } | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [descTab, setDescTab] = useState<"preview" | "edit">("preview");
 
   const handlePasteImage = async (
     e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -149,6 +150,7 @@ export function CardDetailDialog({
         setCard(loaded);
         setTitle(loaded.title);
         setDescription(loaded.description);
+        setDescTab(loaded.description ? "preview" : "edit");
         setColor(loaded.color || "");
         setDueDate(loaded.due_date ? loaded.due_date.slice(0, 16) : "");
         setTeamId(loaded.assigned_team ? String(loaded.assigned_team.id) : "");
@@ -184,6 +186,7 @@ export function CardDetailDialog({
         assignee_ids: selectedAssigneeIds,
       });
       setCard(updated);
+      setDescTab("preview");
       onCardUpdated(updated);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to save changes.");
@@ -277,7 +280,10 @@ export function CardDetailDialog({
                     </span>
                   </div>
                   {canWrite ? (
-                    <Tabs defaultValue={card.description ? "preview" : "edit"}>
+                    <Tabs
+                      value={descTab}
+                      onValueChange={(v) => setDescTab(v as "preview" | "edit")}
+                    >
                       <TabsList>
                         <TabsTrigger value="preview">Preview</TabsTrigger>
                         <TabsTrigger value="edit">Edit Markdown</TabsTrigger>
@@ -527,7 +533,7 @@ export function CardDetailDialog({
                   <div className="pt-2 flex flex-col gap-2 border-t border-border">
                     <Button
                       onClick={handleSave}
-                      disabled={saving}
+                      disabled={saving || uploadingImage}
                       className="w-full"
                     >
                       {saving ? (
