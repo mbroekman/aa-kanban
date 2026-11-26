@@ -232,7 +232,7 @@ export async function moveCard(
   cardId: number,
   targetListId: number,
   newPosition: number
-): Promise<{ ok: boolean; prompt_close_thread?: boolean }> {
+): Promise<{ ok: boolean; thread_closed?: boolean }> {
   const { apiPrefix } = getSpaConfig();
   return requestJson(`${apiPrefix}cards/${cardId}/move/`, {
     method: "POST",

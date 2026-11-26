@@ -137,8 +137,11 @@ export function App() {
     }
   }, []);
 
-  const loadBoard = useCallback(async (slug: string) => {
-    setLoadingBoard(true);
+  // A silent reload refreshes the board data without swapping BoardView for
+  // the loading spinner, so BoardView stays mounted and keeps its local state
+  // (e.g. the "Close Discord thread?" prompt set right after a card move).
+  const loadBoard = useCallback(async (slug: string, silent = false) => {
+    if (!silent) setLoadingBoard(true);
     setError(null);
     try {
       const detail = await fetchBoardDetail(slug);
@@ -360,7 +363,7 @@ export function App() {
               void loadBoards();
               navigate({ view: "overview" });
             }}
-            onReload={() => loadBoard(route.slug)}
+            onReload={() => loadBoard(route.slug, true)}
             onDetailChange={setBoardDetail}
           />
         )

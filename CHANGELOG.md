@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- **Discord thread now closes automatically when a card reaches Done (TASK-124):** Moving a ticket card into the board's last column posts the status update and a closing notice in its Discord thread, then archives and locks the thread, without asking. This applies to the SPA, the classic board view and the `move_kanban_card` service. The "Close Discord thread?" dialog is gone; it never appeared in the SPA anyway, because the board reload after the move unmounted `BoardView`. Board reloads from inside the board are now silent. The move API returns `thread_closed` instead of `prompt_close_thread`.
+
 ## [2.1.5] - 2026-11-25
 
 ### Changed

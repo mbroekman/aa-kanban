@@ -40,7 +40,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-  closeCardThread,
   createCard,
   createList,
   deleteList,
@@ -349,10 +348,6 @@ export function BoardView({
   const [newListWip, setNewListWip] = useState("0");
   const [creatingList, setCreatingList] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
-  const [closeThreadCardId, setCloseThreadCardId] = useState<number | null>(
-    null
-  );
-  const [closingThread, setClosingThread] = useState(false);
 
   const [editingList, setEditingList] = useState<KanbanList | null>(null);
   const [editListName, setEditListName] = useState("");
@@ -461,11 +456,8 @@ export function BoardView({
     setMoveError(null);
 
     try {
-      const res = await moveCard(movedCard.id, targetListId, newPosition);
+      await moveCard(movedCard.id, targetListId, newPosition);
       await onReload();
-      if (res.prompt_close_thread) {
-        setCloseThreadCardId(movedCard.id);
-      }
     } catch (err: unknown) {
       setMoveError(err instanceof Error ? err.message : "Failed to move card.");
       await onReload();
@@ -665,54 +657,6 @@ export function BoardView({
           })
         }
       />
-
-      {/* Close Discord Thread Prompt */}
-      <Dialog
-        open={closeThreadCardId !== null}
-        onOpenChange={(open) => {
-          if (!open) setCloseThreadCardId(null);
-        }}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Close Discord thread?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            This card reached the last column and has a linked Discord
-            thread. Archive and lock it now?
-          </p>
-          <div className="flex justify-end gap-2 mt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCloseThreadCardId(null)}
-              disabled={closingThread}
-            >
-              Keep Open
-            </Button>
-            <Button
-              type="button"
-              onClick={async () => {
-                if (closeThreadCardId === null) return;
-                setClosingThread(true);
-                try {
-                  await closeCardThread(closeThreadCardId);
-                } finally {
-                  setClosingThread(false);
-                  setCloseThreadCardId(null);
-                }
-              }}
-              disabled={closingThread}
-            >
-              {closingThread ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Close Thread"
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Add Column Dialog */}
       <Dialog open={addListOpen} onOpenChange={setAddListOpen}>

@@ -98,9 +98,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     })
                     .then(function (data) {
                         updateListCounts();
-                        if (data && data.prompt_close_thread) {
-                            showCloseThreadConfirm(data.card_id);
-                        }
                     })
                     .catch(function (error) {
                         console.error("Failed to move card:", error);

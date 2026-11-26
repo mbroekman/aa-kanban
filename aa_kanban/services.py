@@ -125,7 +125,7 @@ def move_kanban_card(card_id: int, target_column_name: str) -> Card:
         notify_card_creator(card, str(creator_msg))
 
         if card.discord_thread_id:
-            from aa_kanban.tasks import notify_ticket_thread
+            from aa_kanban.tasks import dispatch_ticket_thread_move
 
             thread_msg = _(
                 "🔄 **Status Update:** Card moved from `{source_list_name}` to `{target_list_name}`."
@@ -133,7 +133,7 @@ def move_kanban_card(card_id: int, target_column_name: str) -> Card:
                 source_list_name=old_list_name,
                 target_list_name=target_list.name,
             )
-            notify_ticket_thread.delay(card.discord_thread_id, str(thread_msg))
+            dispatch_ticket_thread_move(card, target_list, str(thread_msg))
 
         if board.discord_webhook_cards:
             from django.utils.translation import gettext as _
