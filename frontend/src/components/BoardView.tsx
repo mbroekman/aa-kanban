@@ -462,10 +462,10 @@ export function BoardView({
 
     try {
       const res = await moveCard(movedCard.id, targetListId, newPosition);
-      await onReload();
       if (res.prompt_close_thread) {
         setCloseThreadCardId(movedCard.id);
       }
+      await onReload();
     } catch (err: unknown) {
       setMoveError(err instanceof Error ? err.message : "Failed to move card.");
       await onReload();
@@ -697,6 +697,12 @@ export function BoardView({
                 setClosingThread(true);
                 try {
                   await closeCardThread(closeThreadCardId);
+                } catch (err: unknown) {
+                  setMoveError(
+                    err instanceof Error
+                      ? err.message
+                      : "Failed to close the Discord thread."
+                  );
                 } finally {
                   setClosingThread(false);
                   setCloseThreadCardId(null);

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- **Discord thread close prompt after moving a card to Done (TASK-124):** The "Close Discord thread?" dialog never appeared after dragging a ticket card into the board's last column, because the board reload that followed the move unmounted `BoardView` and dropped the prompt state. Board reloads from inside the board are now silent (no loading spinner swap), the prompt is opened before the reload, and a failing close request now shows an error.
+
 ## [2.1.5] - 2026-11-25
 
 ### Changed
