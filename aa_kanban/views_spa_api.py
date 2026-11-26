@@ -509,7 +509,7 @@ def api_move_card(request: HttpRequest, card_id: int) -> JsonResponse:
                     c.order = idx
                     c.save(update_fields=["order"])
 
-    prompt_close_thread = False
+    thread_closed = False
     if source_list.pk != target_list.pk:
         from aa_kanban.tasks import notify_card_creator
 
@@ -525,7 +525,7 @@ def api_move_card(request: HttpRequest, card_id: int) -> JsonResponse:
         notify_card_creator(card, str(creator_msg), actor=request.user)
 
         if card.discord_thread_id:
-            from aa_kanban.tasks import notify_ticket_thread
+            from aa_kanban.tasks import dispatch_ticket_thread_move
 
             thread_msg = _(
                 "🔄 **Status Update:** Card moved from `{source_list_name}` to "
@@ -535,11 +535,9 @@ def api_move_card(request: HttpRequest, card_id: int) -> JsonResponse:
                 target_list_name=target_list.name,
                 username=request.user.username,
             )
-            notify_ticket_thread.delay(card.discord_thread_id, str(thread_msg))
-
-            last_list = board.lists.order_by("order", "id").last()
-            if last_list and target_list.pk == last_list.pk:
-                prompt_close_thread = True
+            thread_closed = dispatch_ticket_thread_move(
+                card, target_list, str(thread_msg)
+            )
 
         if board.discord_webhook_cards:
             from aa_kanban.utils import send_discord_webhook
@@ -558,7 +556,7 @@ def api_move_card(request: HttpRequest, card_id: int) -> JsonResponse:
             )
             send_discord_webhook(board.discord_webhook_cards, msg)
 
-    return JsonResponse({"ok": True, "prompt_close_thread": prompt_close_thread})
+    return JsonResponse({"ok": True, "thread_closed": thread_closed})
 
 
 @login_required

@@ -108,8 +108,8 @@ def test_move_card_notifies_thread(ticket_setup):
 
 
 @pytest.mark.django_db
-def test_move_card_to_last_list_prompts_thread_close(ticket_setup):
-    """Moving a ticket card into the board's last list flags prompt_close_thread."""
+def test_move_card_to_last_list_closes_thread(ticket_setup):
+    """Moving a ticket card into the board's last list closes its thread automatically."""
     card = ticket_setup["card"]
     writer = ticket_setup["writer"]
     board = ticket_setup["board"]
@@ -118,18 +118,27 @@ def test_move_card_to_last_list_prompts_thread_close(ticket_setup):
     client = Client()
     client.force_login(writer)
 
-    with patch("aa_kanban.tasks.notify_ticket_thread.delay"):
+    with (
+        patch("aa_kanban.tasks.notify_ticket_thread.delay") as mock_notify,
+        patch("aa_kanban.tasks.close_ticket_thread.delay") as mock_close,
+    ):
         response = client.post(
             reverse("aa_kanban:move_card", kwargs={"card_id": card.id}),
             {"target_list_id": last_list.id, "new_position": 0},
         )
         assert response.status_code == 200
-        assert response.json()["prompt_close_thread"] is True
+        assert response.json()["thread_closed"] is True
+        mock_notify.assert_not_called()
+        mock_close.assert_called_once()
+        args, _ = mock_close.call_args
+        assert args[0] == 555666777
+        assert last_list.name in args[1]
+        assert writer.username in args[1]
 
 
 @pytest.mark.django_db
-def test_move_card_to_non_last_list_does_not_prompt_close(ticket_setup):
-    """Moving a ticket card into a non-last list never flags prompt_close_thread."""
+def test_move_card_to_non_last_list_does_not_close_thread(ticket_setup):
+    """Moving a ticket card into a non-last list keeps its thread open."""
     card = ticket_setup["card"]
     target_list = ticket_setup["list_in_progress"]
     writer = ticket_setup["writer"]
@@ -137,13 +146,17 @@ def test_move_card_to_non_last_list_does_not_prompt_close(ticket_setup):
     client = Client()
     client.force_login(writer)
 
-    with patch("aa_kanban.tasks.notify_ticket_thread.delay"):
+    with (
+        patch("aa_kanban.tasks.notify_ticket_thread.delay"),
+        patch("aa_kanban.tasks.close_ticket_thread.delay") as mock_close,
+    ):
         response = client.post(
             reverse("aa_kanban:move_card", kwargs={"card_id": card.id}),
             {"target_list_id": target_list.id, "new_position": 0},
         )
         assert response.status_code == 200
-        assert response.json()["prompt_close_thread"] is False
+        assert response.json()["thread_closed"] is False
+        mock_close.assert_not_called()
 
 
 @pytest.mark.django_db
@@ -211,6 +224,44 @@ def test_close_discord_thread_sends_message_then_archives():
     mock_thread.edit.assert_called_once_with(archived=True, locked=True)
 
 
+@pytest.mark.django_db(transaction=True)
+def test_close_discord_thread_posts_status_update_before_closing():
+    """A status_message is posted first, then the closing notice, then archive+lock."""
+    import asyncio
+
+    calls = []
+    mock_thread = AsyncMock()
+    mock_thread.send.side_effect = lambda **kw: calls.append(("send", kw["content"]))
+    mock_thread.edit.side_effect = lambda **kw: calls.append(("edit", kw))
+    mock_bot = MagicMock()
+    mock_bot.get_channel.return_value = mock_thread
+
+    asyncio.run(_close_discord_thread(mock_bot, 777111, "moved to Done"))
+
+    assert calls[0] == ("send", "moved to Done")
+    assert calls[1][0] == "send" and "closed" in str(calls[1][1])
+    assert calls[2] == ("edit", {"archived": True, "locked": True})
+
+
+@pytest.mark.django_db
+def test_move_kanban_card_service_to_last_list_closes_thread(ticket_setup):
+    """The move_kanban_card service also closes the thread when the card reaches Done."""
+    from aa_kanban.services import move_kanban_card
+
+    card = ticket_setup["card"]
+    last_list = ticket_setup["board"].lists.order_by("order", "id").last()
+
+    with (
+        patch("aa_kanban.tasks.notify_ticket_thread.delay") as mock_notify,
+        patch("aa_kanban.tasks.close_ticket_thread.delay") as mock_close,
+    ):
+        move_kanban_card(card.id, last_list.name)
+
+    mock_notify.assert_not_called()
+    mock_close.assert_called_once()
+    assert mock_close.call_args[0][0] == 555666777
+
+
 @pytest.mark.django_db
 def test_close_ticket_thread_delegates_to_aadiscordbot():
     """close_ticket_thread dispatches to aadiscordbot queue."""
@@ -224,6 +275,7 @@ def test_close_ticket_thread_delegates_to_aadiscordbot():
         kwargs = mock_run_task.apply_async.call_args[1]
         assert kwargs["queue"] == "aadiscordbot"
         assert kwargs["kwargs"]["task_args"] == [777111]
+        assert kwargs["kwargs"]["task_kwargs"] == {"status_message": None}
 
 
 @pytest.mark.django_db

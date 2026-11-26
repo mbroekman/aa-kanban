@@ -593,9 +593,16 @@ def notify_ticket_thread(
         logger.warning("aadiscordbot is not installed or available.")
 
 
-async def _close_discord_thread(bot, thread_id: int):
-    """Post a closing message, then archive and lock a Discord ticket thread."""
+async def _close_discord_thread(
+    bot, thread_id: int, status_message: str | None = None
+):
+    """Post a closing message, then archive and lock a Discord ticket thread.
+
+    An optional status_message (e.g. the "card moved" update) is posted first,
+    in the same coroutine, so it always lands before the thread is locked.
+    """
     try:
+        await _drop_stale_db_connection()
         thread = bot.get_channel(thread_id)
         if not thread:
             try:
@@ -606,6 +613,8 @@ async def _close_discord_thread(bot, thread_id: int):
                 )
                 return
 
+        if status_message:
+            await thread.send(content=status_message)
         await thread.send(
             content=_(
                 "🔒 This ticket has been marked as done and this thread is now closed."
@@ -618,7 +627,7 @@ async def _close_discord_thread(bot, thread_id: int):
 
 
 @shared_task
-def close_ticket_thread(thread_id: int):
+def close_ticket_thread(thread_id: int, status_message: str | None = None):
     """Celery task to archive and lock a card's Discord thread."""
     if not thread_id:
         return
@@ -628,8 +637,31 @@ def close_ticket_thread(thread_id: int):
 
         run_task_function.apply_async(
             args=["aa_kanban.tasks._close_discord_thread"],
-            kwargs={"task_args": [thread_id], "task_kwargs": {}},
+            kwargs={
+                "task_args": [thread_id],
+                "task_kwargs": {"status_message": status_message},
+            },
             queue="aadiscordbot",
         )
     except ImportError:
         logger.warning("aadiscordbot is not installed or available.")
+
+
+def dispatch_ticket_thread_move(card: Card, target_list, status_message: str) -> bool:
+    """Tell a card's Discord thread that the card moved to another column.
+
+    When the card lands in the board's last column (Done), the thread is
+    closed automatically: the status update and a closing notice are posted,
+    then the thread is archived and locked. Otherwise only the status update
+    is posted. Returns True when the thread is being closed.
+    """
+    if not card.discord_thread_id:
+        return False
+
+    last_list = target_list.board.lists.order_by("order", "id").last()
+    if last_list and last_list.pk == target_list.pk:
+        close_ticket_thread.delay(card.discord_thread_id, str(status_message))
+        return True
+
+    notify_ticket_thread.delay(card.discord_thread_id, str(status_message))
+    return False

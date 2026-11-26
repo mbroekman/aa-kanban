@@ -251,11 +251,10 @@ def test_default_routes_serve_spa_and_settings_crud(client, basic_user):
 
 
 @pytest.mark.django_db
-class TestMoveCardDiscordThreadPrompt:
-    """TASK-121: the classic move_card view notifies a card's Discord
-    thread on move and flags prompt_close_thread when the card lands in
-    the board's last list - api_move_card (used by the SPA) must do the
-    same instead of silently returning {"ok": True}."""
+class TestMoveCardDiscordThread:
+    """TASK-121/TASK-124: api_move_card (used by the SPA) notifies a card's
+    Discord thread on move, and closes the thread automatically when the
+    card lands in the board's last list."""
 
     @pytest.fixture
     def ticket_card(self, board_with_writer):
@@ -266,7 +265,7 @@ class TestMoveCardDiscordThreadPrompt:
             discord_thread_id=555666777,
         )
 
-    def test_move_notifies_thread_and_does_not_prompt_mid_board(
+    def test_move_notifies_thread_and_keeps_it_open_mid_board(
         self, client, basic_user, board_with_writer, ticket_card
     ):
         target_list = board_with_writer.lists.get(name="In Progress")
@@ -283,7 +282,7 @@ class TestMoveCardDiscordThreadPrompt:
         assert resp.status_code == 200
         payload = resp.json()
         assert payload["ok"] is True
-        assert payload["prompt_close_thread"] is False
+        assert payload["thread_closed"] is False
 
         assert mock_notify.called
         args, _kwargs = mock_notify.call_args
@@ -292,13 +291,16 @@ class TestMoveCardDiscordThreadPrompt:
         assert "In Progress" in args[1]
         assert basic_user.username in args[1]
 
-    def test_move_to_last_list_prompts_thread_close(
+    def test_move_to_last_list_closes_thread(
         self, client, basic_user, board_with_writer, ticket_card
     ):
         last_list = board_with_writer.lists.order_by("order", "id").last()
         client.force_login(basic_user)
 
-        with patch("aa_kanban.tasks.notify_ticket_thread.delay"):
+        with (
+            patch("aa_kanban.tasks.notify_ticket_thread.delay") as mock_notify,
+            patch("aa_kanban.tasks.close_ticket_thread.delay") as mock_close,
+        ):
             resp = client.post(
                 reverse(
                     "aa_kanban:spa_api_move_card", kwargs={"card_id": ticket_card.id}
@@ -307,9 +309,14 @@ class TestMoveCardDiscordThreadPrompt:
                 content_type="application/json",
             )
         assert resp.status_code == 200
-        assert resp.json()["prompt_close_thread"] is True
+        assert resp.json()["thread_closed"] is True
+        mock_notify.assert_not_called()
+        mock_close.assert_called_once()
+        args, _kwargs = mock_close.call_args
+        assert args[0] == 555666777
+        assert last_list.name in args[1]
 
-    def test_move_without_thread_never_prompts(
+    def test_move_without_thread_never_closes(
         self, client, basic_user, board_with_writer
     ):
         list_todo = board_with_writer.lists.get(name="To Do")
@@ -323,7 +330,7 @@ class TestMoveCardDiscordThreadPrompt:
             content_type="application/json",
         )
         assert resp.status_code == 200
-        assert resp.json()["prompt_close_thread"] is False
+        assert resp.json()["thread_closed"] is False
 
 
 @pytest.mark.django_db
