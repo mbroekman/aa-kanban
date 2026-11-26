@@ -593,9 +593,7 @@ def notify_ticket_thread(
         logger.warning("aadiscordbot is not installed or available.")
 
 
-async def _close_discord_thread(
-    bot, thread_id: int, status_message: str | None = None
-):
+async def _close_discord_thread(bot, thread_id: int, status_message: str | None = None):
     """Post a closing message, then archive and lock a Discord ticket thread.
 
     An optional status_message (e.g. the "card moved" update) is posted first,
