@@ -1,9 +1,9 @@
 # AA-Kanban - AI Agent Guidelines
 
 Dit project maakt integraal onderdeel uit van de Workbench 001 workspace en erft alle bindende richtlijnen van het centrale hoofd-instructiedocument:
-👉 **\[Centrale AGENTS.md\](file:///g:/My%20Drive/Workbench%20001/AGENTS.md)**
+👉 **[Centrale AGENTS.md](file:///g:/My%20Drive/Workbench%20001/AGENTS.md)**
 
-Lees tevens altijd eerst \[.agent/memory.md\](file:///g:/My%20Drive/Workbench%20001/.agent/memory.md) vóór analyse of modificatie (Regel 1 van AGENTS.md).
+Lees tevens altijd eerst [.agent/memory.md](file:///g:/My%20Drive/Workbench%20001/.agent/memory.md) vóór analyse of modificatie (Regel 1 van AGENTS.md).
 
 ______________________________________________________________________
 
@@ -17,7 +17,7 @@ ______________________________________________________________________
 
 ## 2. Bindende Centrale Regels (Inherited from Master AGENTS.md)
 
-Alle standaarden uit de centrale \[AGENTS.md\](file:///g:/My%20Drive/Workbench%20001/AGENTS.md) zijn hier onverkort van toepassing:
+Alle standaarden uit de centrale [AGENTS.md](file:///g:/My%20Drive/Workbench%20001/AGENTS.md) zijn hier onverkort van toepassing:
 
 - **Taakbeheer via Backlog.md:** Eerst taak registreren/WIP zetten in `backlog-md` vóór het schrijven of wijzigen van code. Alle taken (titels, beschrijvingen, acceptatiecriteria en notities) **MOETEN in het Engels** zijn. Afronden pas na testen, linting en type-checks.
 - **Tooling & Omgeving:** `uv` voor package management, `Ruff` (line-length 120), `mypy` strict met `django-stubs`, `pytest` en `pytest-django`.

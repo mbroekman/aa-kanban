@@ -1,15 +1,15 @@
 # AA-Kanban - Agent Guidelines
 
 > **Hoofdrichtlijn:** Dit project volgt strikt de centrale richtlijnen in het hoofd-instructiedocument:
-> 👉 **\[Workspace AGENTS.md\](file:///g:/My%20Drive/Workbench%20001/AGENTS.md)**
-> Zie tevens het lokale projectdocument: **\[AGENTS.md\](file:///g:/My%20Drive/Workbench%20001/plugins/aa-kanban/AGENTS.md)**
-> Lees tevens altijd eerst \[.agent/memory.md\](file:///g:/My%20Drive/Workbench%20001/.agent/memory.md) vóór analyse of modificaties.
+> 👉 **[Workspace AGENTS.md](file:///g:/My%20Drive/Workbench%20001/AGENTS.md)**
+> Zie tevens het lokale projectdocument: **[AGENTS.md](file:///g:/My%20Drive/Workbench%20001/plugins/aa-kanban/AGENTS.md)**
+> Lees tevens altijd eerst [.agent/memory.md](file:///g:/My%20Drive/Workbench%20001/.agent/memory.md) vóór analyse of modificaties.
 
 <!-- BACKLOG.MD MCP GUIDELINES START -->
 
 <!-- backlog.md-instructions-version: 1.53.0 -->
 
-\<CRITICAL_INSTRUCTION>
+<CRITICAL_INSTRUCTION>
 
 ## BACKLOG WORKFLOW INSTRUCTIONS
 
@@ -36,7 +36,7 @@ These guides cover:
 
 You MUST read the overview resource to understand the complete workflow. The information is NOT summarized here.
 
-\</CRITICAL_INSTRUCTION>
+</CRITICAL_INSTRUCTION>
 
 <!-- BACKLOG.MD MCP GUIDELINES END -->
 
@@ -47,4 +47,4 @@ You MUST read the overview resource to understand the complete workflow. The inf
 - **MCP & Tooling Regels:**
   - Alle `backlog-md` taken en CLI commando's worden uitgevoerd binnen de werkmap `plugins/aa-kanban`.
   - Vóór elke codewijziging: consulteer en registreer de taak via `backlog-md`.
-  - Alle Python/Django/Alliance Auth codeer-, test- en stylingstandaarden zijn gedefinieerd in \[AGENTS.md\](file:///g:/My%20Drive/Workbench%20001/AGENTS.md) en \[plugins/aa-kanban/AGENTS.md\](file:///g:/My%20Drive/Workbench%20001/plugins/aa-kanban/AGENTS.md).
+  - Alle Python/Django/Alliance Auth codeer-, test- en stylingstandaarden zijn gedefinieerd in [AGENTS.md](file:///g:/My%20Drive/Workbench%20001/AGENTS.md) en [plugins/aa-kanban/AGENTS.md](file:///g:/My%20Drive/Workbench%20001/plugins/aa-kanban/AGENTS.md).

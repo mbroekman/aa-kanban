@@ -82,4 +82,6 @@ Make a ~75 s narrated 2D instruction film for aa-kanban with the user-level stor
 
 - On Windows, replace `python3` with `python` and `.venv/bin/` with `.venv\Scripts\` in the skill's commands.
 - Present on this PC (2026-11-07): Node 22, ffmpeg 9, Python 3.15. ElevenLabs was not yet connected.
+- **2026-11-27: redo needed.** aa-kanban has since moved to the new React SPA UI; the user wants this
+  instruction film reworked to match it before any further work on the story/beats above.
 <!-- SECTION:PLAN:END -->

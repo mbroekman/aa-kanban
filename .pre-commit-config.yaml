@@ -29,6 +29,7 @@ exclude: |
     .github/|
     LICENSE|
     README\.md|
+    (AGENTS|CLAUDE|GEMINI)\.md|  # agent instructions; mdformat breaks their file:// links
     .min(.css|.css.map|.js|.js.map)|
     locale/|
     static/(.*)/libs/|
